@@ -1,0 +1,22 @@
+<?php
+/**
+ * Save an entry in the database.
+ *
+ * @param array $entry
+ *   An array containing all the fields of the database record.
+ *
+ * @see db_insert()
+ */
+function cascading_hours_entry_insert($table, $entry)
+{
+  $return_value = null;
+  try {
+    $return_value = db_insert($table)
+          ->fields($entry)
+          ->execute();
+  } catch (Exception $e) {
+    drupal_set_message(t('db_insert failed. Message = %message, query= %query',
+    array('%message' => $e->getMessage(), '%query' => $e->query_string)), 'error');
+  }
+  return $return_value;
+}

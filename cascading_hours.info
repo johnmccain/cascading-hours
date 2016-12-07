@@ -1,0 +1,5 @@
+name = Cascading Hours
+description = A module to simplify managing hours for multiple locations with complex schedules.
+package = CascadingHours
+core = 7.x
+files[] = cascading_hours.test

@@ -1,0 +1,129 @@
+<?php
+/**
+ * @file
+ * Install, update and uninstall functions for the cascading_hours module.
+ */
+
+/**
+ * Implements hook_install().
+ *
+ * @see hook_install()
+ *
+ * @ingroup cascading_hours
+ */
+function cascading_hours_install() {
+
+}
+
+/**
+ * Implements hook_schema().
+ *
+ * Defines the database tables used by this module.
+ * Remember that the easiest way to create the code for hook_schema is with
+ * the @link http://drupal.org/project/schema schema module @endlink
+ *
+ * @see hook_schema()
+ * @ingroup cascading_hours
+ */
+function cascading_hours_schema() {
+
+  $schema['cascading_hours_locations'] = array(
+    'description' => 'Stores locations to which schedule rules can be applied.',
+    'fields' => array(
+      'id'  => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique location ID.',
+      ),
+      'name' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => 'Name of the location.',
+      )
+    ),
+    'primary key' => array('id'),
+    'indexes' => array(
+      'name'    => array('name')
+    ),
+  );
+
+  $schema['cascading_hours_rules'] = array(
+    'description' => 'Stores schedule rules to be applied to a location.',
+    'fields' => array(
+      'id'  => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique rule ID.',
+      ),
+      'location_id'  => array(
+        'type' => 'bigint unsigned',
+        'not null' => TRUE,
+        'description' => 'ID of location to be applied to (FOREIGN).',
+      ),
+      'priority' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => -50,
+        'size' => 'tiny',
+        'description' => 'Priority of the rule from -50 to 50, with 50 being the highest priority.',
+      ),
+      'start_date' => array(
+        'type' => 'datetime',
+        'not null' => TRUE,
+        'description' => 'Start date of period for rule to be applied.',
+      ),
+      'end_date' => array(
+        'type' => 'datetime',
+        'not null' => TRUE,
+        'description' => 'End date of period for rule to be applied.',
+      )
+    ),
+    'primary key' => array('id'),
+    'indexes' => array(
+      'location_id' => array('location_id'),
+      'priority' => array('priority'),
+      'relevant' => array('location_id', 'priority'),
+      'relevant_date' => array('location_id', 'priority', 'start_date')
+    ),
+  );
+
+  $schema['cascading_hours_schedules'] = array(
+    'description' => 'Stores schedules which match a rule.  Stores a single time block.',
+    'fields' => array(
+      'id'  => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique schedule ID.',
+      ),
+      'rule_id'  => array(
+        'type' => 'bigint unsigned',
+        'not null' => TRUE,
+        'description' => 'ID of rule the schedule block applies to (FOREIGN).',
+      ),
+      'day'  => array(
+        'type' => 'int unsigned',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'description' => 'Day of the week, with 0 being Sunday and 6 being Saturday.',
+      ),
+      'start_time' => array(
+        'type' => 'time',
+        'not null' => TRUE,
+        'description' => 'Start time of schedule block.',
+      ),
+      'end_time' => array(
+        'type' => 'time',
+        'not null' => TRUE,
+        'description' => 'End time of schedule block.',
+      )
+    ),
+    'primary key' => array('id'),
+    'indexes' => array(
+      'rule_id' => array('rule_id')
+    ),
+  );
+
+  return $schema;
+}
