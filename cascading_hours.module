@@ -2,13 +2,15 @@
 /**
  * Save an entry in the database.
  *
+ * @param string $table
+ *   The table to insert into.
+ *
  * @param array $entry
  *   An array containing all the fields of the database record.
  *
  * @see db_insert()
  */
-function cascading_hours_entry_insert($table, $entry)
-{
+function cascading_hours_entry_insert($table, $entry) {
   $return_value = null;
   try {
     $return_value = db_insert($table)
@@ -19,4 +21,46 @@ function cascading_hours_entry_insert($table, $entry)
     array('%message' => $e->getMessage(), '%query' => $e->query_string)), 'error');
   }
   return $return_value;
+}
+
+/**
+ * Create a location with name $name if one doesn't already exist
+ *
+ * @param string $name
+ *   The name of the new location
+ */
+function cascading_hours_create_location($name) {
+  $result = db_select('cascading_hours_locations')
+            ->fields('name')
+            ->condition('name', $name, '=')
+            ->execute()
+            ->fetchAssoc();
+  if($result) {
+    //Location with name $name already exists TODO: give some kind of feedback to user
+    drupal_set_message(t('Tried to create location with name %name but one already exists.',
+    array('%name' => $name)), 'error');
+  } else {
+    //Create location
+    $entry['name'] = $name;
+    cascading_hours_entry_insert('locations', $entry);
+  }
+}
+
+/**
+ *
+ */
+function cascading_hours_delete_location($name) {
+  $result = db_select('cascading_hours_locations')
+            ->fields('name')
+            ->condition('name', $name, '=')
+            ->execute()
+            ->fetchAssoc();
+  if($result) {
+    //Location with name $name exists, delete it and all associated rules and schedules
+    //TODO: FINISH
+
+  } else {
+    drupal_set_message(t('Tried to delete location with name %name none exists.',
+    array('%name' => $name)), 'error');
+  }
 }
