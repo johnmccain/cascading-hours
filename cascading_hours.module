@@ -46,21 +46,88 @@ function cascading_hours_create_location($name) {
   }
 }
 
+
+
+/*** DELETE FUNCTIONS ***/
+
 /**
+ *  Deletes all locations with given name and all associated rules
  *
+ *  @param string $name
  */
-function cascading_hours_delete_location($name) {
-  $result = db_select('cascading_hours_locations')
-            ->fields('name')
+function cascading_hours_delete_location_with_name($name) {
+  $result = db_delete('cascading_hours_locations')
             ->condition('name', $name, '=')
+            ->execute();
+}
+
+/**
+ *  Deletes all locations with given id and all associated rules
+ *
+ *  @param int $id
+ */
+function cascading_hours_delete_location_with_name($id) {
+  $result = db_delete('cascading_hours_locations')
+            ->condition('id', $id, '=')
+            ->execute();
+}
+
+/**
+ *  Deletes all rules with given location_id and all associated schedules
+ *
+ *  @param int $location_id
+ */
+function cascading_hours_delete_rule_with_location_id($location_id) {
+  $rules = db_select('cascading_hours_rules')
+            ->fields('id', 'location_id')
+            ->condition('location_id', $location_id, '=')
             ->execute()
             ->fetchAssoc();
-  if($result) {
-    //Location with name $name exists, delete it and all associated rules and schedules
-    //TODO: FINISH
 
-  } else {
-    drupal_set_message(t('Tried to delete location with name %name none exists.',
-    array('%name' => $name)), 'error');
+  //delete rules and all associated schedules
+  foreach($rules as $rule) {
+    cascading_hours_delete_rule_with_id($rule['id']);
   }
+}
+
+/**
+ *  Deletes a rule with given id and all associated schedules
+ *
+ *  @param int $id
+ */
+function cascading_hours_delete_rule_with_id($id) {
+  $result = db_delete('cascading_hours_rules')
+            ->condition('id', $id, '=')
+            ->execute();
+
+  cascading_hours_delete_schedule_with_rule_id($id);
+}
+
+/**
+ *  Deletes all schedules with given rule_id
+ *
+ *  @param int $rule_id
+ */
+function cascading_hours_delete_schedule_with_rule_id($rule_id) {
+  $schedules = db_select('cascading_hours_schedules')
+            ->fields('id', 'rule_id')
+            ->condition('rule_id', $rule_id, '=')
+            ->execute()
+            ->fetchAssoc();
+
+  //delete schedules
+  foreach($schedules as $schedule) {
+    cascading_hours_delete_rule_with_id($schedule['id']);
+  }
+}
+
+/**
+ *  Deletes a schedule with given id
+ *
+ *  @param int $id
+ */
+function cascading_hours_delete_schedule_with_id($id) {
+  $result = db_delete('cascading_hours_schedules')
+            ->condition('id', $id, '=')
+            ->execute();
 }
