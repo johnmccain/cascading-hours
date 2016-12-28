@@ -1,12 +1,20 @@
 <?php
+/**
+ * @file
+ * Module file for Welcome Module
+ */
 
 /***  ***/
 
 /**
  *  Comparison function for sorting arrays of schedule blocks
+ *  @param array $a - schedule block
+ *  @param array $a - schedule block
+ *  @return int - negative if $a < $b, 0 if $a == $b, positive if $a > $b
  */
-function ch_block_cmp($a, $b) {
-  return strtotime($a['start']) - strtotime($b['start']);
+function ch_block_cmp($a, $b)
+{
+    return strtotime($a['start']) - strtotime($b['start']);
 }
 
 /**
@@ -16,53 +24,31 @@ function ch_block_cmp($a, $b) {
  *  @param int $start_date - timestamp of the starting date of the schedule series (used for offset)
  *  @return array - schedule array ready for json encoding
  */
-function ch_generate_schedule($schedules, $start_date) {
-  $obj = []; //schedule object (ready for output to json)
-  foreach($schedules as $key => $schedule) {
-    $date = new DateTime();
-    $date->setTimestamp($start_date + ($key * 86400));
-    $date_str = $date->format('Y-m-d ');
+function ch_generate_schedule($schedules, $start_date)
+{
+    $obj = []; //schedule object (ready for output to json)
+  foreach ($schedules as $key => $schedule) {
+      $date = new DateTime();
+      $date->setTimestamp($start_date + ($key * 86400));
+      $date_str = $date->format('Y-m-d ');
 
-    $schedule_blocks = []; //array of schedule blocks starting in the same day
-    foreach($schedule as $value) {
-      $block = []; //schedule block object with start and end datetimes
-      $block['start'] = DateTime::createFromFormat('Y-m-d H:i:s', $str . $value['start_time'])->format(DATE_ATOM);
-      $block['end'] = DateTime::createFromFormat('Y-m-d H:i:s', $str . $value['end_time'])->format(DATE_ATOM);
-      $schedule_blocks[] = $block;
-    }
-    //sort by block start time
-    usort($schedule_blocks, "ch_block_cmp");
+      $schedule_blocks = []; //array of schedule blocks starting in the same day
+                    foreach ($schedule as $value) {
+                        $block = []; //schedule block object with start and end datetimes
+                        $block['start'] = DateTime::createFromFormat('Y-m-d H:i:s', $date_str . $value['start_time'])->format(DATE_ATOM);
+                        $block['end'] = DateTime::createFromFormat('Y-m-d H:i:s', $date_str . $value['end_time'])->format(DATE_ATOM);
+                        $schedule_blocks[] = $block;
+                    }
+        //sort by block start time
+        usort($schedule_blocks, "ch_block_cmp");
 
-    $obj[] = $schedule_blocks;
+      $obj[] = $schedule_blocks;
   }
-  return $obj;
+    return $obj;
 }
+
 
 /*** CREATE FUNCTIONS ***/
-
-/**
- * Save an entry in the database.
- *
- * @param string $table
- *   The table to insert into.
- *
- * @param array $entry
- *   An array containing all the fields of the database record.
- *
- * @see db_insert()
- */
-function ch_entry_insert($table, $entry) {
-  $return_value = null;
-  try {
-    $return_value = db_insert($table)
-          ->fields($entry)
-          ->execute();
-  } catch (Exception $e) {
-    drupal_set_message(t('db_insert failed. Message = %message, query= %query',
-    array('%message' => $e->getMessage(), '%query' => $e->query_string)), 'error');
-  }
-  return $return_value;
-}
 
 /**
  * Create a location with name $name if one doesn't already exist
@@ -70,21 +56,72 @@ function ch_entry_insert($table, $entry) {
  * @param string $name
  *   The name of the new location
  */
-function ch_create_location($name) {
-  $result = db_select('cascading_hours_locations')
+function ch_create_location($name)
+{
+    $result = db_select('cascading_hours_locations')
             ->fields('name')
             ->condition('name', $name, '=')
             ->execute()
             ->fetchAssoc();
-  if($result) {
-    //Location with name $name already exists TODO: give some kind of feedback to user
+    if ($result) {
+        //Location with name $name already exists TODO: give some kind of feedback to user
     drupal_set_message(t('Tried to create location with name %name but one already exists.',
     array('%name' => $name)), 'error');
-  } else {
-    //Create location
+        return null;
+    } else {
+        //Create location
+    // $entry = [];
     $entry['name'] = $name;
-    ch_entry_insert('locations', $entry);
-  }
+        $location_id = db_insert('locations')
+          ->fields($entry)
+          ->execute();
+    }
+    return $location_id;
+}
+
+/**
+ *  Creates a rule with given attributes
+ *  @param int $location_id
+ *  @param int $priority
+ *  @param int $start_date - a unix timestamp of the start date
+ *  @param int $end_date - a unix timestamp of the end date
+ *  @param string $alias = null - optional alias for the rule
+ */
+function ch_create_rule($location_id, $priority, $start_date, $end_date, $alias = null)
+{
+    $entry = [];
+    $entry['location_id'] = $location_id;
+    $entry['priority'] = $priority;
+    $entry['start_date'] = date('Y-m-d H:i:s', $start_date);
+    $entry['end_date'] = date('Y-m-d H:i:s', $end_date);
+    if ($alias) {
+        $entry['alias'] = $alias;
+    }
+    $rule_id = db_insert('rules')
+        ->fields($entry)
+        ->execute();
+    return $rule_id;
+}
+
+/**
+ *  Inserts a new schedule into the database with given values
+ *  @param int $rule_id - the id of the schedule's rule
+ *  @param int $day - the day of the week the rule applies to (0 for Sunday, 6 for Saturday)
+ *  @param int $start_time - a unix timestamp for the starting time (date information discarded)
+ *  @param int $end_time - a unix timestamp for the ending time (date information discarded)
+ *  @return int - the inserted schedule's id
+ */
+function ch_create_schedule($rule_id, $day, $start_time, $end_time)
+{
+    $entry = [];
+    $entry['rule_id'] = $rule_id;
+    $entry['day'] = $day;
+    $entry['start_time'] = date('H:i:s', $start_time);
+    $entry['end_time'] = date('H:i:s', $end_time);
+    $schedule_id = db_insert('rules')
+        ->fields($entry)
+        ->execute();
+    return $schedule_id;
 }
 
 
@@ -93,18 +130,19 @@ function ch_create_location($name) {
 /**
  *
  */
-function ch_get_schedule_in_range_for_location_with_name($location_name, $start_date, $end_date) {
-  $location = db_select('cascading_hours_locations')
+function ch_get_schedule_in_range_for_location_with_name($location_name, $start_date, $end_date)
+{
+    $location = db_select('cascading_hours_locations')
             ->fields('id', 'name')
             ->condition('name', $name, '=')
             ->execute()
             ->fetchAssoc();
 
-  if($location['id']) {
-    ch_get_schedule_in_range_for_location_with_id($location['id']);
-  } else {
-    return [];
-  }
+    if ($location['id']) {
+        return ch_get_schedule_in_range_for_location_with_id($location['id']);
+    } else {
+        return [];
+    }
 }
 
 /**
@@ -113,48 +151,47 @@ function ch_get_schedule_in_range_for_location_with_name($location_name, $start_
  *  @param int $start_date - UNIX timestamp for start of date range
  *  @param int $end_date - UNIX timestamp for end of date range
  */
-function ch_get_schedule_in_range_for_location_with_id($location_id, $start_date, $end_date) {
+function ch_get_schedule_in_range_for_location_with_id($location_id, $start_date, $end_date)
+{
+    $rules = ch_get_rules_in_range_for_location_with_id($location_id, $start_date, $end_date);
 
-  $rules = ch_get_rules_in_range_for_location_with_id($location_id, $start_date, $end_date);
+    //array of indexes of the rule that applies on that day offset from $start_date (NULL if no applicable rule found)
+    $days_rules= [];
 
-  //array of indexes of the rule that applies on that day offset from $start_date (NULL if no applicable rule found)
-  $days_rules= [];
+    $num_days = round(($end_date - $start_date) / 86400);
 
-  $num_days = round(($end_date - $start_date) / 86400);
-
-  for($i = 0; $i < $num_days; ++$i) {
-    $day = $start_date + ($i * 86400);
-    $index = -1;
-    foreach($rules as $key => $rule) {
-      if($rule['start_date'] <= $day && $rule['end_date'] > $day) {
-        $index = $key;
-        break;
-      }
-    }
-  }
-
-  $schedules = [];
-  for($i = 0; $i < $num_days; ++$i) {
-    if($days_rules[$i]) {
-      $day_of_week = (int)date('w', $start_date + ($i * 86400));
-      $rules_schedules = ch_get_schedules_with_rule_id_and_day($rules[$days_rules[$i]]['id'], $day_of_week);
-      $day_schedule = [];
-      foreach($rules_schedules as $schedule) {
-        if($schedule['day']){
-          //refactor
-          $day_schedule[] = $schedule;
+    for ($i = 0; $i < $num_days; ++$i) {
+        $day = $start_date + ($i * 86400);
+        $index = -1;
+        foreach ($rules as $key => $rule) {
+            if ($rule['start_date'] <= $day && $rule['end_date'] > $day) {
+                $index = $key;
+                break;
+            }
         }
-      }
-      $schedules[$i] = $day_schedule;
     }
-  }
+
+    $schedules = [];
+    for ($i = 0; $i < $num_days; ++$i) {
+        if ($days_rules[$i]) {
+            $day_of_week = (int)date('w', $start_date + ($i * 86400));
+            $rules_schedules = ch_get_schedules_with_rule_id_and_day($rules[$days_rules[$i]]['id'], $day_of_week);
+            $day_schedule = [];
+            foreach ($rules_schedules as $schedule) {
+                if ($schedule['day']) {
+                    //refactor
+          $day_schedule[] = $schedule;
+                }
+            }
+            $schedules[$i] = $day_schedule;
+        }
+    }
 
   //array (indexed by day #) of schedule arrays
   return $schedules;
 
   //at this point we have an array of schedule arrays, we can return this (might want to clean up first)
   //TODO: finish, test
-
 }
 
 /**
@@ -165,8 +202,9 @@ function ch_get_schedule_in_range_for_location_with_id($location_id, $start_date
  *
  *  @return array - 2d array of rules and their fields, ordered by priority
  */
-function ch_get_rules_in_range_for_location_with_id($location_id, $start_date, $end_date) {
-  $rules = db_select('cascading_hours_rules', 'c')
+function ch_get_rules_in_range_for_location_with_id($location_id, $start_date, $end_date)
+{
+    $rules = db_select('cascading_hours_rules', 'c')
             ->fields('c')
             ->condition('location_id', $location_id, '=')
             ->condition('start_date', date('YYYY-MM-DD HH:MM:SS', $start_date), '>')
@@ -174,7 +212,7 @@ function ch_get_rules_in_range_for_location_with_id($location_id, $start_date, $
             ->orderBy('priority', 'ASC')
             ->execute()
             ->fetchAssoc();
-  return $rules;
+    return $rules;
 }
 
 /**
@@ -183,14 +221,15 @@ function ch_get_rules_in_range_for_location_with_id($location_id, $start_date, $
  *
  * @return array - a 2d array of rules and their fields
  */
-function ch_get_rules_with_location_id($location_id) {
-  $rules = db_select('cascading_hours_rules', 'c')
+function ch_get_rules_with_location_id($location_id)
+{
+    $rules = db_select('cascading_hours_rules', 'c')
             ->fields('c')
             ->condition('location_id', $location_id, '=')
             ->execute()
             ->fetchAssoc();
 
-  return $rules;
+    return $rules;
 }
 
 /**
@@ -198,13 +237,14 @@ function ch_get_rules_with_location_id($location_id) {
  *  @param int $rule_id - the rule id to filter by
  *  @return array - an array of schedules
  */
-function ch_get_schedules_with_rule_id($rule_id) {
-  $schedules = db_select('cascading_hours_schedules', 'c')
+function ch_get_schedules_with_rule_id($rule_id)
+{
+    $schedules = db_select('cascading_hours_schedules', 'c')
             ->fields('c')
             ->condition('rule_id', $rule_id, '=')
             ->execute()
             ->fetchAssoc();
-  return $schedules;
+    return $schedules;
 }
 
 /**
@@ -213,15 +253,17 @@ function ch_get_schedules_with_rule_id($rule_id) {
  *  @param int $day_of_week - the day of the week to filter by
  *  @return array - an array of schedules
  */
-function ch_get_schedules_with_rule_id_and_day($rule_id, $day_of_week) {
-  $schedules = db_select('cascading_hours_schedules', 'c')
+function ch_get_schedules_with_rule_id_and_day($rule_id, $day_of_week)
+{
+    $schedules = db_select('cascading_hours_schedules', 'c')
             ->fields('c')
             ->condition('rule_id', $rule_id, '=')
             ->condition('day', $day_of_week, '=')
             ->execute()
             ->fetchAssoc();
-  return $schedules;
+    return $schedules;
 }
+
 
 /*** DELETE FUNCTIONS ***/
 
@@ -230,16 +272,17 @@ function ch_get_schedules_with_rule_id_and_day($rule_id, $day_of_week) {
  *
  *  @param string $name
  */
-function ch_delete_location_with_name($name) {
-  $location = db_select('cascading_hours_locations')
+function ch_delete_location_with_name($name)
+{
+    $location = db_select('cascading_hours_locations')
             ->fields('id', 'name')
             ->condition('name', $name, '=')
             ->execute()
             ->fetchAssoc();
 
-  if($location['id']) {
-    ch_delete_location_with_id($location['id']);
-  }
+    if ($location['id']) {
+        ch_delete_location_with_id($location['id']);
+    }
 }
 
 /**
@@ -247,9 +290,10 @@ function ch_delete_location_with_name($name) {
  *
  *  @param int $id
  */
-function ch_delete_location_with_id($id) {
-  ch_delete_rules_with_location_id($id);
-  $result = db_delete('cascading_hours_locations')
+function ch_delete_location_with_id($id)
+{
+    ch_delete_rules_with_location_id($id);
+    $result = db_delete('cascading_hours_locations')
             ->condition('id', $id, '=')
             ->execute();
 }
@@ -259,12 +303,13 @@ function ch_delete_location_with_id($id) {
  *
  *  @param int $location_id
  */
-function ch_delete_rules_with_location_id($location_id) {
-  $rules = ch_get_rules_with_location_id($location_id);
+function ch_delete_rules_with_location_id($location_id)
+{
+    $rules = ch_get_rules_with_location_id($location_id);
 
   //delete rules and all associated schedules
-  foreach($rules as $rule) {
-    ch_delete_rule_with_id($rule['id']);
+  foreach ($rules as $rule) {
+      ch_delete_rule_with_id($rule['id']);
   }
 }
 
@@ -273,12 +318,13 @@ function ch_delete_rules_with_location_id($location_id) {
  *
  *  @param int $id
  */
-function ch_delete_rule_with_id($id) {
-  $result = db_delete('cascading_hours_rules')
+function ch_delete_rule_with_id($id)
+{
+    $result = db_delete('cascading_hours_rules')
             ->condition('id', $id, '=')
             ->execute();
 
-  ch_delete_schedule_with_rule_id($id);
+    ch_delete_schedule_with_rule_id($id);
 }
 
 /**
@@ -286,16 +332,17 @@ function ch_delete_rule_with_id($id) {
  *
  *  @param int $rule_id
  */
-function ch_delete_schedule_with_rule_id($rule_id) {
-  $schedules = db_select('cascading_hours_schedules')
+function ch_delete_schedule_with_rule_id($rule_id)
+{
+    $schedules = db_select('cascading_hours_schedules')
             ->fields('id', 'rule_id')
             ->condition('rule_id', $rule_id, '=')
             ->execute()
             ->fetchAssoc();
 
   //delete schedules
-  foreach($schedules as $schedule) {
-    ch_delete_rule_with_id($schedule['id']);
+  foreach ($schedules as $schedule) {
+      ch_delete_rule_with_id($schedule['id']);
   }
 }
 
@@ -304,8 +351,9 @@ function ch_delete_schedule_with_rule_id($rule_id) {
  *
  *  @param int $id
  */
-function ch_delete_schedule_with_id($id) {
-  $result = db_delete('cascading_hours_schedules')
+function ch_delete_schedule_with_id($id)
+{
+    $result = db_delete('cascading_hours_schedules')
             ->condition('id', $id, '=')
             ->execute();
 }

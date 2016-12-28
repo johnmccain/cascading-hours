@@ -62,11 +62,11 @@ function cascading_hours_schema()
         'not null' => true,
         'description' => 'ID of location to be applied to (FOREIGN).',
       ),
-      'name' => array(
+      'alias' => array(
         'type' => 'varchar',
         'length' => 255,
         'default' => '',
-        'description' => 'Name of the location.',
+        'description' => 'Optional alias for the rule.',
       ),
       'priority' => array(
         'type' => 'int',
