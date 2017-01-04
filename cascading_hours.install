@@ -58,7 +58,7 @@ function cascading_hours_schema()
         'description' => 'Primary Key: Unique rule ID.',
       ),
       'location_id'  => array(
-        'type' => 'bigint unsigned',
+        'type' => 'int',
         'not null' => true,
         'description' => 'ID of location to be applied to (FOREIGN).',
       ),
@@ -77,11 +77,13 @@ function cascading_hours_schema()
       ),
       'start_date' => array(
         'type' => 'datetime',
+        'mysql_type' => 'datetime',
         'not null' => true,
         'description' => 'Start date of period for rule to be applied.',
       ),
       'end_date' => array(
         'type' => 'datetime',
+        'mysql_type' => 'datetime',
         'not null' => true,
         'description' => 'End date of period for rule to be applied.',
       )
@@ -104,23 +106,25 @@ function cascading_hours_schema()
         'description' => 'Primary Key: Unique schedule ID.',
       ),
       'rule_id'  => array(
-        'type' => 'bigint unsigned',
+        'type' => 'int',
         'not null' => true,
         'description' => 'ID of rule the schedule block applies to (FOREIGN).',
       ),
       'day'  => array(
-        'type' => 'int unsigned',
+        'type' => 'int',
         'size' => 'tiny',
         'not null' => true,
         'description' => 'Day of the week, with 0 being Sunday and 6 being Saturday.',
       ),
       'start_time' => array(
-        'type' => 'time',
+        'mysql_type' => 'time',
+        'pgsql_type' => 'time without time zone',
         'not null' => true,
         'description' => 'Start time of schedule block.',
       ),
       'end_time' => array(
-        'type' => 'time',
+        'mysql_type' => 'time',
+        'pgsql_type' => 'time without time zone',
         'not null' => true,
         'description' => 'End time of schedule block.',
       )

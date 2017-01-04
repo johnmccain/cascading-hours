@@ -1,0 +1,112 @@
+<?php
+
+/**
+ * @file
+ * Tests for the cascading_hours module
+ * TODO: lot's 'o stuff (this is not finished at all)
+ */
+
+/**
+ * The CascadingHoursExampleTestCase is a functional test case, meaning that it
+ * actually exercises a particular sequence of actions through the web UI.
+ *
+ * @see DrupalWebTestCase
+ * @see CascadingHoursUnitTestExampleTestCase
+ *
+ */
+
+ class CascadingHoursExampleTestCase extends DrupalWebTestCase {
+
+  /**
+   * getInfo() returns a keyed array of information for CascadingHours to show.
+   *
+   * It's a good idea to organize your tests consistently using the 'group'
+   * key.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Cascading Hours Example',
+      'description' => 'Ensure that the cascading_hours db interactions function properly.',
+      'group' => 'Hours',
+    );
+  }
+
+  /**
+   * Set up the test environment.
+   *
+   * This method is called once per test method, before the test is executed.
+   * It gives you a chance to control the setup of the test environment.
+   *
+   * If you need a different test environment, then you should create another
+   * test class which overloads DrupalWebTestCase::setUp() differently.
+   *
+   * @see DrupalWebTestCase::setUp()
+   */
+  public function setUp() {
+    // Call parent::setUp() with the list of modules we want to enable.
+    drupal_load('module', 'cascading_hours');
+    parent::setUp('cascading_hours');
+
+  }
+
+  /**
+   * Create a cascading_hours location and test success
+   */
+  public function testCreateLocation() {
+    $location_id = ch_create_location("Test Location");
+    $testquery = db_select('cascading_hours_locations')
+              ->fields('id', 'name')
+              ->condition('id', $location_id, '=')
+              ->execute()
+              ->fetchAssoc();
+    $this->assertEqual();//FIXME
+  }
+
+  /**
+   * Create a CascadingHours_example node and then see if our user can edit it.
+   */
+  public function testCascadingHoursExampleEdit() {
+    $settings = array(
+      'type' => 'CascadingHours_example',
+      'title' => $this->randomName(32),
+      'body' => array(LANGUAGE_NONE => array(array($this->randomName(64)))),
+    );
+    $node = $this->drupalCreateNode($settings);
+
+    // For debugging, we might output the node structure with $this->verbose()
+    // It would only be output if the testing settings had 'verbose' set.
+    $this->verbose('Node created: ' . var_export($node, TRUE));
+
+    // We'll run this test normally, but not on the testbot, as it would
+    // indicate that the examples module was failing tests.
+    if (!$this->runningOnTestbot()) {
+      // The debug() statement will output information into the test results.
+      // It can also be used in Drupal 7 anywhere in code and will come out
+      // as a drupal_set_message().
+      debug('We are not running on the PIFR testing server, so will go ahead and catch the failure.');
+      $this->drupalGet("node/{$node->nid}/edit");
+      // Make sure we don't get a 401 unauthorized response:
+      $this->assertResponse(200, 'User is allowed to edit the content.');
+
+      // Looking for title text in the page to determine whether we were
+      // successful opening edit form.
+      $this->assertText(t("@title", array('@title' => $settings['title'])), "Found title in edit form");
+    }
+  }
+
+  /**
+   * Detect if we're running on PIFR testbot.
+   *
+   * Skip intentional failure in that case. It happens that on the testbot the
+   * site under test is in a directory named 'checkout' or 'site_under_test'.
+   *
+   * @return bool
+   *   TRUE if running on testbot.
+   */
+  public function runningOnTestbot() {
+    // @todo: Add this line back once the testbot variable is available.
+    // https://www.drupal.org/node/2565181
+    // return env('DRUPALCI');
+    return TRUE;
+  }
+}
