@@ -8,27 +8,112 @@
 /*** ADMIN UI ***/
 
 /**
- * Implements hook_entity_info().
+ * Implements hook_menu().
  */
+function cascading_hours_menu()
+{
+    $include_path = drupal_get_path('module', 'cascading_hours') . '/includes';
 
+    $items = [];
 
-// function profile2_entity_info() {
-//   $return = [];
-//   //...
-//   $return['cascading_hours'] = array(
-//     //... usual hook entity info implementation. TODO: what is this?
-//     'access callback' => 'cascasding_hours_type_access',
-//     'module' => 'cascading_hours',
-//     // Enable the entity API's admin UI.
-//     'admin ui' => array(
-//       'path' => 'admin/structure/hours',
-//       'file' => 'cascading_hours.admin.inc',
-//       // OPTIONAL- See "Customize the User Interface" below if you set.
-//       // 'controller class' => 'CascadingHoursTypeUIController',
-//     ),
-//   );
-//   return $return;
-// }
+    $items['admin/structure/cascading_hours'] = array(
+        'title' => 'Cascading Hours',
+        'description' => 'Manage Cascading Hours general settings.',
+        'page callback' => 'cascading_hours_admin',
+        'access arguments' => array('administer cascading hours configuration'),
+        'file' => 'cascading_hours.admin.inc',
+        'file path' => $include_path
+        );
+
+    $items['admin/structure/cascading_hours/location/%'] = array(
+        'title' => 'Cascading Hours: Edit Location',
+        'description' => 'Edit a Cascading Hours location.',
+        'page callback' => 'cascading_hours_admin_edit_location',
+        'page arguments' => array(4),
+        'access arguments' => array('administer cascading hours configuration'),
+        'file' => 'cascading_hours.admin.inc',
+        'file path' => $include_path
+        );
+
+    $items['admin/structure/cascading_hours/location/add'] = array(
+        'title' => 'Cascading Hours: Add Location',
+        'description' => 'Add a new Cascading Hours location.',
+        'page callback' => 'cascading_hours_admin_add_location',
+        'access arguments' => array('administer cascading hours configuration'),
+        'file' => 'cascading_hours.admin.inc',
+        'file path' => $include_path
+        );
+
+    $items['admin/structure/cascading_hours/location/%/delete'] = array(
+        'title' => 'Cascading Hours: Delete Location',
+        'description' => 'Delete a Cascading Hours location.',
+        'page callback' => 'cascading_hours_admin_delete_location',
+        'page arguments' => array(4),
+        'access arguments' => array('administer cascading hours configuration'),
+        'file' => 'cascading_hours.admin.inc',
+        'file path' => $include_path
+        );
+
+    $items['admin/structure/cascading_hours/rule/%'] = array(
+        'title' => 'Cascading Hours: Edit Rule',
+        'description' => 'Edit a Cascading Hours rule.',
+        'page callback' => 'cascading_hours_admin_edit_rule',
+        'page arguments' => array(4),
+        'access arguments' => array('administer cascading hours configuration'),
+        'file' => 'cascading_hours.admin.inc',
+        'file path' => $include_path
+        );
+
+    $items['admin/structure/cascading_hours/rule/add'] = array(
+        'title' => 'Cascading Hours: Add Rule',
+        'description' => 'Create a Cascading Hours rule.',
+        'page callback' => 'cascading_hours_admin_add_rule',
+        'access arguments' => array('administer cascading hours configuration'),
+        'file' => 'cascading_hours.admin.inc',
+        'file path' => $include_path
+        );
+    $items['admin/structure/cascading_hours/rule/%/delete'] = array(
+        'title' => 'Cascading Hours: Delete Rule',
+        'description' => 'Delete a Cascading Hours rule.',
+        'page callback' => 'cascading_hours_admin_delete_rule',
+        'page arguments' => array(4),
+        'access arguments' => array('administer cascading hours configuration'),
+        'file' => 'cascading_hours.admin.inc',
+        'file path' => $include_path
+        );
+    return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function cascading_hours_permission()
+{
+    return array(
+    'administer cascading hours configuration' => array(
+      'title' => t('Administer cascading hours configuration'),
+      'description' => t('Allows the user to configure all cascading hours general settings and create/edit/delete locations and rules.'),
+    )
+    );
+}
+
+/**
+ * Implements hook_admin_paths().
+ */
+function cascading_hours_admin_paths()
+{
+    return array(
+    'admin/structure/cascading_hours' => true,
+    'admin/structure/cascading_hours/*' => true,
+    'admin/structure/cascading_hours/location/add' => true,
+    'admin/structure/cascading_hours/location/*' => true,
+    'admin/structure/cascading_hours/location/*/delete' => true,
+    'admin/structure/cascading_hours/rule/*' => true,
+    'admin/structure/cascading_hours/rule/add' => true,
+    'admin/structure/cascading_hours/rule/*/delete' => true
+
+    );
+}
 
 /***  ***/
 
@@ -207,13 +292,11 @@ function ch_get_schedule_in_range_for_location_with_id($location_id, $start_date
 
 
     $rules = ch_query_to_array($rules);
-    echo '<p>$rules length: ' . sizeof($rules) . '</p>';
 
     //array of indexes of the rule that applies on that day offset from $start_date (NULL if no applicable rule found)
     $days_rules= [];
 
     $num_days = round(($end_date - $start_date) / 86400);
-    echo '<p>$num_days = ' . $num_days . '</p>';
 
     for ($i = 0; $i < $num_days; ++$i) {
         $day = $start_date + ($i * 86400);
@@ -224,9 +307,6 @@ function ch_get_schedule_in_range_for_location_with_id($location_id, $start_date
             }
         }
     }
-
-    echo '<p>$days_rules length: ' . sizeof($days_rules) . '</p>';
-
 
     $schedules = [];
 
@@ -265,6 +345,38 @@ function ch_concat_rules_with_schedules($rules)
 }
 
 /**
+ *  Finds all locations and returns an associative array of their ids and names
+ *
+ *  @return array - 2d keyed array of locations
+ */
+function ch_get_locations()
+{
+    $locations = db_select('cascading_hours_locations', 'c')
+            ->fields('c')
+            ->execute();
+    $arr = [];
+    while($loc = $locations->fetchAssoc()) {
+        $arr[] = $loc;
+    }
+    return $arr;
+}
+
+/**
+ *  Finds all locations and returns an associative array of their ids and names
+ *
+ *  @return array - 2d keyed array of locations
+ */
+function ch_get_location_with_id($location_id)
+{
+    $location = db_select('cascading_hours_locations', 'c')
+            ->fields('c')
+            ->condition('id', $location_id, '=')
+            ->execute()
+            ->fetchAssoc();
+    return $location;
+}
+
+/**
  *  Finds all rules for a location within a given range
  *
  *  @param int $location_id
@@ -296,7 +408,7 @@ function ch_get_rules_in_range_for_location_with_id($location_id, $start_date, $
  * Returns an array of rules with the given location_id
  *
  * @param  int $location_id - the location_id to find matching rules for
- * @return array - a 2d array of rules and their fields
+ * @return array - a 2d keyed array of rules and their fields
  */
 function ch_get_rules_with_location_id($location_id)
 {
@@ -304,7 +416,27 @@ function ch_get_rules_with_location_id($location_id)
             ->fields('c')
             ->condition('location_id', $location_id, '=')
             ->execute();
-    return $rules;
+    $arr = [];
+    while($rule = $rules->fetchAssoc()) {
+        $arr[] = $rule;
+    }
+    return $arr;
+}
+
+/**
+ * Returns the rule with a given id
+ *
+ * @param  int $rule_id - the id of the rule to find
+ * @return array - an array of the rule's fields (empty if none found)
+ */
+function ch_get_rule_with_id($rule_id)
+{
+    $rule = db_select('cascading_hours_rules', 'c')
+            ->fields('c')
+            ->condition('id', $rule_id, '=')
+            ->execute()
+            ->fetchAssoc();
+    return $rule;
 }
 
 /**
@@ -339,11 +471,29 @@ function ch_get_schedules_with_rule_id_and_day($rule_id, $day_of_week)
     return $schedules;
 }
 
+/*** UPDATE FUNCTIONS ***/
+
+/**
+ * Update a location
+ */
+function ch_update_location_with_id($location_id, $name = null)
+{
+    if($name) {
+        db_update('cascading_hours_locations') // Table name no longer needs {}
+        ->fields(
+            array(
+            'name' => $name
+            )
+        )
+        ->condition('id', $location_id, '=')
+        ->execute();
+    }
+}
 
 /*** DELETE FUNCTIONS ***/
 
 /**
- *  Deletes all locations with given name and all associated rules
+ *  Deletes location with given name and all associated rules
  *
  *  @param string $name
  */
@@ -361,7 +511,7 @@ function ch_delete_location_with_name($name)
 }
 
 /**
- *  Deletes all locations with given id and all associated rules
+ *  Deletes location with given id and all associated rules
  *
  *  @param int $id
  */
