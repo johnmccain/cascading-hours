@@ -475,8 +475,10 @@ function ch_get_schedules_with_rule_id_and_day($rule_id, $day_of_week)
 
 /**
  * Update a location
+ * @param int $location_id
+ * @param
  */
-function ch_update_location_with_id($location_id, $name = null)
+function ch_update_location($location_id, $name = null)
 {
     if($name) {
         db_update('cascading_hours_locations') // Table name no longer needs {}
@@ -488,6 +490,35 @@ function ch_update_location_with_id($location_id, $name = null)
         ->condition('id', $location_id, '=')
         ->execute();
     }
+}
+
+/**
+ *  Creates a rule with given attributes
+ *
+ *  @param int    $rule_id
+ *  @param int    $location_id
+ *  @param int    $priority
+ *  @param int    $start_date  - a unix timestamp of the start date
+ *  @param int    $end_date    - a unix timestamp of the end date
+ *  @param string $alias       = null - optional alias for the rule
+ */
+function ch_update_rule($rule_id, $location_id, $priority, $start_date, $end_date, $alias = NULL)
+{
+    if(!($rule_id != NULL && $location_id != NULL && $priority != NULL && $start_date && $end_date)) {
+        return;
+    }
+    $entry = [];
+    $entry['location_id'] = $location_id;
+    $entry['priority'] = $priority;
+    $entry['start_date'] = date('Y-m-d H:i:s', $start_date);
+    $entry['end_date'] = date('Y-m-d H:i:s', $end_date);
+    if ($alias) {
+        $entry['alias'] = $alias;
+    }
+    db_update('cascading_hours_rules')
+        ->fields($entry)
+        ->condition('id', $rule_id, '=')
+        ->execute();
 }
 
 /*** DELETE FUNCTIONS ***/
