@@ -58,7 +58,7 @@ function cascading_hours_admin_edit_location($location_id) {
       $page .= "<td>" . DateTime::createFromFormat('Y-m-d H:i:s', $rule['start_date'])->format('m/d/Y') ."</td>";
       $page .= "<td>" . DateTime::createFromFormat('Y-m-d H:i:s', $rule['end_date'])->format('m/d/Y') ."</td>";
       $page .= "<td>" . $rule['priority'] . "</td>";
-      $page .= "<td>" . l(t("delete"), "admin/structure/cascading_hours/rule/$rule_id/delete", array('query' => array('location' => $location['id']))) . "</td></tr>";
+      $page .= "<td>" . l(t("delete"), "admin/structure/cascading_hours/rule/$rule_id/delete") . "</td></tr>";
     }
     $page .= "</table><hr/>";
     $page .= l(t("Go back"), "admin/structure/cascading_hours");
@@ -353,11 +353,8 @@ function cascading_hours_admin_add_rule_form_submit($form, &$form_state) {
 function cascading_hours_admin_delete_rule($rule_id) {
   $rule = ch_get_rule_with_id($rule_id);
 
-  $location_id = isset($_GET['location']) ? (int) $_GET['location'] : NULL;
-  $location = [];
-  if($location_id != NULL) {
-    $location = ch_get_location_with_id($location_id);
-  }
+  $location_id = $rule['location_id'];
+  $location = ch_get_location_with_id($location_id);
 
   if(isset($rule['id'])) {
     //rule exists
@@ -766,6 +763,7 @@ function cascading_hours_admin_generate_schedule_table($rule_id) {
 
   $schedules = ch_get_schedules_with_rule_id($rule_id);
   $table = "<table><tr><th>" . t("id") . "</th><th>" . t("Day") . "</th><th>" . t("Start Time") . "</th><th>" . t("End Time") . "</th><th></th></tr>";
+  echo "<script>'console.log(" . JSON_ENCODE($schedules) . ")'</script>";
 
   if($schedules == []) {
     $table .= "<tr><td colspan='5'>" . t("No schedules found") . "</td></tr>";
@@ -776,7 +774,6 @@ function cascading_hours_admin_generate_schedule_table($rule_id) {
     $table .= "<td>" . $day_string[$schedule['day']] . "</td>";
     $table .= "<td>" . date('H:i', strtotime($schedule['start_time'])) ."</td>";
     $table .= "<td>" . date('H:i', strtotime($schedule['end_time'])) ."</td>";
-    //TODO: implement delete schedule
     $table .= "<td>" . l(t("delete"), "admin/structure/cascading_hours/schedule/" . $schedule['id'] . "/delete") . "</td></tr>";
   }
   $table .= "</table>";

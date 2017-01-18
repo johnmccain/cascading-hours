@@ -1,6 +1,6 @@
 name = Cascading Hours
 description = A module to simplify managing hours for multiple locations with complex schedules.
-package = Hours
+dependencies[] = date_popup
 core = 7.x
 configure = admin/structure/cascading_hours
 
