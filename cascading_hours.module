@@ -81,6 +81,15 @@ function cascading_hours_menu()
         'file' => 'cascading_hours.admin.inc',
         'file path' => $include_path
         );
+    $items['admin/structure/cascading_hours/schedule/%/delete'] = array(
+        'title' => 'Cascading Hours: Delete Schedule',
+        'description' => 'Delete a Cascading Hours schedule.',
+        'page callback' => 'cascading_hours_admin_delete_schedule',
+        'page arguments' => array(4),
+        'access arguments' => array('administer cascading hours configuration'),
+        'file' => 'cascading_hours.admin.inc',
+        'file path' => $include_path
+        );
     return $items;
 }
 
@@ -451,7 +460,11 @@ function ch_get_schedules_with_rule_id($rule_id)
             ->fields('c')
             ->condition('rule_id', $rule_id, '=')
             ->execute();
-    return $schedules;
+    $arr = [];
+    while($sched = $schedules->fetchAssoc()) {
+        $arr[] = $sched;
+    }
+    return $arr;
 }
 
 /**
@@ -469,6 +482,22 @@ function ch_get_schedules_with_rule_id_and_day($rule_id, $day_of_week)
             ->condition('day', $day_of_week, '=')
             ->execute();
     return $schedules;
+}
+
+/**
+ *  Returns the schedule with specified id
+ *  @param  int $id - the schedule's id
+ *  @param  int $day_of_week - the day of the week to filter by
+ *  @return array - an array of schedules
+ */
+function ch_get_schedule_with_id($id)
+{
+    $schedule = db_select('cascading_hours_schedules', 'c')
+            ->fields('c')
+            ->condition('id', $id, '=')
+            ->execute()
+            ->fetchAssoc();
+    return $schedule;
 }
 
 /*** UPDATE FUNCTIONS ***/
