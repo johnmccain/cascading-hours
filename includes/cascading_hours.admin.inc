@@ -744,12 +744,22 @@ function cascading_hours_admin_delete_schedule_form_submit($form, &$form_state) 
 }
 
 /**
+ *  Comparison function for sorting arrays of schedule blocks
+ *
+ *  @param  array $a - schedule
+ *  @param  array $b - schedule
+ *  @return int - negative if $a < $b, 0 if $a == $b, positive if $a > $b
+ */
+function cascading_hours_day_cmp($a, $b) {
+    return $a['day'] - $b['day'];
+}
+
+/**
  * Generates the markup for a table of schedules with a given rule id
  * @param int $rule_id
  * @return string - A string of markup for a table of schedules
  */
 function cascading_hours_admin_generate_schedule_table($rule_id) {
-  //TODO: make schedules sorted by day
 
   $day_string = array(
     0 => 'Sun',
@@ -762,13 +772,12 @@ function cascading_hours_admin_generate_schedule_table($rule_id) {
   );
 
   $schedules = ch_get_schedules_with_rule_id($rule_id);
-  $table = "<table><tr><th>" . t("id") . "</th><th>" . t("Day") . "</th><th>" . t("Start Time") . "</th><th>" . t("End Time") . "</th><th></th></tr>";
-  echo "<script>'console.log(" . JSON_ENCODE($schedules) . ")'</script>";
+  usort($schedules, "cascading_hours_day_cmp");
 
+  $table = "<table><tr><th>" . t("id") . "</th><th>" . t("Day") . "</th><th>" . t("Start Time") . "</th><th>" . t("End Time") . "</th><th></th></tr>";
   if($schedules == []) {
     $table .= "<tr><td colspan='5'>" . t("No schedules found") . "</td></tr>";
   }
-
   foreach($schedules as $schedule) {
     $table .= "<tr><td>" . $schedule['id'] . "</td>";
     $table .= "<td>" . $day_string[$schedule['day']] . "</td>";

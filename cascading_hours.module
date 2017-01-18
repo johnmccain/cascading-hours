@@ -124,13 +124,13 @@ function cascading_hours_admin_paths()
     );
 }
 
-/***  ***/
+/*** Cascading Algorithm Functions ***/
 
 /**
  *  Comparison function for sorting arrays of schedule blocks
  *
  *  @param  array $a - schedule block
- *  @param  array $a - schedule block
+ *  @param  array $b - schedule block
  *  @return int - negative if $a < $b, 0 if $a == $b, positive if $a > $b
  */
 function ch_block_cmp($a, $b)
@@ -486,7 +486,8 @@ function ch_get_schedules_with_rule_id_and_day($rule_id, $day_of_week)
 
 /**
  *  Returns the schedule with specified id
- *  @param  int $id - the schedule's id
+ *
+ *  @param  int $id          - the schedule's id
  *  @param  int $day_of_week - the day of the week to filter by
  *  @return array - an array of schedules
  */
@@ -504,6 +505,7 @@ function ch_get_schedule_with_id($id)
 
 /**
  * Update a location
+ *
  * @param int $location_id
  * @param
  */
@@ -531,9 +533,9 @@ function ch_update_location($location_id, $name = null)
  *  @param int    $end_date    - a unix timestamp of the end date
  *  @param string $alias       = null - optional alias for the rule
  */
-function ch_update_rule($rule_id, $location_id, $priority, $start_date, $end_date, $alias = NULL)
+function ch_update_rule($rule_id, $location_id, $priority, $start_date, $end_date, $alias = null)
 {
-    if(!($rule_id != NULL && $location_id != NULL && $priority != NULL && $start_date && $end_date)) {
+    if(!($rule_id != null && $location_id != null && $priority != null && $start_date && $end_date)) {
         return;
     }
     $entry = [];
