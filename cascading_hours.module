@@ -3,129 +3,146 @@
  * @file
  * Module file for Cascading Hours module
  */
-
-
 /*** ADMIN UI ***/
-
 /**
  * Implements hook_menu().
  */
+
 function cascading_hours_menu()
 {
     $include_path = drupal_get_path('module', 'cascading_hours') . '/includes';
-
     $items = [];
-
     $items['admin/structure/cascading_hours'] = array(
         'title' => 'Cascading Hours',
         'description' => 'Manage Cascading Hours general settings.',
         'page callback' => 'cascading_hours_admin',
-        'access arguments' => array('administer cascading hours configuration'),
+        'access arguments' => array(
+            'administer cascading hours configuration'
+        ) ,
         'file' => 'cascading_hours.admin.inc',
         'file path' => $include_path
-        );
-
+    );
     $items['admin/structure/cascading_hours/location/%'] = array(
         'title' => 'Cascading Hours: Edit Location',
         'description' => 'Edit a Cascading Hours location.',
         'page callback' => 'cascading_hours_admin_edit_location',
-        'page arguments' => array(4),
-        'access arguments' => array('administer cascading hours configuration'),
+        'page arguments' => array(
+            4
+        ) ,
+        'access arguments' => array(
+            'administer cascading hours configuration'
+        ) ,
         'file' => 'cascading_hours.admin.inc',
         'file path' => $include_path
-        );
-
+    );
     $items['admin/structure/cascading_hours/location/add'] = array(
         'title' => 'Cascading Hours: Add Location',
         'description' => 'Add a new Cascading Hours location.',
         'page callback' => 'cascading_hours_admin_add_location',
-        'access arguments' => array('administer cascading hours configuration'),
+        'access arguments' => array(
+            'administer cascading hours configuration'
+        ) ,
         'file' => 'cascading_hours.admin.inc',
         'file path' => $include_path
-        );
-
+    );
     $items['admin/structure/cascading_hours/location/%/delete'] = array(
         'title' => 'Cascading Hours: Delete Location',
         'description' => 'Delete a Cascading Hours location.',
         'page callback' => 'cascading_hours_admin_delete_location',
-        'page arguments' => array(4),
-        'access arguments' => array('administer cascading hours configuration'),
+        'page arguments' => array(
+            4
+        ) ,
+        'access arguments' => array(
+            'administer cascading hours configuration'
+        ) ,
         'file' => 'cascading_hours.admin.inc',
         'file path' => $include_path
-        );
-
+    );
     $items['admin/structure/cascading_hours/rule/%'] = array(
         'title' => 'Cascading Hours: Edit Rule',
         'description' => 'Edit a Cascading Hours rule.',
         'page callback' => 'cascading_hours_admin_edit_rule',
-        'page arguments' => array(4),
-        'access arguments' => array('administer cascading hours configuration'),
+        'page arguments' => array(
+            4
+        ) ,
+        'access arguments' => array(
+            'administer cascading hours configuration'
+        ) ,
         'file' => 'cascading_hours.admin.inc',
         'file path' => $include_path
-        );
-
+    );
     $items['admin/structure/cascading_hours/rule/add'] = array(
         'title' => 'Cascading Hours: Add Rule',
         'description' => 'Create a Cascading Hours rule.',
         'page callback' => 'cascading_hours_admin_add_rule',
-        'access arguments' => array('administer cascading hours configuration'),
+        'access arguments' => array(
+            'administer cascading hours configuration'
+        ) ,
         'file' => 'cascading_hours.admin.inc',
         'file path' => $include_path
-        );
+    );
     $items['admin/structure/cascading_hours/rule/%/delete'] = array(
         'title' => 'Cascading Hours: Delete Rule',
         'description' => 'Delete a Cascading Hours rule.',
         'page callback' => 'cascading_hours_admin_delete_rule',
-        'page arguments' => array(4),
-        'access arguments' => array('administer cascading hours configuration'),
+        'page arguments' => array(
+            4
+        ) ,
+        'access arguments' => array(
+            'administer cascading hours configuration'
+        ) ,
         'file' => 'cascading_hours.admin.inc',
         'file path' => $include_path
-        );
+    );
     $items['admin/structure/cascading_hours/schedule/%/delete'] = array(
         'title' => 'Cascading Hours: Delete Schedule',
         'description' => 'Delete a Cascading Hours schedule.',
         'page callback' => 'cascading_hours_admin_delete_schedule',
-        'page arguments' => array(4),
-        'access arguments' => array('administer cascading hours configuration'),
+        'page arguments' => array(
+            4
+        ) ,
+        'access arguments' => array(
+            'administer cascading hours configuration'
+        ) ,
         'file' => 'cascading_hours.admin.inc',
         'file path' => $include_path
-        );
+    );
     return $items;
 }
 
 /**
  * Implements hook_permission().
  */
+
 function cascading_hours_permission()
 {
     return array(
-    'administer cascading hours configuration' => array(
-      'title' => t('Administer cascading hours configuration'),
-      'description' => t('Allows the user to configure all cascading hours general settings and create/edit/delete locations and rules.'),
-    )
+        'administer cascading hours configuration' => array(
+            'title' => t('Administer cascading hours configuration') ,
+            'description' => t('Allows the user to configure all cascading hours general settings and create/edit/delete locations and rules.') ,
+        )
     );
 }
 
 /**
  * Implements hook_admin_paths().
  */
+
 function cascading_hours_admin_paths()
 {
     return array(
-    'admin/structure/cascading_hours' => true,
-    'admin/structure/cascading_hours/*' => true,
-    'admin/structure/cascading_hours/location/add' => true,
-    'admin/structure/cascading_hours/location/*' => true,
-    'admin/structure/cascading_hours/location/*/delete' => true,
-    'admin/structure/cascading_hours/rule/*' => true,
-    'admin/structure/cascading_hours/rule/add' => true,
-    'admin/structure/cascading_hours/rule/*/delete' => true
-
+        'admin/structure/cascading_hours' => true,
+        'admin/structure/cascading_hours/*' => true,
+        'admin/structure/cascading_hours/location/add' => true,
+        'admin/structure/cascading_hours/location/*' => true,
+        'admin/structure/cascading_hours/location/*/delete' => true,
+        'admin/structure/cascading_hours/rule/*' => true,
+        'admin/structure/cascading_hours/rule/add' => true,
+        'admin/structure/cascading_hours/rule/*/delete' => true
     );
 }
 
 /*** Cascading Algorithm Functions ***/
-
 /**
  *  Comparison function for sorting arrays of schedule blocks
  *
@@ -133,6 +150,7 @@ function cascading_hours_admin_paths()
  *  @param  array $b - schedule block
  *  @return int - negative if $a < $b, 0 if $a == $b, positive if $a > $b
  */
+
 function ch_block_cmp($a, $b)
 {
     return strtotime($a['start']) - strtotime($b['start']);
@@ -144,12 +162,14 @@ function ch_block_cmp($a, $b)
  *  @param  DatabaseConnection_mysql $query - the query to transform
  *  @return array - the query as a keyed array
  */
+
 function ch_query_to_array($query)
 {
     $arr = [];
-    while($row = $query->fetchAssoc()) {
+    while ($row = $query->fetchAssoc()) {
         $arr[] = $row;
     }
+
     return $arr;
 }
 
@@ -161,62 +181,60 @@ function ch_query_to_array($query)
  *  @param  int   $start_date - timestamp of the starting date of the schedule series (used for offset)
  *  @return array - schedule array ready for json encoding
  */
+
 function ch_generate_schedule($schedules, $start_date)
 {
     $obj = []; //schedule object (ready for output to json)
-    foreach ($schedules as $key => $schedule) {
+    foreach($schedules as $key => $schedule) {
         $date = new DateTime();
         $date->setTimestamp($start_date + ($key * 86400));
         $date_str = $date->format('Y-m-d ');
-
         $schedule_blocks = []; //array of schedule blocks starting in the same day
-        foreach ($schedule as $value) {
+        foreach($schedule as $value) {
             $block = []; //schedule block object with start and end datetimes
             $block['start'] = DateTime::createFromFormat('Y-m-d H:i:s', $date_str . $value['start_time'])->format(DATE_ATOM);
             $block['end'] = DateTime::createFromFormat('Y-m-d H:i:s', $date_str . $value['end_time'])->format(DATE_ATOM);
             $schedule_blocks[] = $block;
         }
-        //sort by block start time
-        usort($schedule_blocks, "ch_block_cmp");
 
+        // sort by block start time
+
+        usort($schedule_blocks, "ch_block_cmp");
         $obj[] = $schedule_blocks;
     }
+
     return $obj;
 }
 
-
 /*** CREATE FUNCTIONS ***/
-
 /**
  * Create a location with name $name if one doesn't already exist
  *
  * @param string $name
  *   The name of the new location
  */
+
 function ch_create_location($name)
 {
-    $result = db_select('cascading_hours_locations', 'c')
-            ->fields('c')
-            ->condition('name', $name, '=')
-            ->execute()
-            ->fetchAssoc();
+    $result = db_select('cascading_hours_locations', 'c')->fields('c')->condition('name', $name, '=')->execute()->fetchAssoc();
     if ($result) {
-        //Location with name $name already exists TODO: give some kind of feedback to user
-        drupal_set_message(
-            t(
-                'Tried to create location with name %name but one already exists.',
-                array('%name' => $name)
-            ), 'error'
-        );
+
+        // Location with name $name already exists TODO: give some kind of feedback to user
+
+        drupal_set_message(t('Tried to create location with name %name but one already exists.', array(
+            '%name' => $name
+        )) , 'error');
         return null;
-    } else {
-        //Create location
-        // $entry = [];
-        $entry['name'] = $name;
-        $location_id = db_insert('cascading_hours_locations')
-          ->fields($entry)
-          ->execute();
     }
+    else {
+
+        // Create location
+        // $entry = [];
+
+        $entry['name'] = $name;
+        $location_id = db_insert('cascading_hours_locations')->fields($entry)->execute();
+    }
+
     return $location_id;
 }
 
@@ -229,6 +247,7 @@ function ch_create_location($name)
  *  @param int    $end_date    - a unix timestamp of the end date
  *  @param string $alias       = null - optional alias for the rule
  */
+
 function ch_create_rule($location_id, $priority, $start_date, $end_date, $alias = null)
 {
     $entry = [];
@@ -239,9 +258,8 @@ function ch_create_rule($location_id, $priority, $start_date, $end_date, $alias 
     if ($alias) {
         $entry['alias'] = $alias;
     }
-    $rule_id = db_insert('cascading_hours_rules')
-        ->fields($entry)
-        ->execute();
+
+    $rule_id = db_insert('cascading_hours_rules')->fields($entry)->execute();
     return $rule_id;
 }
 
@@ -254,6 +272,7 @@ function ch_create_rule($location_id, $priority, $start_date, $end_date, $alias 
  *  @param  int $end_time   - a unix timestamp for the ending time (date information discarded)
  *  @return int - the inserted schedule's id
  */
+
 function ch_create_schedule($rule_id, $day, $start_time, $end_time)
 {
     $entry = [];
@@ -261,31 +280,26 @@ function ch_create_schedule($rule_id, $day, $start_time, $end_time)
     $entry['day'] = $day;
     $entry['start_time'] = date('H:i:s', $start_time);
     $entry['end_time'] = date('H:i:s', $end_time);
-    $schedule_id = db_insert('cascading_hours_schedules')
-        ->fields($entry)
-        ->execute();
+    $schedule_id = db_insert('cascading_hours_schedules')->fields($entry)->execute();
     return $schedule_id;
 }
 
-
 /*** GET FUNCTIONS ***/
-
 /**
-*
-*/
+ *
+ */
+
 function ch_get_schedule_in_range_for_location_with_name($location_name, $start_date, $end_date)
 {
-    $location = db_select('cascading_hours_locations', 'c')
-    ->fields('c')
-    ->condition('name', $location_name, '=')
-    ->execute()
-    ->fetchAssoc();
-
+    $location = db_select('cascading_hours_locations', 'c')->fields('c')->condition('name', $location_name, '=')->execute()->fetchAssoc();
     if ($location['id']) {
         return ch_get_schedule_in_range_for_location_with_id($location['id'], $start_date, $end_date);
-    } else {
+    }
+    else {
         echo "<h3>No name match!</h3>";
-        return array('error' => 'no such location');
+        return array(
+            'error' => 'no such location'
+        );
     }
 }
 
@@ -295,21 +309,19 @@ function ch_get_schedule_in_range_for_location_with_name($location_name, $start_
  *  @param int $start_date  - UNIX timestamp for start of date range
  *  @param int $end_date    - UNIX timestamp for end of date range
  */
+
 function ch_get_schedule_in_range_for_location_with_id($location_id, $start_date, $end_date)
 {
     $rules = ch_get_rules_in_range_for_location_with_id($location_id, $start_date, $end_date);
-
-
     $rules = ch_query_to_array($rules);
 
-    //array of indexes of the rule that applies on that day offset from $start_date (NULL if no applicable rule found)
-    $days_rules= [];
+    // array of indexes of the rule that applies on that day offset from $start_date (NULL if no applicable rule found)
 
+    $days_rules = [];
     $num_days = round(($end_date - $start_date) / 86400);
-
     for ($i = 0; $i < $num_days; ++$i) {
         $day = $start_date + ($i * 86400);
-        foreach ($rules as $rule) {
+        foreach($rules as $rule) {
             if (strtotime($rule['start_date']) <= $day && strtotime($rule['end_date']) > $day) {
                 $days_rules[$i] = $rule;
                 break;
@@ -318,25 +330,27 @@ function ch_get_schedule_in_range_for_location_with_id($location_id, $start_date
     }
 
     $schedules = [];
-
     foreach($days_rules as $i => $rule) {
         $day_of_week = (int)date('w', $start_date + ($i * 86400));
         $rules_schedules = ch_get_schedules_with_rule_id_and_day($rule['id'], $day_of_week);
         $day_schedule = [];
-        foreach ($rules_schedules as $schedule) {
-            $schedule = json_decode(json_encode($schedule), true); //convert from object to array
+        foreach($rules_schedules as $schedule) {
+            $schedule = json_decode(json_encode($schedule) , true); //convert from object to array
             if (array_key_exists('day', $schedule)) {
                 $day_schedule[] = $schedule;
             }
         }
+
         $schedules[$i] = $day_schedule;
     }
 
-    //array (indexed by day #) of schedule arrays
+    // array (indexed by day #) of schedule arrays
+
     return $schedules;
 
-    //at this point we have an array of schedule arrays, we can return this (might want to clean up first)
-    //TODO: finish, test
+    // at this point we have an array of schedule arrays, we can return this (might want to clean up first)
+    // TODO: finish, test
+
 }
 
 /**
@@ -345,11 +359,13 @@ function ch_get_schedule_in_range_for_location_with_id($location_id, $start_date
  *  @param  array $rules - a 2d array of rules and their fields
  *  @return array - a 2d array of rules and their fields with schedules property
  */
+
 function ch_concat_rules_with_schedules($rules)
 {
     foreach($rules as $rule) {
         $rule['schedules'] = ch_get_schedules_with_rule_id($rule['id']);
     }
+
     return $rules;
 }
 
@@ -358,15 +374,15 @@ function ch_concat_rules_with_schedules($rules)
  *
  *  @return array - 2d keyed array of locations
  */
+
 function ch_get_locations()
 {
-    $locations = db_select('cascading_hours_locations', 'c')
-            ->fields('c')
-            ->execute();
+    $locations = db_select('cascading_hours_locations', 'c')->fields('c')->execute();
     $arr = [];
-    while($loc = $locations->fetchAssoc()) {
+    while ($loc = $locations->fetchAssoc()) {
         $arr[] = $loc;
     }
+
     return $arr;
 }
 
@@ -375,13 +391,10 @@ function ch_get_locations()
  *
  *  @return array - 2d keyed array of locations
  */
+
 function ch_get_location_with_id($location_id)
 {
-    $location = db_select('cascading_hours_locations', 'c')
-            ->fields('c')
-            ->condition('id', $location_id, '=')
-            ->execute()
-            ->fetchAssoc();
+    $location = db_select('cascading_hours_locations', 'c')->fields('c')->condition('id', $location_id, '=')->execute()->fetchAssoc();
     return $location;
 }
 
@@ -394,22 +407,16 @@ function ch_get_location_with_id($location_id)
  *
  *  @return array - 2d array of rules and their fields, ordered by priority
  */
+
 function ch_get_rules_in_range_for_location_with_id($location_id, $start_date, $end_date)
 {
 
     // select * from cascading_hours_rules where location_id = $location_id and start_date >= $start_date and end_date <= $end_date order by priority asc;
 
-    $rules = db_select('cascading_hours_rules', 'c')
-            ->fields('c')
-            ->condition('location_id', $location_id, '=')
-            ->condition(
-                db_or()
-                ->condition('start_date', date('Y-m-d H:i:s', $end_date), '<=')
-                ->condition('end_date', date('Y-m-d H:i:s', $start_date), '>=')
-            )
-            ->orderBy('priority', 'ASC')
-            ->execute();
+    $rules = db_select('cascading_hours_rules', 'c')->fields('c')->condition('location_id', $location_id, '=')->condition(db_or()->condition('start_date', date('Y-m-d H:i:s', $end_date) , '<=')->condition('end_date', date('Y-m-d H:i:s', $start_date) , '>='))->orderBy('priority', 'ASC')->execute();
+
     // echo '<code>' . json_encode(ch_query_to_array($rules)) . '</code>';
+
     return $rules;
 }
 
@@ -419,16 +426,15 @@ function ch_get_rules_in_range_for_location_with_id($location_id, $start_date, $
  * @param  int $location_id - the location_id to find matching rules for
  * @return array - a 2d keyed array of rules and their fields
  */
+
 function ch_get_rules_with_location_id($location_id)
 {
-    $rules = db_select('cascading_hours_rules', 'c')
-            ->fields('c')
-            ->condition('location_id', $location_id, '=')
-            ->execute();
+    $rules = db_select('cascading_hours_rules', 'c')->fields('c')->condition('location_id', $location_id, '=')->execute();
     $arr = [];
-    while($rule = $rules->fetchAssoc()) {
+    while ($rule = $rules->fetchAssoc()) {
         $arr[] = $rule;
     }
+
     return $arr;
 }
 
@@ -438,13 +444,10 @@ function ch_get_rules_with_location_id($location_id)
  * @param  int $rule_id - the id of the rule to find
  * @return array - an array of the rule's fields (empty if none found)
  */
+
 function ch_get_rule_with_id($rule_id)
 {
-    $rule = db_select('cascading_hours_rules', 'c')
-            ->fields('c')
-            ->condition('id', $rule_id, '=')
-            ->execute()
-            ->fetchAssoc();
+    $rule = db_select('cascading_hours_rules', 'c')->fields('c')->condition('id', $rule_id, '=')->execute()->fetchAssoc();
     return $rule;
 }
 
@@ -454,16 +457,15 @@ function ch_get_rule_with_id($rule_id)
  *  @param  int $rule_id - the rule id to filter by
  *  @return array - an array of schedules
  */
+
 function ch_get_schedules_with_rule_id($rule_id)
 {
-    $schedules = db_select('cascading_hours_schedules', 'c')
-            ->fields('c')
-            ->condition('rule_id', $rule_id, '=')
-            ->execute();
+    $schedules = db_select('cascading_hours_schedules', 'c')->fields('c')->condition('rule_id', $rule_id, '=')->execute();
     $arr = [];
-    while($sched = $schedules->fetchAssoc()) {
+    while ($sched = $schedules->fetchAssoc()) {
         $arr[] = $sched;
     }
+
     return $arr;
 }
 
@@ -474,13 +476,10 @@ function ch_get_schedules_with_rule_id($rule_id)
  *  @param  int $day_of_week - the day of the week to filter by
  *  @return array - an array of schedules
  */
+
 function ch_get_schedules_with_rule_id_and_day($rule_id, $day_of_week)
 {
-    $schedules = db_select('cascading_hours_schedules', 'c')
-            ->fields('c')
-            ->condition('rule_id', $rule_id, '=')
-            ->condition('day', $day_of_week, '=')
-            ->execute();
+    $schedules = db_select('cascading_hours_schedules', 'c')->fields('c')->condition('rule_id', $rule_id, '=')->condition('day', $day_of_week, '=')->execute();
     return $schedules;
 }
 
@@ -491,35 +490,29 @@ function ch_get_schedules_with_rule_id_and_day($rule_id, $day_of_week)
  *  @param  int $day_of_week - the day of the week to filter by
  *  @return array - an array of schedules
  */
+
 function ch_get_schedule_with_id($id)
 {
-    $schedule = db_select('cascading_hours_schedules', 'c')
-            ->fields('c')
-            ->condition('id', $id, '=')
-            ->execute()
-            ->fetchAssoc();
+    $schedule = db_select('cascading_hours_schedules', 'c')->fields('c')->condition('id', $id, '=')->execute()->fetchAssoc();
     return $schedule;
 }
 
 /*** UPDATE FUNCTIONS ***/
-
 /**
  * Update a location
  *
  * @param int $location_id
  * @param
  */
+
 function ch_update_location($location_id, $name = null)
 {
-    if($name) {
+    if ($name) {
         db_update('cascading_hours_locations') // Table name no longer needs {}
-        ->fields(
-            array(
+
+        ->fields(array(
             'name' => $name
-            )
-        )
-        ->condition('id', $location_id, '=')
-        ->execute();
+        ))->condition('id', $location_id, '=')->execute();
     }
 }
 
@@ -533,11 +526,13 @@ function ch_update_location($location_id, $name = null)
  *  @param int    $end_date    - a unix timestamp of the end date
  *  @param string $alias       = null - optional alias for the rule
  */
+
 function ch_update_rule($rule_id, $location_id, $priority, $start_date, $end_date, $alias = null)
 {
-    if(!($rule_id != null && $location_id != null && $priority != null && $start_date && $end_date)) {
+    if (!($rule_id != null && $location_id != null && $priority != null && $start_date && $end_date)) {
         return;
     }
+
     $entry = [];
     $entry['location_id'] = $location_id;
     $entry['priority'] = $priority;
@@ -546,27 +541,20 @@ function ch_update_rule($rule_id, $location_id, $priority, $start_date, $end_dat
     if ($alias) {
         $entry['alias'] = $alias;
     }
-    db_update('cascading_hours_rules')
-        ->fields($entry)
-        ->condition('id', $rule_id, '=')
-        ->execute();
+
+    db_update('cascading_hours_rules')->fields($entry)->condition('id', $rule_id, '=')->execute();
 }
 
 /*** DELETE FUNCTIONS ***/
-
 /**
  *  Deletes location with given name and all associated rules
  *
  *  @param string $name
  */
+
 function ch_delete_location_with_name($name)
 {
-    $location = db_select('cascading_hours_locations', 'c')
-            ->fields('c')
-            ->condition('name', $name, '=')
-            ->execute()
-            ->fetchAssoc();
-
+    $location = db_select('cascading_hours_locations', 'c')->fields('c')->condition('name', $name, '=')->execute()->fetchAssoc();
     if ($location['id']) {
         ch_delete_location_with_id($location['id']);
     }
@@ -577,12 +565,11 @@ function ch_delete_location_with_name($name)
  *
  *  @param int $id
  */
+
 function ch_delete_location_with_id($id)
 {
     ch_delete_rules_with_location_id($id);
-    $result = db_delete('cascading_hours_locations')
-            ->condition('id', $id, '=')
-            ->execute();
+    $result = db_delete('cascading_hours_locations')->condition('id', $id, '=')->execute();
     ch_delete_rules_with_location_id($id);
 }
 
@@ -591,14 +578,15 @@ function ch_delete_location_with_id($id)
  *
  *  @param int $location_id
  */
+
 function ch_delete_rules_with_location_id($location_id)
 {
     $rules = ch_get_rules_with_location_id($location_id);
 
-    //delete rules and all associated schedules
-    foreach ($rules as $rule) {
-        $rule = json_decode(json_encode($rule), true); //convert from object to array
+    // delete rules and all associated schedules
 
+    foreach($rules as $rule) {
+        $rule = json_decode(json_encode($rule) , true); //convert from object to array
         ch_delete_rule_with_id($rule['id']);
     }
 }
@@ -608,12 +596,10 @@ function ch_delete_rules_with_location_id($location_id)
  *
  *  @param int $id
  */
+
 function ch_delete_rule_with_id($id)
 {
-    $result = db_delete('cascading_hours_rules')
-            ->condition('id', $id, '=')
-            ->execute();
-
+    $result = db_delete('cascading_hours_rules')->condition('id', $id, '=')->execute();
     ch_delete_schedules_with_rule_id($id);
 }
 
@@ -622,16 +608,15 @@ function ch_delete_rule_with_id($id)
  *
  *  @param int $rule_id
  */
+
 function ch_delete_schedules_with_rule_id($rule_id)
 {
-    $schedules = db_select('cascading_hours_schedules', 'c')
-            ->fields('c')
-            ->condition('rule_id', $rule_id, '=')
-            ->execute();
+    $schedules = db_select('cascading_hours_schedules', 'c')->fields('c')->condition('rule_id', $rule_id, '=')->execute();
 
-    //delete schedules
-    foreach ($schedules as $schedule) {
-        $schedule = json_decode(json_encode($schedule), true); //convert from object to array
+    // delete schedules
+
+    foreach($schedules as $schedule) {
+        $schedule = json_decode(json_encode($schedule) , true); //convert from object to array
         ch_delete_schedule_with_id($schedule['id']);
     }
 }
@@ -641,9 +626,8 @@ function ch_delete_schedules_with_rule_id($rule_id)
  *
  *  @param int $id
  */
+
 function ch_delete_schedule_with_id($id)
 {
-    $result = db_delete('cascading_hours_schedules')
-            ->condition('id', $id, '=')
-            ->execute();
+    $result = db_delete('cascading_hours_schedules')->condition('id', $id, '=')->execute();
 }
