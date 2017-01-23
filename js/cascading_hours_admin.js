@@ -5,7 +5,7 @@ jQuery(document).ready( function() {
 	    timeFormat: 'h:mm p',
 	    interval: 15,
 	    defaultTime: '11',
-	    startTime: '00:00',
+	    startTime: '06:00',
 	    dynamic: false,
 	    dropdown: true,
 	    scrollbar: true

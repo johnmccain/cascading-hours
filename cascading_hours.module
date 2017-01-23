@@ -138,7 +138,8 @@ function cascading_hours_admin_paths()
         'admin/structure/cascading_hours/location/*/delete' => true,
         'admin/structure/cascading_hours/rule/*' => true,
         'admin/structure/cascading_hours/rule/add' => true,
-        'admin/structure/cascading_hours/rule/*/delete' => true
+        'admin/structure/cascading_hours/rule/*/delete' => true,
+        'admin/structure/cascading_hours/schedule/*/delete' => true,
     );
 }
 

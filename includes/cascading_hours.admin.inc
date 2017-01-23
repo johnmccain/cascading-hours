@@ -49,7 +49,7 @@ function cascading_hours_admin_edit_location($location_id)
                 'location' => $location['id']
             )
         ));
-        $page.= "<table><tr><th>" . t("Rule") . "</th><th>" . t("Start Date") . "</th><th>" . t("End Date") . "</th><th>" . t("Priority") . "</th><th></th></tr>";
+        $page.= "<table><tr><th>" . t("Rule") . "</th><th>" . t("Start Date") . "</th><th>" . t("End Date") . "</th><th>" . t("Weight") . "</th><th></th></tr>";
         $rules = ch_get_rules_with_location_id($location_id);
         if ($rules == []) {
             $page.= "<tr><td colspan='5'>" . t("No rules found") . "</td></tr>";
@@ -360,9 +360,7 @@ function cascading_hours_admin_add_rule_form_submit($form, &$form_state)
     if (!$alias) $alias = NULL;
     ch_create_rule($location_id, $priority, $start_date, $end_date, $alias);
 
-    // $form_state['values']['name']);
-
-    $form_state['redirect'] = 'admin/structure/cascading_hours';
+    $form_state['redirect'] = 'admin/structure/cascading_hours/location/' . $location_id;
 }
 
 /**
@@ -513,11 +511,11 @@ function cascading_hours_admin_edit_rule_form($form, &$form_state)
         '#type' => 'date_popup',
         '#title' => t('Start Date') ,
         '#date_format' => 'm/d/Y',
+        '#default_value' => format_date(strtotime($rule['start_date']), 'custom', 'Y-m-d'),
         '#attributes' => array(
             'class' => array(
                 'datepicker',
             ) ,
-            '#default_value' => date('m/d/Y', strtotime($rule['start_date'])) ,
             '#required' => TRUE,
         )
     );
@@ -525,11 +523,11 @@ function cascading_hours_admin_edit_rule_form($form, &$form_state)
         '#type' => 'date_popup',
         '#title' => t('End Date') ,
         '#date_format' => 'm/d/Y',
+        '#default_value' => format_date(strtotime($rule['end_date']), 'custom', 'Y-m-d') ,
         '#attributes' => array(
             'class' => array(
                 'datepicker',
             ) ,
-            '#default_value' => $rule['end_date'],
             '#required' => TRUE,
         )
     );
@@ -569,7 +567,7 @@ function cascading_hours_admin_edit_rule_form_submit($form, &$form_state)
     $alias = $form_state['values']['alias'];
     if (!$alias) $alias = NULL;
     ch_update_rule($rule_id, $location_id, $priority, $start_date, $end_date, $alias);
-    $form_state['redirect'] = "admin/structure/cascading_hours/location/" . $location_id;
+    $form_state['redirect'] = "admin/structure/cascading_hours/rule/" . $rule_id;
 }
 
 /*** SCHEDULE UI METHODS ***/
@@ -811,8 +809,8 @@ function cascading_hours_admin_generate_schedule_table($rule_id)
     foreach($schedules as $schedule) {
         $table.= "<tr><td>" . $schedule['id'] . "</td>";
         $table.= "<td>" . $day_string[$schedule['day']] . "</td>";
-        $table.= "<td>" . date('H:i', strtotime($schedule['start_time'])) . "</td>";
-        $table.= "<td>" . date('H:i', strtotime($schedule['end_time'])) . "</td>";
+        $table.= "<td>" . date('h:i A', strtotime($schedule['start_time'])) . "</td>";
+        $table.= "<td>" . date('h:i A', strtotime($schedule['end_time'])) . "</td>";
         $table.= "<td>" . l(t("delete") , "admin/structure/cascading_hours/schedule/" . $schedule['id'] . "/delete") . "</td></tr>";
     }
 
