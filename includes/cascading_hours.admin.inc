@@ -6,23 +6,23 @@
 function cascading_hours_admin()
 {
     $page = "<h3>General Settings</h3>";
-    $page.= "<code>TODO: settings form goes here.</code>";
-    $page.= "<hr>";
-    $page.= "<table><tr><th colspan='2'>Location</th></tr>";
+    $page .= "<code>TODO: settings form goes here.</code>";
+    $page .= "<hr>";
+    $page .= "<table><tr><th colspan='2'>Location</th></tr>";
     $locations = ch_get_locations();
     if ($locations == []) {
-        $page.= "<tr><td colspan='2'>No locations found</td></tr>";
+        $page .= "<tr><td colspan='2'>No locations found</td></tr>";
     }
 
     foreach($locations as $location) {
         $name = $location['name'];
         $location_id = $location['id'];
-        $page.= "<tr><td>" . l($name, "admin/structure/cascading_hours/location/$location_id") . "</td>";
-        $page.= "<td>" . l("delete", "admin/structure/cascading_hours/location/$location_id/delete") . "</td></tr>";
+        $page .= "<tr><td>" . l($name, "admin/structure/cascading_hours/location/$location_id") . "</td>";
+        $page .= "<td>" . l("delete", "admin/structure/cascading_hours/location/$location_id/delete") . "</td></tr>";
     }
 
-    $page.= "</table>";
-    $page.= l("Add Location", "admin/structure/cascading_hours/location/add");
+    $page .= "</table>";
+    $page .= l("Add Location", "admin/structure/cascading_hours/location/add");
     return $page;
 }
 
@@ -41,41 +41,43 @@ function cascading_hours_admin_edit_location($location_id)
 
         $name = $location["name"];
         $page = "<h3>" . t("Edit Location:") . " $name</h3>";
+        $page .= l(t("Go back") , "admin/structure/cascading_hours");
+        $page .= "<hr/>";
         $form = drupal_get_form("cascading_hours_admin_edit_location_form", $location);
-        $page.= render($form);
-        $page.= "<hr/>";
-        $page.= l(t("Add Rule") , "admin/structure/cascading_hours/rule/add", array(
+        $page .= render($form);
+        $page .= "<hr/>";
+        $page .= l(t("Add Rule") , "admin/structure/cascading_hours/rule/add", array(
             'query' => array(
                 'location' => $location['id']
             )
         ));
-        $page.= "<table><tr><th>" . t("Rule") . "</th><th>" . t("Start Date") . "</th><th>" . t("End Date") . "</th><th>" . t("Weight") . "</th><th></th></tr>";
+        $page .= "<table><tr><th>" . t("Rule") . "</th><th>" . t("Start Date") . "</th><th>" . t("End Date") . "</th><th>" . t("Weight") . "</th><th></th></tr>";
         $rules = ch_get_rules_with_location_id($location_id);
         if ($rules == []) {
-            $page.= "<tr><td colspan='5'>" . t("No rules found") . "</td></tr>";
+            $page .= "<tr><td colspan='5'>" . t("No rules found") . "</td></tr>";
         }
 
         foreach($rules as $rule) {
             $name = $rule['alias']; //alias is optional, check if defined
             $name = $name ? "\"" . $name . "\"" : $name;
             $rule_id = $rule['id'];
-            $page.= "<tr><td>" . l($rule_id . " " . $name, "admin/structure/cascading_hours/rule/$rule_id") . "</td>";
-            $page.= "<td>" . DateTime::createFromFormat('Y-m-d H:i:s', $rule['start_date'])->format('m/d/Y') . "</td>";
-            $page.= "<td>" . DateTime::createFromFormat('Y-m-d H:i:s', $rule['end_date'])->format('m/d/Y') . "</td>";
-            $page.= "<td>" . $rule['priority'] . "</td>";
-            $page.= "<td>" . l(t("delete") , "admin/structure/cascading_hours/rule/$rule_id/delete") . "</td></tr>";
+            $page .= "<tr><td>" . l($rule_id . " " . $name, "admin/structure/cascading_hours/rule/$rule_id") . "</td>";
+            $page .= "<td>" . DateTime::createFromFormat('Y-m-d H:i:s', $rule['start_date'])->format('m/d/Y') . "</td>";
+            $page .= "<td>" . DateTime::createFromFormat('Y-m-d H:i:s', $rule['end_date'])->format('m/d/Y') . "</td>";
+            $page .= "<td>" . $rule['priority'] . "</td>";
+            $page .= "<td>" . l(t("delete") , "admin/structure/cascading_hours/rule/$rule_id/delete") . "</td></tr>";
         }
 
-        $page.= "</table><hr/>";
-        $page.= l(t("Go back") , "admin/structure/cascading_hours");
+        $page .= "</table><hr/>";
+        $page .= l(t("Go back") , "admin/structure/cascading_hours");
         return $page;
     }
     else {
 
         // location doesn't exist
-
         $page = "<h3>" . t("No Such Location") . "</h3>";
-        $page.= l(t("Go back") , "admin/structure/cascading_hours");
+        $page .= "<hr/>";
+        $page .= l(t("Go back") , "admin/structure/cascading_hours");
         return $page;
     }
 
@@ -122,10 +124,13 @@ function cascading_hours_admin_edit_location_form_submit($form, &$form_state)
 function cascading_hours_admin_add_location()
 {
     $page = "<h3>" . t("Add Location") . "</h3>";
+    $page .= l(t("Go back") , "admin/structure/cascading_hours");
+    $page .= "<hr/>";
     $form = drupal_get_form("cascading_hours_admin_add_location_form");
-    $page.= render($form);
-    $page.= "<br/>";
-    $page.= l(t("Go back") , "admin/structure/cascading_hours");
+    $page .= render($form);
+    $page .= "<br/>";
+    $page .= "<hr/>";
+    $page .= l(t("Go back") , "admin/structure/cascading_hours");
     return $page;
 }
 
@@ -175,13 +180,15 @@ function cascading_hours_admin_delete_location($location_id)
     if (isset($location["name"])) {
 
         // location exists, show delete form
-
         $name = $location["name"];
         $page = "<h3>" . t("Delete Location:") . " $name</h3>";
-        $page.= "<p><strong>" . t("Are you sure you want to delete this location? This action cannot be undone") . "</strong></p>";
+        $page .= l(t("Go back") , "admin/structure/cascading_hours");
+        $page .= "<hr/>";
+        $page .= "<p><strong>" . t("Are you sure you want to delete this location? This action cannot be undone") . "</strong></p>";
         $form = drupal_get_form("cascading_hours_admin_delete_location_form", $location_id);
-        $page.= render($form);
-        $page.= l(t("Go back") , "admin/structure/cascading_hours");
+        $page .= render($form);
+        $page .= "<hr/>";
+        $page .= l(t("Go back") , "admin/structure/cascading_hours");
         return $page;
     }
     else {
@@ -189,7 +196,8 @@ function cascading_hours_admin_delete_location($location_id)
         // location doesn't exist
 
         $page = "<h3>" . t("No Such Location") . "</h3>";
-        $page.= l(t("Go back") , "admin/structure/cascading_hours");
+        $page .= "<hr/>";
+        $page .= l(t("Go back") , "admin/structure/cascading_hours");
         return $page;
     }
 }
@@ -248,14 +256,20 @@ function cascading_hours_admin_add_rule()
         $page = "<h3>" . t("Add Rule") . "</h3>";
         $form = drupal_get_form("cascading_hours_admin_add_rule_form");
     }
-
-    $page.= render($form);
-    $page.= "<hr/>";
     if (isset($location['name'])) {
-        $page.= l(t("Go back") , "admin/structure/cascading_hours/location/" . $location['id']);
+        $page .= l(t("Go back") , "admin/structure/cascading_hours/location/" . $location['id']);
     }
     else {
-        $page.= l(t("Go back") , "admin/structure/cascading_hours");
+        $page .= l(t("Go back") , "admin/structure/cascading_hours");
+    }
+    $page .= "<hr/>";
+    $page .= render($form);
+    $page .= "<hr/>";
+    if (isset($location['name'])) {
+        $page .= l(t("Go back") , "admin/structure/cascading_hours/location/" . $location['id']);
+    }
+    else {
+        $page .= l(t("Go back") , "admin/structure/cascading_hours");
     }
 
     return $page;
@@ -379,22 +393,27 @@ function cascading_hours_admin_delete_rule($rule_id)
 
         $alias = ($rule['alias'] ? " \"" . $rule['alias'] . "\"" : "");
         $page = "<h3>" . t("Delete Rule: ") . $rule['id'] . $alias . "</h3>";
-        $page.= "<p><strong>" . t("Are you sure you want to delete this rule? This action cannot be undone") . "</strong></p>";
+        if (isset($location['id'])) {
+            $page .= l(t("Go back") , "admin/structure/cascading_hours/location/" . $location['id']);
+        }
+        else {
+            $page .= l(t("Go back") , "admin/structure/cascading_hours");
+        }
+        $page .= "<hr/>";
+        $page .= "<p><strong>" . t("Are you sure you want to delete this rule? This action cannot be undone") . "</strong></p>";
         $form = drupal_get_form("cascading_hours_admin_delete_rule_form", $rule['id'], $location['id']);
-        $page.= render($form);
+        $page .= render($form);
     }
     else {
-
-        // rule doesn't exist
-
         $page = "<h3>" . t("No Such Rule") . "</h3>";
     }
 
+    $page .= "<hr/>";
     if (isset($location['id'])) {
-        $page.= l(t("Go back") , "admin/structure/cascading_hours/location/" . $location['id']);
+        $page .= l(t("Go back") , "admin/structure/cascading_hours/location/" . $location['id']);
     }
     else {
-        $page.= l(t("Go back") , "admin/structure/cascading_hours");
+        $page .= l(t("Go back") , "admin/structure/cascading_hours");
     }
 
     return $page;
@@ -446,27 +465,35 @@ function cascading_hours_admin_delete_rule_form_submit($form, &$form_state)
 function cascading_hours_admin_edit_rule($id)
 {
     $rule = ch_get_rule_with_id($id);
+    $location = ch_get_location_with_id($rule['location_id']);
     if (isset($rule['id'])) {
         $alias = $rule['alias'] ? "\"" . $rule['alias'] . "\"" : "";
         $page = "<h3>" . t("Edit Rule: ") . $rule['id'] . " " . $alias . "</h3>";
+        if (isset($location['name'])) {
+            $page .= l(t("Go back") , "admin/structure/cascading_hours/location/" . $rule['location_id']);
+        }
+        else {
+            $page .= l(t("Go back") , "admin/structure/cascading_hours");
+        }
+        $page .= "<hr/>";
+
         $form = drupal_get_form("cascading_hours_admin_edit_rule_form", $rule);
-        $page.= render($form);
-        $page.= "<hr/>";
+        $page .= render($form);
+        $page .= "<hr/>";
         $schedules = drupal_get_form('cascading_hours_admin_add_schedule_form', $rule['id']);
-        $page.= "<h3>Schedule Blocks</h3>";
-        $page.= render($schedules);
+        $page .= "<h3>Schedule Blocks</h3>";
+        $page .= render($schedules);
     }
     else {
         $page = "<h3>" . t("No Such Rule") . "</h3>";
     }
 
-    $page.= "<hr/>";
-    $location = ch_get_location_with_id($rule['location_id']);
+    $page .= "<hr/>";
     if (isset($location['name'])) {
-        $page.= l(t("Go back") , "admin/structure/cascading_hours/location/" . $rule['location_id']);
+        $page .= l(t("Go back") , "admin/structure/cascading_hours/location/" . $rule['location_id']);
     }
     else {
-        $page.= l(t("Go back") , "admin/structure/cascading_hours");
+        $page .= l(t("Go back") , "admin/structure/cascading_hours");
     }
 
     return $page;
@@ -709,21 +736,21 @@ function cascading_hours_admin_delete_schedule($schedule_id)
     if (isset($schedule['id'])) {
 
         // schedule exists
-
         $page = "<h3>" . t("Delete Schedule: ") . $schedule['id'] . "</h3>";
-        $page.= "<p><strong>" . t("Are you sure you want to delete this schedule? This action cannot be undone") . "</strong></p>";
+        $page .= l(t("Go back") , "admin/structure/cascading_hours/rule/" . $schedule['rule_id']);
+        $page .= "<hr/>";
+        $page .= "<p><strong>" . t("Are you sure you want to delete this schedule? This action cannot be undone") . "</strong></p>";
         $form = drupal_get_form('cascading_hours_admin_delete_schedule_form', $schedule['id']);
-        $page.= render($form);
-        $page.= "<hr/>";
-        $page.= l(t("Go back") , "admin/structure/cascading_hours/rule/" . $schedule['rule_id']);
+        $page .= render($form);
+        $page .= "<hr/>";
+        $page .= l(t("Go back") , "admin/structure/cascading_hours/rule/" . $schedule['rule_id']);
     }
     else {
-
         // schedule doesn't exist
 
         $page = "<h3>" . t("No Such Schedule") . "</h3>";
-        $page.= "<hr/>";
-        $page.= l(t("Go back") , "admin/structure/cascading_hours");
+        $page .= "<hr/>";
+        $page .= l(t("Go back") , "admin/structure/cascading_hours");
     }
 
     return $page;
@@ -803,17 +830,17 @@ function cascading_hours_admin_generate_schedule_table($rule_id)
     usort($schedules, "cascading_hours_day_cmp");
     $table = "<table><tr><th>" . t("id") . "</th><th>" . t("Day") . "</th><th>" . t("Start Time") . "</th><th>" . t("End Time") . "</th><th></th></tr>";
     if ($schedules == []) {
-        $table.= "<tr><td colspan='5'>" . t("No schedules found") . "</td></tr>";
+        $table .= "<tr><td colspan='5'>" . t("No schedules found") . "</td></tr>";
     }
 
     foreach($schedules as $schedule) {
-        $table.= "<tr><td>" . $schedule['id'] . "</td>";
-        $table.= "<td>" . $day_string[$schedule['day']] . "</td>";
-        $table.= "<td>" . date('h:i A', strtotime($schedule['start_time'])) . "</td>";
-        $table.= "<td>" . date('h:i A', strtotime($schedule['end_time'])) . "</td>";
-        $table.= "<td>" . l(t("delete") , "admin/structure/cascading_hours/schedule/" . $schedule['id'] . "/delete") . "</td></tr>";
+        $table .= "<tr><td>" . $schedule['id'] . "</td>";
+        $table .= "<td>" . $day_string[$schedule['day']] . "</td>";
+        $table .= "<td>" . date('h:i A', strtotime($schedule['start_time'])) . "</td>";
+        $table .= "<td>" . date('h:i A', strtotime($schedule['end_time'])) . "</td>";
+        $table .= "<td>" . l(t("delete") , "admin/structure/cascading_hours/schedule/" . $schedule['id'] . "/delete") . "</td></tr>";
     }
 
-    $table.= "</table>";
+    $table .= "</table>";
     return $table;
 }
