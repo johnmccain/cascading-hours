@@ -11,8 +11,9 @@
  *
  * @ingroup cascading_hours
  */
-function cascading_hours_install()
-{
+function cascading_hours_install() {
+  variable_set('cascading_hours_delete_old_rules', false);
+  variable_set('cascading_hours_old_rules_age', 14);
 }
 
 /**
@@ -25,8 +26,7 @@ function cascading_hours_install()
  * @see hook_schema()
  * @ingroup cascading_hours
  */
-function cascading_hours_schema()
-{
+function cascading_hours_schema() {
     $schema['cascading_hours_locations'] = array(
     'description' => 'Stores locations to which schedule rules can be applied.',
     'fields' => array(

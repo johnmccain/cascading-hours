@@ -2,12 +2,14 @@
 /**
  * Main admin settings page
  */
-
 function cascading_hours_admin()
 {
     $page = "<h3>General Settings</h3>";
-    $page .= "<code>TODO: settings form goes here.</code>";
-    $page .= "<hr>";
+    $cron_count = variable_get('cascading_hours_cron_count', 0);
+    $page .= "<code>$cron_count</code>"; //TODO delete me
+    $form = drupal_get_form("cascading_hours_admin_settings_form");
+    $page .= render($form);
+    $page .= "<br><hr/><br>";
     $page .= "<table><tr><th colspan='2'>Location</th></tr>";
     $locations = cascading_hours_get_locations();
     if ($locations == []) {
@@ -26,12 +28,70 @@ function cascading_hours_admin()
     return $page;
 }
 
+/**
+ * Builds form for master settings
+ * @see drupal_get_form
+ * @param array $form
+ * @param array &$form_state
+ */
+function cascading_hours_admin_settings_form($form, &$form_state) {
+    $form = [];
+
+    $form['cascading_hours_delete_old_rules'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Automatically delete old rules'),
+        '#default_value' => variable_get('cascading_hours_delete_old_rules', false),
+        '#description' => t("When enabled, rules with end dates older than a set age will be automatically deleted."),
+        '#required' => TRUE,
+    );
+
+    $form['cascading_hours_old_rules_age'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Maximum rule age (in days)'),
+        '#default_value' => variable_get('cascading_hours_old_rules_age', 14),
+        '#description' => t("Maximum age in days of rules.  If \"Automatically delete old rules\" is enabled, rules with end dates older than this will be deleted."),
+        '#attributes' => array(
+            'class' => array(
+                'numeric-field',
+            ) ,
+            '#required' => TRUE,
+        )
+    );
+
+    $form['submit'] = array(
+        '#type' => 'submit',
+        '#value' => 'Save',
+    );
+
+    $form['#attached']['js'] = array(drupal_get_path('module', 'cascading_hours') ."/js/cascading_hours_admin.js");
+    $form['actions']['submit']['#submit'][] = 'cascading_hours_admin_settings_form_submit';
+
+    return $form;
+}
+
+/**
+ * Submission logic for master settings
+ * @see drupal_get_form
+ * @param array $form
+ * @param array &$form_state
+ */
+function cascading_hours_admin_settings_form_submit($form, &$form_state) {
+    $cascading_hours_delete_old_rules = $form_state['values']['cascading_hours_delete_old_rules'];
+    $cascading_hours_old_rules_age = $form_state['values']['cascading_hours_old_rules_age'];
+    if(!is_numeric($cascading_hours_old_rules_age)) {
+        form_set_error("cascading_hours_old_rules_age", "Maximum age must be a number");
+    } else {
+        variable_set('cascading_hours_delete_old_rules', (bool) $cascading_hours_delete_old_rules);
+        variable_set('cascading_hours_old_rules_age', (int) $cascading_hours_old_rules_age);
+    }
+}
+
 /*** LOCATION UI METHODS ***/
+
 /**
  * Generates page to edit a location
  * @param int $location_id - the id of the location to edit
  */
-
 function cascading_hours_admin_edit_location($location_id)
 {
     $location = cascading_hours_get_location_with_id($location_id);
@@ -84,6 +144,12 @@ function cascading_hours_admin_edit_location($location_id)
     return $page;
 }
 
+/**
+ * Builds form for editing a location
+ * @see drupal_get_form
+ * @param array $form
+ * @param array &$form_state
+ */
 function cascading_hours_admin_edit_location_form($form, &$form_state)
 {
     $form = [];
@@ -111,7 +177,6 @@ function cascading_hours_admin_edit_location_form($form, &$form_state)
  * @param array $form
  * @param array &$form_state
  */
-
 function cascading_hours_admin_edit_location_form_submit($form, &$form_state)
 {
     cascading_hours_update_location($form_state['values']['location_id'], $form_state['values']['name']);
@@ -120,7 +185,6 @@ function cascading_hours_admin_edit_location_form_submit($form, &$form_state)
 /**
  * Generates page to add a location
  */
-
 function cascading_hours_admin_add_location()
 {
     $page = "<h3>" . t("Add Location") . "</h3>";
@@ -140,7 +204,6 @@ function cascading_hours_admin_add_location()
  * @param array $form
  * @param array &$form_state
  */
-
 function cascading_hours_admin_add_location_form($form, &$form_state)
 {
     $form = [];
@@ -162,7 +225,6 @@ function cascading_hours_admin_add_location_form($form, &$form_state)
  * @param array $form
  * @param array &$form_state
  */
-
 function cascading_hours_admin_add_location_form_submit($form, &$form_state)
 {
     cascading_hours_create_location($form_state['values']['name']);
@@ -173,7 +235,6 @@ function cascading_hours_admin_add_location_form_submit($form, &$form_state)
  * Generates page to delete a location (with confirmation)
  * @param int $location_id - the id of the location to delete
  */
-
 function cascading_hours_admin_delete_location($location_id)
 {
     $location = cascading_hours_get_location_with_id($location_id);
@@ -192,7 +253,6 @@ function cascading_hours_admin_delete_location($location_id)
         return $page;
     }
     else {
-
         // location doesn't exist
 
         $page = "<h3>" . t("No Such Location") . "</h3>";
@@ -207,7 +267,6 @@ function cascading_hours_admin_delete_location($location_id)
  * @param array $form
  * @param array &$form_state
  */
-
 function cascading_hours_admin_delete_location_form($form, &$form_state)
 {
     $form = [];
@@ -228,7 +287,6 @@ function cascading_hours_admin_delete_location_form($form, &$form_state)
  * @param array $form
  * @param array &$form_state
  */
-
 function cascading_hours_admin_delete_location_form_submit($form, &$form_state)
 {
     cascading_hours_delete_location_with_id($form_state['values']['location_id']);
@@ -236,10 +294,10 @@ function cascading_hours_admin_delete_location_form_submit($form, &$form_state)
 }
 
 /*** RULE UI METHODS ***/
+
 /**
  * Generates page to add a rule
  */
-
 function cascading_hours_admin_add_rule()
 {
     $location_id = isset($_GET['location']) ? (int)$_GET['location'] : NULL;
@@ -281,7 +339,6 @@ function cascading_hours_admin_add_rule()
  * @param array $form
  * @param array &$form_state
  */
-
 function cascading_hours_admin_add_rule_form($form, &$form_state)
 {
     $form = [];
@@ -363,7 +420,6 @@ function cascading_hours_admin_add_rule_form($form, &$form_state)
  * @param array $form
  * @param array &$form_state
  */
-
 function cascading_hours_admin_add_rule_form_submit($form, &$form_state)
 {
     $location_id = $form_state['values']['location'];
@@ -381,7 +437,6 @@ function cascading_hours_admin_add_rule_form_submit($form, &$form_state)
  * Generates a confirmation page to delete a rule
  * @param int $rule_id - the id of the rule to delete
  */
-
 function cascading_hours_admin_delete_rule($rule_id)
 {
     $rule = cascading_hours_get_rule_with_id($rule_id);
@@ -424,7 +479,6 @@ function cascading_hours_admin_delete_rule($rule_id)
  * @param array $form
  * @param array &$form_state
  */
-
 function cascading_hours_admin_delete_rule_form($form, &$form_state)
 {
     $form = [];
@@ -445,7 +499,6 @@ function cascading_hours_admin_delete_rule_form($form, &$form_state)
  * @param array $form
  * @param array &$form_state
  */
-
 function cascading_hours_admin_delete_rule_form_submit($form, &$form_state)
 {
     cascading_hours_delete_rule_with_id($form_state['values']['rule_id']);
@@ -461,7 +514,6 @@ function cascading_hours_admin_delete_rule_form_submit($form, &$form_state)
  * Generates page to edit a rule
  * @param int $rule_id - the id of the rule to edit
  */
-
 function cascading_hours_admin_edit_rule($id)
 {
     $rule = cascading_hours_get_rule_with_id($id);
@@ -505,7 +557,6 @@ function cascading_hours_admin_edit_rule($id)
  * @param array $form
  * @param array &$form_state
  */
-
 function cascading_hours_admin_edit_rule_form($form, &$form_state)
 {
     $form = [];
@@ -583,7 +634,6 @@ function cascading_hours_admin_edit_rule_form($form, &$form_state)
  * @param array $form
  * @param array &$form_state
  */
-
 function cascading_hours_admin_edit_rule_form_submit($form, &$form_state)
 {
     $rule_id = $form_state['values']['rule_id'];
@@ -598,6 +648,7 @@ function cascading_hours_admin_edit_rule_form_submit($form, &$form_state)
 }
 
 /*** SCHEDULE UI METHODS ***/
+
 /**
  * Builds form for schedule creation
  * Ajax submission enabled, generates a list of schedules associated with a rule
@@ -606,7 +657,6 @@ function cascading_hours_admin_edit_rule_form_submit($form, &$form_state)
  * @param array $form
  * @param array &$form_state
  */
-
 function cascading_hours_admin_add_schedule_form($form, &$form_state)
 {
     $rule_id = $form_state['build_info']['args'][0];
@@ -695,7 +745,6 @@ function cascading_hours_admin_add_schedule_form($form, &$form_state)
  * @return array
  *   Renderable array (the box element)
  */
-
 function cascading_hours_admin_add_schedule_form_submit_callback($form, $form_state)
 {
     $rule_id = $form_state['values']['rule_id'];
@@ -729,7 +778,6 @@ function cascading_hours_admin_add_schedule_form_submit_callback($form, $form_st
  * Generates page to delete a schedule (with confirmation)
  * @param int $schedule_id - the id of the schedule to delete
  */
-
 function cascading_hours_admin_delete_schedule($schedule_id)
 {
     $schedule = cascading_hours_get_schedule_with_id($schedule_id);
@@ -761,7 +809,6 @@ function cascading_hours_admin_delete_schedule($schedule_id)
  * @param array $form
  * @param array &$form_state
  */
-
 function cascading_hours_admin_delete_schedule_form($form, &$form_state)
 {
     $form = [];
@@ -782,7 +829,6 @@ function cascading_hours_admin_delete_schedule_form($form, &$form_state)
  * @param array $form
  * @param array &$form_state
  */
-
 function cascading_hours_admin_delete_schedule_form_submit($form, &$form_state)
 {
     $schedule = cascading_hours_get_schedule_with_id($form_state['values']['schedule_id']);
@@ -803,7 +849,6 @@ function cascading_hours_admin_delete_schedule_form_submit($form, &$form_state)
  *  @param  array $b - schedule
  *  @return int - negative if $a < $b, 0 if $a == $b, positive if $a > $b
  */
-
 function cascading_hours_day_cmp($a, $b)
 {
     return $a['day'] - $b['day'];
@@ -814,7 +859,6 @@ function cascading_hours_day_cmp($a, $b)
  * @param int $rule_id
  * @return string - A string of markup for a table of schedules
  */
-
 function cascading_hours_admin_generate_schedule_table($rule_id)
 {
     $day_string = array(
