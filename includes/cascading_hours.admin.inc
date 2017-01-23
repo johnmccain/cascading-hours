@@ -5,8 +5,6 @@
 function cascading_hours_admin()
 {
     $page = "<h3>General Settings</h3>";
-    $cron_count = variable_get('cascading_hours_cron_count');
-    $page .= "<code>$cron_count</code>"; //TODO delete me
     $form = drupal_get_form("cascading_hours_admin_settings_form");
     $page .= render($form);
     $page .= "<br><hr/><br>";

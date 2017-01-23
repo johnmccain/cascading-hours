@@ -110,142 +110,83 @@ function cascading_hours_menu()
         'file path' => $include_path
     );
 
-    $items['admin/structure/cascading_hours/cron'] = array( //TODO: DELETE
-      'title' => 'Cascading_Hours Cron',
+    $items['admin/structure/cascading_hours/cron'] = array(
+      'title' => 'Cascading Hours Cron',
       'page callback' => 'drupal_get_form',
-      'page arguments' => array('cascading_hours_form'),
-      'access callback' => TRUE,
+      'page arguments' => array('cascading_hours_cron_form'),
+      'access callback' => true,
     );
     return $items;
 }
 
 /**
- * The form to provide a link to cron.php.
- * TODO delete
+ * Form to run cron manually
  */
-function cascading_hours_form($form, &$form_state) {
-  $form['status'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Cron status information'),
-  );
-  $form['status']['intro'] = array(
-    '#markup' => '<div>' . t('The cron example demonstrates hook_cron() and hook_cron_queue_info() processing. If you have administrative privileges you can run cron from this page and see the results.') . '</div>',
-  );
-  $form['status']['last'] = array(
-    '#markup' => '<div>' . t('cascading_hours_cron() will next execute the first time cron runs after %time (%seconds seconds from now)',
-      array(
-        '%time' => date_iso8601(variable_get('cascading_hours_next_execution', time())),
-        '%seconds' => variable_get('cascading_hours_next_execution', time()) - time(),
-      )
-    ) . '</div>',
-  );
-
-  if (user_access('administer site configuration')) {
-    $form['cron_run'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Run cron manually'),
+function cascading_hours_cron_form($form, &$form_state)
+{
+    if (user_access('administer site configuration')) {
+        $form['cron_run'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Run cron manually'),
+        '#description' => t("Run cascading_hours's cron to immediately delete old rules."),
+        );
+        $form['cron_run']['cron_trigger'] = array(
+          '#type' => 'submit',
+          '#value' => t('Run cron now'),
+          '#submit' => array('cascading_hours_form_cron_run_submit'),
+        );
+    }
+    $form['go_back'] = array(
+        '#markup' => l(t("Go back") , "admin/structure/cascading_hours"),
     );
-    $form['cron_run']['cron_reset'] = array(
-      '#type' => 'checkbox',
-      '#title' => t("Run cascading_hours's cron regardless of whether interval has expired."),
-      '#default_value' => FALSE,
-    );
-    $form['cron_run']['cron_trigger'] = array(
-      '#type' => 'submit',
-      '#value' => t('Run cron now'),
-      '#submit' => array('cascading_hours_form_cron_run_submit'),
-    );
-  }
 
-  $form['cron_queue_setup'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Cron queue setup (for hook_cron_queue_info(), etc.)'),
-  );
-  $queue_1 = DrupalQueue::get('cascading_hours_queue_1');
-  $queue_2 = DrupalQueue::get('cascading_hours_queue_2');
-  $form['cron_queue_setup']['current_cron_queue_status'] = array(
-    '#markup' => '<div>' . t('There are currently %queue_1 items in queue 1 and %queue_2 items in queue 2',
-      array(
-        '%queue_1' => $queue_1->numberOfItems(),
-        '%queue_2' => $queue_2->numberOfItems(),
-      )) . '</div>',
-  );
-  $form['cron_queue_setup']['num_items'] = array(
-    '#type' => 'select',
-    '#title' => t('Number of items to add to queue'),
-    '#options' => drupal_map_assoc(array(1, 5, 10, 100, 1000)),
-    '#default_value' => 5,
-  );
-  $form['cron_queue_setup']['queue'] = array(
-    '#type' => 'radios',
-    '#title' => t('Queue to add items to'),
-    '#options' => array(
-      'cascading_hours_queue_1' => t('Queue 1'),
-      'cascading_hours_queue_2' => t('Queue 2'),
-    ),
-    '#default_value' => 'cascading_hours_queue_1',
-  );
-  $form['cron_queue_setup']['submit'] = array(
-    '#type' => 'submit',
-    '#value' => t('Add jobs to queue'),
-    '#submit' => array('cascading_hours_add_jobs_to_queue'),
-  );
-
-  $form['configuration'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Configuration of cascading_hours_cron()'),
-  );
-  $form['configuration']['cascading_hours_interval'] = array(
-    '#type' => 'select',
-    '#title' => t('Cron interval'),
-    '#description' => t('Time after which cascading_hours_cron will respond to a processing request.'),
-    '#default_value' => variable_get('cascading_hours_interval', 60 * 60),
-    '#options' => array(
-      60 => t('1 minute'),
-      300 => t('5 minutes'),
-      3600 => t('1 hour'),
-      60 * 60 * 24 => t('1 day'),
-    ),
-  );
-
-  return system_settings_form($form);
+    return $form;
 }
 
 /**
  * Allow user to directly execute cron, optionally forcing it.
- * TODO delete
  */
-function cascading_hours_form_cron_run_submit($form, &$form_state) {
-  if (!empty($form_state['values']['cron_reset'])) {
-    variable_set('cascading_hours_next_execution', 0);
-  }
-
-  // We don't usually use globals in this way. This is used here only to
-  // make it easy to tell if cron was run by this form.
-  $GLOBALS['cascading_hours_show_status_message'] = TRUE;
-  if (drupal_cron_run()) {
-    drupal_set_message(t('Cron ran successfully.'));
-  }
-  else {
-    drupal_set_message(t('Cron run failed.'), 'error');
-  }
+function cascading_hours_form_submit($form, &$form_state)
+{
+    $GLOBALS['cascading_hours_show_status_message'] = true;
+    if (drupal_cron_run()) {
+        drupal_set_message(t('Cron ran successfully.'));
+    }
+    else {
+        drupal_set_message(t('Cron run failed.'), 'error');
+    }
 }
 
 /**
- * Implements hook_cron().
+ * Deletes rules
  *
- * hook_cron() is the traditional (pre-Drupal 7) hook for doing "background"
- * processing. It gets called every time the Drupal cron runs and must decide
- * what it will do.
- *
- * In this example, it does a watchdog() call after the time named in
- * the variable 'cascading_hours_next_execution' has arrived, and then it
- * resets that variable to a time in the future.
- * TODO delete
+ * @implements hook_cron().
  */
-function cascading_hours_cron() {
-    watchdog('cascading_hours', 'cascading_hours ran!');
+function cascading_hours_cron()
+{
+    $delete_old_rules = variable_get('cascading_hours_delete_old_rules');
+    if($delete_old_rules) {
+        $max_age_in_days = variable_get('cascading_hours_old_rules_age');
+        if(!is_numeric($max_age_in_days)) {
+            //error, set message and return
+            watchdog('cascading_hours', 'Error: cascading_hours_old_rules_age is not numeric.  Set at Cascading Hours configuration page.');
+            return;
+        }
+        $ref_date =  date('Y-m-d H:i:s', time() - ($max_age_in_days * 60 * 60 * 24));
 
+        $rules = db_select('cascading_hours_rules', 'c')
+        ->fields('c')
+        ->condition('end_date', $ref_date, '<')
+        ->execute();
+
+        $rules = cascading_hours_query_to_array($rules);
+        foreach($rules as $rule) {
+            cascading_hours_delete_rule_with_id($rule['id']);
+        }
+
+        watchdog('cascading_hours', "Deleted all rules with end dates before $ref_date at time " . date('Y-m-d H:i:s'));
+
+    }
 }
 
 /**
@@ -280,45 +221,6 @@ function cascading_hours_admin_paths()
         'admin/structure/cascading_hours/schedule/*/delete' => true,
     );
 }
-
-/**
- * Deletes rules
- *
- * @implements hook_cron().
- */
-// function casdcading_hours_cron()
-// {
-//     watchdog('cascading_hours', "cascading hours cron!! " . date('Y-m-d H:i:s'), WATCHDOG_INFO);
-
-    /*
-    $delete_old_rules = variable_get('cascading_hours_delete_old_rules', false);
-    if($delete_old_rules) {
-        $max_age_in_days = variable_get('cascading_hours_old_rules_age', 14);
-        if(!is_numeric($max_age_in_days)) {
-            //error, set message and return
-            watchdog('cascading_hours', 'Error: cascading_hours_old_rules_age is not numeric.  Set at Cascading Hours configuration page.', WATCHDOG_WARNING);
-            return;
-        }
-        $ref_date =  date('Y-m-d H:i:s', $max_age_in_days * 60 * 60 * 24);
-
-        $rules = db_select('cascading_hours_rules', 'c')
-        ->fields('c')
-        ->condition('end_date', $ref_date, '<')
-        ->execute();
-        $rules = cascading_hours_query_to_array($rules);
-        foreach($rules as $rule) {
-            cascading_hours_delete_rule_with_id($rule['id']);
-        }
-        $count = variable_get('cascading_hours_cron_count', 0);
-        variable_set('cascading_hours_cron_count', $count + 1);
-        if(sizeof($rules) > 0) {
-            watchdog('cascading_hours', "Deleted " . sizeof($rules) . " rules with end dates before $ref_date at time " . date('Y-m-d H:i:s'), WATCHDOG_INFO);
-        } else {
-            watchdog('cascading_hours', "No rules with end dates before $ref_date found at time " . date('Y-m-d H:i:s'), WATCHDOG_INFO);
-        }
-    }
-    */
-// }
 
 /*** Cascading Algorithm Functions ***/
 
@@ -550,8 +452,6 @@ function cascading_hours_get_schedule_in_range_for_location_with_id($location_id
     return $schedules;
 
     // at this point we have an array of schedule arrays, we can return this (might want to clean up first)
-    // TODO: finish, test
-
 }
 
 /**
