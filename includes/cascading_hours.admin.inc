@@ -9,7 +9,7 @@ function cascading_hours_admin()
     $page .= "<code>TODO: settings form goes here.</code>";
     $page .= "<hr>";
     $page .= "<table><tr><th colspan='2'>Location</th></tr>";
-    $locations = ch_get_locations();
+    $locations = cascading_hours_get_locations();
     if ($locations == []) {
         $page .= "<tr><td colspan='2'>No locations found</td></tr>";
     }
@@ -34,7 +34,7 @@ function cascading_hours_admin()
 
 function cascading_hours_admin_edit_location($location_id)
 {
-    $location = ch_get_location_with_id($location_id);
+    $location = cascading_hours_get_location_with_id($location_id);
     if ($location["name"]) {
 
         // location exists, show edit form
@@ -52,7 +52,7 @@ function cascading_hours_admin_edit_location($location_id)
             )
         ));
         $page .= "<table><tr><th>" . t("Rule") . "</th><th>" . t("Start Date") . "</th><th>" . t("End Date") . "</th><th>" . t("Weight") . "</th><th></th></tr>";
-        $rules = ch_get_rules_with_location_id($location_id);
+        $rules = cascading_hours_get_rules_with_location_id($location_id);
         if ($rules == []) {
             $page .= "<tr><td colspan='5'>" . t("No rules found") . "</td></tr>";
         }
@@ -114,7 +114,7 @@ function cascading_hours_admin_edit_location_form($form, &$form_state)
 
 function cascading_hours_admin_edit_location_form_submit($form, &$form_state)
 {
-    ch_update_location($form_state['values']['location_id'], $form_state['values']['name']);
+    cascading_hours_update_location($form_state['values']['location_id'], $form_state['values']['name']);
 }
 
 /**
@@ -165,7 +165,7 @@ function cascading_hours_admin_add_location_form($form, &$form_state)
 
 function cascading_hours_admin_add_location_form_submit($form, &$form_state)
 {
-    ch_create_location($form_state['values']['name']);
+    cascading_hours_create_location($form_state['values']['name']);
     $form_state['redirect'] = 'admin/structure/cascading_hours';
 }
 
@@ -176,7 +176,7 @@ function cascading_hours_admin_add_location_form_submit($form, &$form_state)
 
 function cascading_hours_admin_delete_location($location_id)
 {
-    $location = ch_get_location_with_id($location_id);
+    $location = cascading_hours_get_location_with_id($location_id);
     if (isset($location["name"])) {
 
         // location exists, show delete form
@@ -231,7 +231,7 @@ function cascading_hours_admin_delete_location_form($form, &$form_state)
 
 function cascading_hours_admin_delete_location_form_submit($form, &$form_state)
 {
-    ch_delete_location_with_id($form_state['values']['location_id']);
+    cascading_hours_delete_location_with_id($form_state['values']['location_id']);
     $form_state['redirect'] = 'admin/structure/cascading_hours';
 }
 
@@ -245,7 +245,7 @@ function cascading_hours_admin_add_rule()
     $location_id = isset($_GET['location']) ? (int)$_GET['location'] : NULL;
     $location = [];
     if ($location_id != NULL) {
-        $location = ch_get_location_with_id($location_id);
+        $location = cascading_hours_get_location_with_id($location_id);
     }
 
     if (isset($location['name'])) {
@@ -285,7 +285,7 @@ function cascading_hours_admin_add_rule()
 function cascading_hours_admin_add_rule_form($form, &$form_state)
 {
     $form = [];
-    $locations = ch_get_locations();
+    $locations = cascading_hours_get_locations();
     $location_select = [];
     foreach($locations as $location) {
         $location_select[$location['id']] = $location['name'];
@@ -372,7 +372,7 @@ function cascading_hours_admin_add_rule_form_submit($form, &$form_state)
     $end_date = strtotime($form_state['values']['end_date']);
     $alias = $form_state['values']['alias'];
     if (!$alias) $alias = NULL;
-    ch_create_rule($location_id, $priority, $start_date, $end_date, $alias);
+    cascading_hours_create_rule($location_id, $priority, $start_date, $end_date, $alias);
 
     $form_state['redirect'] = 'admin/structure/cascading_hours/location/' . $location_id;
 }
@@ -384,9 +384,9 @@ function cascading_hours_admin_add_rule_form_submit($form, &$form_state)
 
 function cascading_hours_admin_delete_rule($rule_id)
 {
-    $rule = ch_get_rule_with_id($rule_id);
+    $rule = cascading_hours_get_rule_with_id($rule_id);
     $location_id = $rule['location_id'];
-    $location = ch_get_location_with_id($location_id);
+    $location = cascading_hours_get_location_with_id($location_id);
     if (isset($rule['id'])) {
 
         // rule exists
@@ -448,7 +448,7 @@ function cascading_hours_admin_delete_rule_form($form, &$form_state)
 
 function cascading_hours_admin_delete_rule_form_submit($form, &$form_state)
 {
-    ch_delete_rule_with_id($form_state['values']['rule_id']);
+    cascading_hours_delete_rule_with_id($form_state['values']['rule_id']);
     if (isset($form_state['build_info']['args'][1])) {
         $form_state['redirect'] = 'admin/structure/cascading_hours/location/' . $form_state['build_info']['args'][1];
     }
@@ -464,8 +464,8 @@ function cascading_hours_admin_delete_rule_form_submit($form, &$form_state)
 
 function cascading_hours_admin_edit_rule($id)
 {
-    $rule = ch_get_rule_with_id($id);
-    $location = ch_get_location_with_id($rule['location_id']);
+    $rule = cascading_hours_get_rule_with_id($id);
+    $location = cascading_hours_get_location_with_id($rule['location_id']);
     if (isset($rule['id'])) {
         $alias = $rule['alias'] ? "\"" . $rule['alias'] . "\"" : "";
         $page = "<h3>" . t("Edit Rule: ") . $rule['id'] . " " . $alias . "</h3>";
@@ -510,7 +510,7 @@ function cascading_hours_admin_edit_rule_form($form, &$form_state)
 {
     $form = [];
     $rule = $form_state['build_info']['args'][0];
-    $locations = ch_get_locations();
+    $locations = cascading_hours_get_locations();
     $location_select = [];
     foreach($locations as $location) {
         $location_select[$location['id']] = $location['name'];
@@ -593,7 +593,7 @@ function cascading_hours_admin_edit_rule_form_submit($form, &$form_state)
     $end_date = strtotime($form_state['values']['end_date']);
     $alias = $form_state['values']['alias'];
     if (!$alias) $alias = NULL;
-    ch_update_rule($rule_id, $location_id, $priority, $start_date, $end_date, $alias);
+    cascading_hours_update_rule($rule_id, $location_id, $priority, $start_date, $end_date, $alias);
     $form_state['redirect'] = "admin/structure/cascading_hours/rule/" . $rule_id;
 }
 
@@ -714,7 +714,7 @@ function cascading_hours_admin_add_schedule_form_submit_callback($form, $form_st
     // create (if validation successful)
 
     if (!$err) {
-        ch_create_schedule($rule_id, $day, $start_time, $end_time);
+        cascading_hours_create_schedule($rule_id, $day, $start_time, $end_time);
     }
 
     // update schedule_table
@@ -732,7 +732,7 @@ function cascading_hours_admin_add_schedule_form_submit_callback($form, $form_st
 
 function cascading_hours_admin_delete_schedule($schedule_id)
 {
-    $schedule = ch_get_schedule_with_id($schedule_id);
+    $schedule = cascading_hours_get_schedule_with_id($schedule_id);
     if (isset($schedule['id'])) {
 
         // schedule exists
@@ -785,7 +785,7 @@ function cascading_hours_admin_delete_schedule_form($form, &$form_state)
 
 function cascading_hours_admin_delete_schedule_form_submit($form, &$form_state)
 {
-    $schedule = ch_get_schedule_with_id($form_state['values']['schedule_id']);
+    $schedule = cascading_hours_get_schedule_with_id($form_state['values']['schedule_id']);
     if (isset($schedule['rule_id'])) {
         $form_state['redirect'] = 'admin/structure/cascading_hours/rule/' . $schedule['rule_id'];
     }
@@ -793,7 +793,7 @@ function cascading_hours_admin_delete_schedule_form_submit($form, &$form_state)
         $form_state['redirect'] = 'admin/structure/cascading_hours';
     }
 
-    ch_delete_schedule_with_id($form_state['values']['schedule_id']);
+    cascading_hours_delete_schedule_with_id($form_state['values']['schedule_id']);
 }
 
 /**
@@ -826,7 +826,7 @@ function cascading_hours_admin_generate_schedule_table($rule_id)
         5 => 'Fri',
         6 => 'Sat',
     );
-    $schedules = ch_get_schedules_with_rule_id($rule_id);
+    $schedules = cascading_hours_get_schedules_with_rule_id($rule_id);
     usort($schedules, "cascading_hours_day_cmp");
     $table = "<table><tr><th>" . t("id") . "</th><th>" . t("Day") . "</th><th>" . t("Start Time") . "</th><th>" . t("End Time") . "</th><th></th></tr>";
     if ($schedules == []) {
