@@ -14,6 +14,20 @@
 function cascading_hours_install() {
   variable_set('cascading_hours_delete_old_rules', false);
   variable_set('cascading_hours_old_rules_age', 14);
+  variable_set('cascading_hours_week_view_display_locations', array()); //ids of locations to display in week_view block
+}
+
+/**
+ * Implements hook_uninstall().
+ *
+ * @see hook_uninstall()
+ *
+ * @ingroup cascading_hours
+ */
+function cascading_hours_uninstall() {
+  variable_del('cascading_hours_delete_old_rules');
+  variable_del('cascading_hours_old_rules_age');
+  variable_del('cascading_hours_week_view_display_locations');
 }
 
 /**

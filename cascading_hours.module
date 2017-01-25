@@ -120,6 +120,117 @@ function cascading_hours_menu()
 }
 
 /**
+ * Implements hook_block_info().
+ */
+function cascading_hours_block_info()
+{
+    $blocks = array();
+    $blocks['week_view'] = array(
+        'info' => t('Week View'),
+    );
+    return $blocks;
+}
+
+/**
+ * Implements hook_block_configure
+ *
+ * @param string $delta - the unique identifier for the block being altered
+ * @return array - markup array for configuration form
+ */
+function cascading_hours_block_configure($delta = '')
+{
+    //TODO: check for deleted locations
+
+    switch($delta) {
+    case 'week_view':
+        $current_display_locations = variable_get('cascading_hours_week_view_display_locations', array());
+        $locations = cascading_hours_get_locations();
+        $display_locations = [];
+        foreach($locations as $location) {
+            $display_locations[$location['id']] = $location['name'];
+        }
+
+        $form = [];
+
+        $form['locations'] = array(
+            '#type' => 'checkboxes',
+            '#title' => t('Select Locations to Display'),
+            '#description' => t('Select locations for the week_view block to render schedules for.'),
+            '#options' => $display_locations,
+            '#default_value' => $current_display_locations,
+        );
+
+        return $form;
+
+        break;
+    }
+}
+
+/**
+ * Implements hook_block_save().
+ *
+ * @param string $delta - the unique identifier for the block being altered
+ * @param array  $edit  - array of configuration form information
+ */
+function cascading_hours_block_save($delta = '', $edit = array())
+{
+    switch($delta) {
+    case 'week_view':
+        variable_set('cascading_hours_week_view_display_locations', $edit['locations']);
+        break;
+    }
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function cascading_hours_block_view($delta = '') {
+  $block = array();
+
+  switch($delta) {
+    case 'week_view' :
+      $block['content'] = cascading_hours_block_week_view();
+      break;
+  }
+
+  return $block;
+}
+
+/**
+ * Helper function that generates the markup for the week_view block
+ */
+function cascading_hours_block_week_view() {
+    $page = '';
+    $display_locations = variable_get('cascading_hours_week_view_display_locations');
+    $start = strtotime('today midnight');
+    $end = strtotime('today midnight', $start + 60 * 60 * 24 * 7);
+    foreach($display_locations as $location_id) {
+        $location = cascading_hours_get_location_with_id($location_id);
+        $start = strtotime('today midnight');
+        $end = strtotime('today midnight', $start + 60 * 60 * 24 * 7);
+        $schedule = cascading_hours_get_schedule_in_range_for_location_with_id($location_id, $start, $end);
+        $schedule = cascading_hours_generate_schedule($schedule, $start);
+
+        $page .= '<h3>' . $location['name'] . '</h3><ul>';
+        foreach($schedule as $day => $day_schedule) {
+            $page .= '<li>' . date('l, n/d', $start + ($day * 60 * 60 * 24)) . ': ';
+            if($day_schedule == []) {
+                $page .= 'closed</li>';
+            } else {
+                foreach($day_schedule as $schedule_block) {
+                    $page .= date('g:ia', strtotime($schedule_block['start']));
+                    $page .= ' - ';
+                    $page .= date('g:ia', strtotime($schedule_block['end'])) . " ";
+                }
+            }
+            $page .= '</li>';
+        }
+        $page .= '</ul>';
+    }
+    return $page;
+}
+
+/**
  * Form to run cron manually
  */
 function cascading_hours_cron_form($form, &$form_state)
@@ -137,7 +248,7 @@ function cascading_hours_cron_form($form, &$form_state)
         );
     }
     $form['go_back'] = array(
-        '#markup' => l(t("Go back") , "admin/structure/cascading_hours"),
+        '#markup' => l(t("Go back"), "admin/structure/cascading_hours"),
     );
 
     return $form;
@@ -158,9 +269,9 @@ function cascading_hours_form_submit($form, &$form_state)
 }
 
 /**
- * Deletes rules
+* Implements hook_cron().
  *
- * @implements hook_cron().
+ * On run deletes rules older than specified time (if enabled)
  */
 function cascading_hours_cron()
 {
@@ -250,7 +361,6 @@ function cascading_hours_query_to_array($query)
     while ($row = $query->fetchAssoc()) {
         $arr[] = $row;
     }
-
     return $arr;
 }
 
@@ -517,7 +627,6 @@ function cascading_hours_get_location_with_id($location_id)
 
 function cascading_hours_get_rules_in_range_for_location_with_id($location_id, $start_date, $end_date)
 {
-
     // select * from cascading_hours_rules where location_id = $location_id and start_date >= $start_date and end_date <= $end_date order by priority asc;
 
     $rules = db_select('cascading_hours_rules', 'c')
