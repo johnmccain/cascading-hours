@@ -1,0 +1,26 @@
+.cascading-hours-nav-view {
+	border: 2px double #333;
+	border-radius: 5px;
+	min-height: 100px;
+	position: relative;
+	text-align: center;
+}
+
+.nav-view-locations {
+}
+
+.nav-view-left {
+	font-size: 20px;
+	font-weight: bold;
+	position: absolute;
+	top: 5px;
+	left: 5px;
+}
+
+.nav-view-right {
+	font-size: 20px;
+	font-weight: bold;
+	position: absolute;
+	top: 5px;
+	right: 5px;
+}

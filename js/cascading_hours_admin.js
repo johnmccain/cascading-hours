@@ -24,6 +24,5 @@ jQuery(document).ready( function() {
  * For use on text fields that should have numeric values only. Should be used as an event handler
  */
 function liveValidateNumericField() {
-	var val = jQuery(this).val();
-	jQuery(this).val(val.replace(/[^0-9]/g, ''));
+	jQuery(this).val(jQuery(this).val().replace(/[^0-9]/g, ''));
 }

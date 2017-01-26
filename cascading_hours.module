@@ -9,7 +9,6 @@
 /**
  * Implements hook_menu().
  */
-
 function cascading_hours_menu()
 {
     $include_path = drupal_get_path('module', 'cascading_hours') . '/includes';
@@ -126,7 +125,10 @@ function cascading_hours_block_info()
 {
     $blocks = array();
     $blocks['week_view'] = array(
-        'info' => t('Week View'),
+        'info' => t('Cascading Hours Week View'),
+    );
+    $blocks['nav_view'] = array(
+        'info' => t('Cascading Hours Nav View'),
     );
     return $blocks;
 }
@@ -134,36 +136,40 @@ function cascading_hours_block_info()
 /**
  * Implements hook_block_configure
  *
- * @param string $delta - the unique identifier for the block being altered
+ * @param  string $delta - the unique identifier for the block being altered
  * @return array - markup array for configuration form
  */
 function cascading_hours_block_configure($delta = '')
 {
     //TODO: check for deleted locations
+    $current_display_locations;
 
     switch($delta) {
     case 'week_view':
         $current_display_locations = variable_get('cascading_hours_week_view_display_locations', array());
-        $locations = cascading_hours_get_locations();
-        $display_locations = [];
-        foreach($locations as $location) {
-            $display_locations[$location['id']] = $location['name'];
-        }
-
-        $form = [];
-
-        $form['locations'] = array(
-            '#type' => 'checkboxes',
-            '#title' => t('Select Locations to Display'),
-            '#description' => t('Select locations for the week_view block to render schedules for.'),
-            '#options' => $display_locations,
-            '#default_value' => $current_display_locations,
-        );
-
-        return $form;
-
+        break;
+    case 'nav_view':
+        $current_display_locations = variable_get('cascading_hours_nav_view_display_locations', array());
         break;
     }
+
+    $locations = cascading_hours_get_locations();
+    $display_locations = [];
+    foreach($locations as $location) {
+        $display_locations[$location['id']] = $location['name'];
+    }
+
+    $form = [];
+
+    $form['locations'] = array(
+        '#type' => 'checkboxes',
+        '#title' => t('Select Locations to Display'),
+        '#description' => t('Select locations for which the should render schedules.'),
+        '#options' => $display_locations,
+        '#default_value' => $current_display_locations,
+    );
+
+    return $form;
 }
 
 /**
@@ -178,28 +184,35 @@ function cascading_hours_block_save($delta = '', $edit = array())
     case 'week_view':
         variable_set('cascading_hours_week_view_display_locations', $edit['locations']);
         break;
+    case 'nav_view':
+        variable_set('cascading_hours_nav_view_display_locations', $edit['locations']);
+        break;
     }
 }
 
 /**
  * Implements hook_block_view().
  */
-function cascading_hours_block_view($delta = '') {
-  $block = array();
+function cascading_hours_block_view($delta = '')
+{
+    $block = array();
 
-  switch($delta) {
+    switch($delta) {
     case 'week_view' :
-      $block['content'] = cascading_hours_block_week_view();
-      break;
-  }
-
-  return $block;
+        $block['content'] = cascading_hours_block_week_view();
+        break;
+    case 'nav_view' :
+        $block['content'] = cascading_hours_block_nav_view();
+        break;
+    }
+    return $block;
 }
 
 /**
  * Helper function that generates the markup for the week_view block
  */
-function cascading_hours_block_week_view() {
+function cascading_hours_block_week_view()
+{
     $page = '';
     $display_locations = variable_get('cascading_hours_week_view_display_locations');
     $start = strtotime('today midnight');
@@ -215,7 +228,7 @@ function cascading_hours_block_week_view() {
         foreach($schedule as $day => $day_schedule) {
             $page .= '<li>' . date('l, n/d', $start + ($day * 60 * 60 * 24)) . ': ';
             if($day_schedule == []) {
-                $page .= 'closed</li>';
+                $page .= 'closed';
             } else {
                 foreach($day_schedule as $schedule_block) {
                     $page .= date('g:ia', strtotime($schedule_block['start']));
@@ -227,6 +240,34 @@ function cascading_hours_block_week_view() {
         }
         $page .= '</ul>';
     }
+    return $page;
+}
+
+/**
+ * Helper function that generates the markup for the nav_view block
+ */
+function cascading_hours_block_nav_view()
+{
+    $display_locations = variable_get('cascading_hours_nav_view_display_locations');
+
+    $page = '<div class="cascading-hours-nav-view" data-module-path="' . base_path() . drupal_get_path('module', 'cascading_hours') . '">
+    <a class="nav-view-left" href="javascript:void(0)">&lsaquo;</a>
+    <select class="nav-view-locations" name="nav-view-locations">';
+    $first = true;
+    foreach($display_locations as $location_id) {
+        $location = cascading_hours_get_location_with_id($location_id);
+        if($first) {
+            $page .= '<option selected value="' . $location['id'] . '">' . $location['name'] . '</option>';
+            $first = false;
+        } else {
+            $page .= '<option value="' . $location['id'] . '">' . $location['name'] . '</option>';
+        }
+    }
+    $page .= '</select>
+    <a class="nav-view-right" href="javascript:void(0)">&rsaquo;</a>
+    </div>';
+    drupal_add_js(drupal_get_path('module', 'cascading_hours') . '/js/cascading_hours_nav_view.js');
+    drupal_add_css(drupal_get_path('module', 'cascading_hours') . '/css/cascading_hours_nav_view.css');
     return $page;
 }
 
@@ -303,7 +344,6 @@ function cascading_hours_cron()
 /**
  * Implements hook_permission().
  */
-
 function cascading_hours_permission()
 {
     return array(
@@ -317,7 +357,6 @@ function cascading_hours_permission()
 /**
  * Implements hook_admin_paths().
  */
-
 function cascading_hours_admin_paths()
 {
     return array(
@@ -342,7 +381,6 @@ function cascading_hours_admin_paths()
  *  @param  array $b - schedule block
  *  @return int - negative if $a < $b, 0 if $a == $b, positive if $a > $b
  */
-
 function cascading_hours_block_cmp($a, $b)
 {
     return strtotime($a['start']) - strtotime($b['start']);
@@ -354,7 +392,6 @@ function cascading_hours_block_cmp($a, $b)
  *  @param  DatabaseConnection_mysql $query - the query to transform
  *  @return array - the query as a keyed array
  */
-
 function cascading_hours_query_to_array($query)
 {
     $arr = [];
@@ -372,7 +409,6 @@ function cascading_hours_query_to_array($query)
  *  @param  int   $start_date - timestamp of the starting date of the schedule series (used for offset)
  *  @return array - schedule array ready for json encoding
  */
-
 function cascading_hours_generate_schedule($schedules, $start_date)
 {
     $obj = []; //schedule object (ready for output to json)
@@ -409,7 +445,6 @@ function cascading_hours_generate_schedule($schedules, $start_date)
  * @param string $name
  *   The name of the new location
  */
-
 function cascading_hours_create_location($name)
 {
     $result = db_select('cascading_hours_locations', 'c')
@@ -451,7 +486,6 @@ function cascading_hours_create_location($name)
  *  @param int    $end_date    - a unix timestamp of the end date
  *  @param string $alias       = null - optional alias for the rule
  */
-
 function cascading_hours_create_rule($location_id, $priority, $start_date, $end_date, $alias = null)
 {
     $entry = [];
@@ -478,7 +512,6 @@ function cascading_hours_create_rule($location_id, $priority, $start_date, $end_
  *  @param  int $end_time   - a unix timestamp for the ending time (date information discarded)
  *  @return int - the inserted schedule's id
  */
-
 function cascading_hours_create_schedule($rule_id, $day, $start_time, $end_time)
 {
     $entry = [];
@@ -496,8 +529,10 @@ function cascading_hours_create_schedule($rule_id, $day, $start_time, $end_time)
 
 /**
  *
+ *  @param string $location_name
+ *  @param int    $start_date    - UNIX timestamp for start of date range
+ *  @param int    $end_date      - UNIX timestamp for end of date range
  */
-
 function cascading_hours_get_schedule_in_range_for_location_with_name($location_name, $start_date, $end_date)
 {
     $location = db_select('cascading_hours_locations', 'c')
@@ -522,7 +557,6 @@ function cascading_hours_get_schedule_in_range_for_location_with_name($location_
  *  @param int $start_date  - UNIX timestamp for start of date range
  *  @param int $end_date    - UNIX timestamp for end of date range
  */
-
 function cascading_hours_get_schedule_in_range_for_location_with_id($location_id, $start_date, $end_date)
 {
     $rules = cascading_hours_get_rules_in_range_for_location_with_id($location_id, $start_date, $end_date);
@@ -570,7 +604,6 @@ function cascading_hours_get_schedule_in_range_for_location_with_id($location_id
  *  @param  array $rules - a 2d array of rules and their fields
  *  @return array - a 2d array of rules and their fields with schedules property
  */
-
 function cascading_hours_concat_rules_with_schedules($rules)
 {
     foreach($rules as $rule) {
@@ -585,7 +618,6 @@ function cascading_hours_concat_rules_with_schedules($rules)
  *
  *  @return array - 2d keyed array of locations
  */
-
 function cascading_hours_get_locations()
 {
     $locations = db_select('cascading_hours_locations', 'c')
@@ -604,7 +636,6 @@ function cascading_hours_get_locations()
  *
  *  @return array - 2d keyed array of locations
  */
-
 function cascading_hours_get_location_with_id($location_id)
 {
     $location = db_select('cascading_hours_locations', 'c')
@@ -624,7 +655,6 @@ function cascading_hours_get_location_with_id($location_id)
  *
  *  @return array - 2d array of rules and their fields, ordered by priority
  */
-
 function cascading_hours_get_rules_in_range_for_location_with_id($location_id, $start_date, $end_date)
 {
     // select * from cascading_hours_rules where location_id = $location_id and start_date >= $start_date and end_date <= $end_date order by priority asc;
@@ -651,7 +681,6 @@ function cascading_hours_get_rules_in_range_for_location_with_id($location_id, $
  * @param  int $location_id - the location_id to find matching rules for
  * @return array - a 2d keyed array of rules and their fields
  */
-
 function cascading_hours_get_rules_with_location_id($location_id)
 {
     $rules = db_select('cascading_hours_rules', 'c')
@@ -672,7 +701,6 @@ function cascading_hours_get_rules_with_location_id($location_id)
  * @param  int $rule_id - the id of the rule to find
  * @return array - an array of the rule's fields (empty if none found)
  */
-
 function cascading_hours_get_rule_with_id($rule_id)
 {
     $rule = db_select('cascading_hours_rules', 'c')
@@ -689,7 +717,6 @@ function cascading_hours_get_rule_with_id($rule_id)
  *  @param  int $rule_id - the rule id to filter by
  *  @return array - an array of schedules
  */
-
 function cascading_hours_get_schedules_with_rule_id($rule_id)
 {
     $schedules = db_select('cascading_hours_schedules', 'c')
@@ -711,7 +738,6 @@ function cascading_hours_get_schedules_with_rule_id($rule_id)
  *  @param  int $day_of_week - the day of the week to filter by
  *  @return array - an array of schedules
  */
-
 function cascading_hours_get_schedules_with_rule_id_and_day($rule_id, $day_of_week)
 {
     $schedules = db_select('cascading_hours_schedules', 'c')
@@ -729,7 +755,6 @@ function cascading_hours_get_schedules_with_rule_id_and_day($rule_id, $day_of_we
  *  @param  int $day_of_week - the day of the week to filter by
  *  @return array - an array of schedules
  */
-
 function cascading_hours_get_schedule_with_id($id)
 {
     $schedule = db_select('cascading_hours_schedules', 'c')
@@ -741,13 +766,13 @@ function cascading_hours_get_schedule_with_id($id)
 }
 
 /*** UPDATE FUNCTIONS ***/
+
 /**
  * Update a location
  *
  * @param int $location_id
  * @param
  */
-
 function cascading_hours_update_location($location_id, $name = null)
 {
     if ($name) {
@@ -774,7 +799,6 @@ function cascading_hours_update_location($location_id, $name = null)
  *  @param int    $end_date    - a unix timestamp of the end date
  *  @param string $alias       = null - optional alias for the rule
  */
-
 function cascading_hours_update_rule($rule_id, $location_id, $priority, $start_date, $end_date, $alias = null)
 {
     if (!($rule_id != null && $location_id != null && $priority != null && $start_date && $end_date)) {
@@ -803,7 +827,6 @@ function cascading_hours_update_rule($rule_id, $location_id, $priority, $start_d
  *
  *  @param string $name
  */
-
 function cascading_hours_delete_location_with_name($name)
 {
     $location = db_select('cascading_hours_locations', 'c')
@@ -821,7 +844,6 @@ function cascading_hours_delete_location_with_name($name)
  *
  *  @param int $id
  */
-
 function cascading_hours_delete_location_with_id($id)
 {
     cascading_hours_delete_rules_with_location_id($id);
@@ -836,7 +858,6 @@ function cascading_hours_delete_location_with_id($id)
  *
  *  @param int $location_id
  */
-
 function cascading_hours_delete_rules_with_location_id($location_id)
 {
     $rules = cascading_hours_get_rules_with_location_id($location_id);
@@ -854,7 +875,6 @@ function cascading_hours_delete_rules_with_location_id($location_id)
  *
  *  @param int $id
  */
-
 function cascading_hours_delete_rule_with_id($id)
 {
     $result = db_delete('cascading_hours_rules')
@@ -868,7 +888,6 @@ function cascading_hours_delete_rule_with_id($id)
  *
  *  @param int $rule_id
  */
-
 function cascading_hours_delete_schedules_with_rule_id($rule_id)
 {
     $schedules = db_select('cascading_hours_schedules', 'c')
@@ -889,7 +908,6 @@ function cascading_hours_delete_schedules_with_rule_id($rule_id)
  *
  *  @param int $id
  */
-
 function cascading_hours_delete_schedule_with_id($id)
 {
     $result = db_delete('cascading_hours_schedules')
