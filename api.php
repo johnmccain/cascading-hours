@@ -19,7 +19,7 @@ $end_date = (int)$_GET['end'];
 $schedule;
 if(isset($_GET['location_id'])) {
 	$location_id = (int)$_GET['location_id'];
-	$schedule = cascading_hours_get_schedule_in_range_for_location_with_id($location_name, $start_date, $end_date);
+	$schedule = cascading_hours_get_schedule_in_range_for_location_with_id($location_id, $start_date, $end_date);
 } else if(isset($_GET['location_name'])) {
 	$location_name = htmlspecialchars($_GET['location_name']);
 	$schedule = cascading_hours_get_schedule_in_range_for_location_with_name($location_name, $start_date, $end_date);

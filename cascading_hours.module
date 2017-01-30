@@ -255,6 +255,7 @@ function cascading_hours_block_nav_view()
     <select class="nav-view-locations" name="nav-view-locations">';
     $first = true;
     foreach($display_locations as $location_id) {
+        echo "<script>console.log('" . json_encode($display_locations) . "')</script>";
         $location = cascading_hours_get_location_with_id($location_id);
         if($first) {
             $page .= '<option selected value="' . $location['id'] . '">' . $location['name'] . '</option>';
@@ -265,6 +266,7 @@ function cascading_hours_block_nav_view()
     }
     $page .= '</select>
     <a class="nav-view-right" href="javascript:void(0)">&rsaquo;</a>
+    <div class="nav-view-schedule"><p>Loading...</p></div>
     </div>';
     drupal_add_js(drupal_get_path('module', 'cascading_hours') . '/js/cascading_hours_nav_view.js');
     drupal_add_css(drupal_get_path('module', 'cascading_hours') . '/css/cascading_hours_nav_view.css');

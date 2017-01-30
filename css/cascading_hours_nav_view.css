@@ -7,10 +7,12 @@
 }
 
 .nav-view-locations {
+	min-width: 100px;
+	text-align: center;
 }
 
 .nav-view-left {
-	font-size: 20px;
+	font-size: 30px;
 	font-weight: bold;
 	position: absolute;
 	top: 5px;
@@ -18,7 +20,7 @@
 }
 
 .nav-view-right {
-	font-size: 20px;
+	font-size: 30px;
 	font-weight: bold;
 	position: absolute;
 	top: 5px;
