@@ -104,7 +104,7 @@ function cascading_hours_admin_edit_location($location_id)
 
         $name = $location["name"];
         $page = "<h3>" . t("Edit Location:") . " $name</h3>";
-        $page .= l(t("Go back"), "admin/structure/cascading_hours");
+        $page .= l(t("Go back"), "admin/structure/cascading_hours/location/" . $location['id']);
         $page .= "<hr/>";
         $form = drupal_get_form("cascading_hours_admin_edit_location_form", $location);
         $page .= render($form);
@@ -134,7 +134,7 @@ function cascading_hours_admin_edit_location($location_id)
         }
 
         $page .= "</table><hr/>";
-        $page .= l(t("Go back"), "admin/structure/cascading_hours");
+        $page .= l(t("Go back"), "admin/structure/cascading_hours/location/" . $location['id']);
         return $page;
     }
     else {

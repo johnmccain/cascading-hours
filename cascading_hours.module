@@ -18,9 +18,9 @@ function cascading_hours_menu()
         'description' => 'Manage Cascading Hours general settings.',
         'page callback' => 'cascading_hours_admin',
         'access arguments' => array(
-            'administer cascading hours configuration'
+            'administer_cascading_hours_configuration'
         ) ,
-        'file' => 'cascading_hours.admin.inc',
+        'file' => 'cascading_hours.admin.php',
         'file path' => $include_path
     );
     $items['admin/structure/cascading_hours/location/%'] = array(
@@ -31,9 +31,9 @@ function cascading_hours_menu()
             4
         ) ,
         'access arguments' => array(
-            'administer cascading hours configuration'
+            'administer_cascading_hours_configuration'
         ) ,
-        'file' => 'cascading_hours.admin.inc',
+        'file' => 'cascading_hours.admin.php',
         'file path' => $include_path
     );
     $items['admin/structure/cascading_hours/location/add'] = array(
@@ -41,9 +41,9 @@ function cascading_hours_menu()
         'description' => 'Add a new Cascading Hours location.',
         'page callback' => 'cascading_hours_admin_add_location',
         'access arguments' => array(
-            'administer cascading hours configuration'
+            'administer_cascading_hours_configuration'
         ) ,
-        'file' => 'cascading_hours.admin.inc',
+        'file' => 'cascading_hours.admin.php',
         'file path' => $include_path
     );
     $items['admin/structure/cascading_hours/location/%/delete'] = array(
@@ -54,9 +54,9 @@ function cascading_hours_menu()
             4
         ) ,
         'access arguments' => array(
-            'administer cascading hours configuration'
+            'administer_cascading_hours_configuration'
         ) ,
-        'file' => 'cascading_hours.admin.inc',
+        'file' => 'cascading_hours.admin.php',
         'file path' => $include_path
     );
     $items['admin/structure/cascading_hours/rule/%'] = array(
@@ -67,9 +67,9 @@ function cascading_hours_menu()
             4
         ) ,
         'access arguments' => array(
-            'administer cascading hours configuration'
+            'administer_cascading_hours_configuration'
         ) ,
-        'file' => 'cascading_hours.admin.inc',
+        'file' => 'cascading_hours.admin.php',
         'file path' => $include_path
     );
     $items['admin/structure/cascading_hours/rule/add'] = array(
@@ -77,9 +77,9 @@ function cascading_hours_menu()
         'description' => 'Create a Cascading Hours rule.',
         'page callback' => 'cascading_hours_admin_add_rule',
         'access arguments' => array(
-            'administer cascading hours configuration'
+            'administer_cascading_hours_configuration'
         ) ,
-        'file' => 'cascading_hours.admin.inc',
+        'file' => 'cascading_hours.admin.php',
         'file path' => $include_path
     );
     $items['admin/structure/cascading_hours/rule/%/delete'] = array(
@@ -90,9 +90,9 @@ function cascading_hours_menu()
             4
         ) ,
         'access arguments' => array(
-            'administer cascading hours configuration'
+            'administer_cascading_hours_configuration'
         ) ,
-        'file' => 'cascading_hours.admin.inc',
+        'file' => 'cascading_hours.admin.php',
         'file path' => $include_path
     );
     $items['admin/structure/cascading_hours/schedule/%/delete'] = array(
@@ -103,9 +103,9 @@ function cascading_hours_menu()
             4
         ) ,
         'access arguments' => array(
-            'administer cascading hours configuration'
+            'administer_cascading_hours_configuration'
         ) ,
-        'file' => 'cascading_hours.admin.inc',
+        'file' => 'cascading_hours.admin.php',
         'file path' => $include_path
     );
 
@@ -114,6 +114,19 @@ function cascading_hours_menu()
       'page callback' => 'drupal_get_form',
       'page arguments' => array('cascading_hours_cron_form'),
       'access callback' => true,
+    );
+    $items['admin/structure/cascading_hours/import/%'] = array(
+        'title' => 'Cascading Hours: Import a Schedule',
+        'description' => 'Import a schedule to Cascading Hours.',
+        'page callback' => 'cascading_hours_admin_import',
+        'page arguments' => array(
+            4
+        ) ,
+        'access arguments' => array(
+            'administer_cascading_hours_configuration'
+        ) ,
+        'file' => 'cascading_hours.import.php',
+        'file path' => $include_path
     );
     return $items;
 }
@@ -349,7 +362,7 @@ function cascading_hours_cron()
 function cascading_hours_permission()
 {
     return array(
-        'administer cascading hours configuration' => array(
+        'administer_cascading_hours_configuration' => array(
             'title' => t('Administer cascading hours configuration') ,
             'description' => t('Allows the user to configure all cascading hours general settings and create/edit/delete locations and rules.') ,
         )
@@ -596,8 +609,6 @@ function cascading_hours_get_schedule_in_range_for_location_with_id($location_id
     // array (indexed by day #) of schedule arrays
 
     return $schedules;
-
-    // at this point we have an array of schedule arrays, we can return this (might want to clean up first)
 }
 
 /**
