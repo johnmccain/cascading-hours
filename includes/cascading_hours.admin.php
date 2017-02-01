@@ -133,7 +133,9 @@ function cascading_hours_admin_edit_location($location_id)
             $page .= "<td>" . l(t("delete"), "admin/structure/cascading_hours/rule/$rule_id/delete") . "</td></tr>";
         }
 
-        $page .= "</table><hr/>";
+        $page .= "</table>";
+        $page .= l(t("Import Schedule"), "admin/structure/cascading_hours/import/" . $location['id']);
+        $page .= "<hr/>";
         $page .= l(t("Go back"), "admin/structure/cascading_hours/location/" . $location['id']);
         return $page;
     }
