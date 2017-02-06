@@ -140,11 +140,14 @@ function cascading_hours_admin_import_form_submit($form, &$form_state)
         }
     } else {
         //form is in confirmation stage, apply changes
-        watchdog('cascading_hours', 'got to import stage');
-        drupal_set_message(json_encode($_SESSION['cascading_hours_import_data']));
+        unset($form_state['storage']['confirm']);
         $location_id = $_SESSION['cascading_hours_import_location_id'];
         $schedule = $_SESSION['cascading_hours_import_data'];
-        cascading_hours_import_schedule($schedule, $location_id);
+        if(cascading_hours_import_schedule($schedule, $location_id)) {
+            //successfully imported schedule, display success message
+            drupal_set_message('Success! <br/>' . json_encode($_SESSION['cascading_hours_import_data']));
+        }
+        watchdog('cascading_hours', "Imported schedule for location with id $location_id");
     }
 }
 
@@ -262,8 +265,108 @@ function cascading_hours_import_schedule($schedule, $location_id) {
     reset($schedule);
     $import_start = strtotime(key($schedule));
 
-    $rules = cascading_hours_get_rules_contained_within_range_with_location_id($location_id, $import_start, $import_end);
-    foreach($rules as $rule) {
+    $old_rules = cascading_hours_get_rules_contained_within_range_with_location_id($location_id, $import_start, $import_end);
+    foreach($old_rules as $rule) {
         cascading_hours_delete_rule_with_id($rule['id']);
     }
+
+    //adjust start/end dates of rules that overlap but are not contained within the import region
+    $new_end = new DateTime();
+    $new_end->setTimestamp($import_start);
+    $new_end->modify('-1 day');
+    $new_start = new DateTime();
+    $new_start->setTimestamp($import_end);
+    $new_start->modify('+1 days');
+
+    db_update('cascading_hours_rules')
+    ->fields(
+        array(
+        'end_date' => $new_end->format('Y-m-d H:i:s'),
+        )
+    )
+    ->condition('location_id', $location_id, '=')
+    ->condition(
+        db_and()
+        ->condition('end_date', date('Y-m-d H:i:s', $import_start), '>')
+        ->condition('end_date', date('Y-m-d H:i:s', $import_end), '<=')
+        )
+    ->execute();
+
+    db_update('cascading_hours_rules')
+    ->fields(
+        array(
+        'start_date' => $new_start->format('Y-m-d H:i:s'),
+        )
+    )
+    ->condition('location_id', $location_id, '=')
+    ->condition(
+        db_and()
+        ->condition('start_date', date('Y-m-d H:i:s', $import_start), '>=')
+        ->condition('start_date', date('Y-m-d H:i:s', $import_end), '<')
+        )
+    ->execute();
+
+    //find rules overlapping the import range--split them
+    $rules = db_select('cascading_hours_rules', 'c')
+    ->fields('c')
+    ->condition('location_id', $location_id, '=')
+    ->condition(
+        db_and()
+        ->condition('start_date', date('Y-m-d H:i:s', $import_start), '<')
+        ->condition('end_date', date('Y-m-d H:i:s', $import_end), '>')
+        )
+        ->execute();
+    $rules = cascading_hours_query_to_array($rules);
+    foreach($rules as $rule) {
+        //create a new rule with same end, priority, location_id, and schedules as original but starts after import range
+        $new_id = cascading_hours_create_rule($rule['location_id'], $rule['priority'], $new_start->getTimestamp(), strtotime($rule['end_date']), isset($rule['alias']) ? $rule['alias'] . ' split' : NULL);
+        $old_sched = cascading_hours_get_schedules_with_rule_id($rule['id']);
+        foreach($old_sched as $sched) {
+            cascading_hours_create_schedule($new_id, $sched['day'], strtotime($sched['start_time']), strtotime($sched['end_time']));
+        }
+        //move end date of original rule to before the import range
+        db_update('cascading_hours_rules')
+        ->fields(
+            array(
+            'end_date' => $new_end->format('Y-m-d H:i:s'),
+            )
+        )
+        ->condition('id', $rule['id'], '=')
+        ->execute();
+    }
+
+    //find contiguous rule blocks
+    //$rule_ranges holds an array of delimeter blocks with start & end timestamp pairs (end exclusive)
+    $rule_ranges = [];
+    //$delim holds the last beginning of a rule range
+    $delim = new DateTime();
+    $delim->setTimestamp($import_start);
+    $date_iterator = new DateTime();
+    for($date_iterator->setTimestamp($import_start); isset($schedule[$date_iterator->format('Y-m-d')]); $date_iterator->modify('+1 day')) {
+        $day = $schedule[$date_iterator->format('Y-m-d')];
+        $date_iterator->modify('-7 days'); //last week
+        $prev_day = isset($schedule[$date_iterator->format('Y-m-d')]) ? $schedule[$date_iterator->format('Y-m-d')] : NULL;
+        $date_iterator->modify('+7 days'); //bring back to present
+        if($prev_day && json_encode($day) != json_encode($prev_day)) {
+            //time for a new rule
+            $range['start'] = $delim->getTimestamp();
+            $range['end'] = $date_iterator->getTimestamp();
+            $delim->setTimestamp($date_iterator->getTimestamp());
+            $rule_ranges[] = $range;
+        }
+    }
+
+    $rule_ranges[] = array('start' => $delim->getTimestamp(),
+                           'end' => $date_iterator->modify('-1 day')->getTimestamp());
+    $num = 1;
+    foreach($rule_ranges as &$rule) {
+        $rule['id'] = cascading_hours_create_rule($location_id, 5, $rule['start'], $rule['end'], date('Y-m-d') . ': import #' . $num++);
+        for($date_iterator->setTimestamp($rule['start']); $date_iterator->getTimestamp() < $rule['end']; $date_iterator->modify('+1 day')) {
+            $schedule_blocks = $schedule[$date_iterator->format('Y-m-d')];
+            foreach($schedule_blocks as $block) {
+                cascading_hours_create_schedule($rule['id'], (int)$date_iterator->format('w'), strtotime($block['start_time']), strtotime($block['end_time']));
+            }
+        }
+    }
+    return true;
 }

@@ -753,13 +753,9 @@ function cascading_hours_get_schedules_with_rule_id($rule_id)
     $schedules = db_select('cascading_hours_schedules', 'c')
     ->fields('c')
     ->condition('rule_id', $rule_id, '=')
+    ->orderBy('start_time')
     ->execute();
-    $arr = [];
-    while ($sched = $schedules->fetchAssoc()) {
-        $arr[] = $sched;
-    }
-
-    return $arr;
+    return cascading_hours_query_to_array($schedules);
 }
 
 /**
@@ -775,8 +771,9 @@ function cascading_hours_get_schedules_with_rule_id_and_day($rule_id, $day_of_we
     ->fields('c')
     ->condition('rule_id', $rule_id, '=')
     ->condition('day', $day_of_week, '=')
+    ->orderBy('start_time')
     ->execute();
-    return $schedules;
+    return cascading_hours_query_to_array($schedules);
 }
 
 /**
@@ -807,9 +804,7 @@ function cascading_hours_get_schedule_with_id($id)
 function cascading_hours_update_location($location_id, $name = null)
 {
     if ($name) {
-        db_update('cascading_hours_locations') // Table name no longer needs {}
-
-
+        db_update('cascading_hours_locations')
         ->fields(
             array(
             'name' => $name

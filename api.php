@@ -29,7 +29,7 @@ if(isset($_GET['location_id'])) {
 	echo json_encode($error);
 	die();
 }
-if($schedule['error']) {
+if(isset($schedule['error'])) {
 	echo json_encode($schedule);
 } else {
 	$obj = cascading_hours_generate_schedule($schedule, $start_date);
