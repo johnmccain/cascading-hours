@@ -11,10 +11,11 @@
  *
  * @ingroup cascading_hours
  */
-function cascading_hours_install() {
-  variable_set('cascading_hours_delete_old_rules', false);
-  variable_set('cascading_hours_old_rules_age', 14);
-  variable_set('cascading_hours_week_view_display_locations', array()); //ids of locations to display in week_view block
+function cascading_hours_install()
+{
+    variable_set('cascading_hours_delete_old_rules', false);
+    variable_set('cascading_hours_old_rules_age', 14);
+    variable_set('cascading_hours_week_view_display_locations', array()); //ids of locations to display in week_view block
 }
 
 /**
@@ -24,10 +25,11 @@ function cascading_hours_install() {
  *
  * @ingroup cascading_hours
  */
-function cascading_hours_uninstall() {
-  variable_del('cascading_hours_delete_old_rules');
-  variable_del('cascading_hours_old_rules_age');
-  variable_del('cascading_hours_week_view_display_locations');
+function cascading_hours_uninstall()
+{
+    variable_del('cascading_hours_delete_old_rules');
+    variable_del('cascading_hours_old_rules_age');
+    variable_del('cascading_hours_week_view_display_locations');
 }
 
 /**
@@ -37,10 +39,11 @@ function cascading_hours_uninstall() {
  * Remember that the easiest way to create the code for hook_schema is with
  * the @link http://drupal.org/project/schema schema module @endlink
  *
- * @see hook_schema()
+ * @see     hook_schema()
  * @ingroup cascading_hours
  */
-function cascading_hours_schema() {
+function cascading_hours_schema()
+{
     $schema['cascading_hours_locations'] = array(
     'description' => 'Stores locations to which schedule rules can be applied.',
     'fields' => array(
@@ -61,7 +64,7 @@ function cascading_hours_schema() {
     'indexes' => array(
       'name'    => array('name')
     ),
-  );
+    );
 
     $schema['cascading_hours_rules'] = array(
     'description' => 'Stores schedule rules to be applied to a location.',
@@ -109,7 +112,7 @@ function cascading_hours_schema() {
       'relevant' => array('location_id', 'priority'),
       'relevant_date' => array('location_id', 'priority', 'start_date')
     ),
-  );
+    );
 
     $schema['cascading_hours_schedules'] = array(
     'description' => 'Stores schedules which match a rule.  Stores a single time block.',
@@ -147,7 +150,7 @@ function cascading_hours_schema() {
     'indexes' => array(
       'rule_id' => array('rule_id')
     ),
-  );
+    );
 
     return $schema;
 }

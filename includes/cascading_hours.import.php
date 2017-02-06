@@ -36,24 +36,37 @@ function cascading_hours_admin_import($location_id)
  */
 function cascading_hours_admin_import_form($form, &$form_state)
 {
+    if(!isset($form_state['storage']['confirm'])) {
+        //form is in upload stage, display upload form
+        $location_id = $form_state['build_info']['args'][0];
+        $form['file'] = array(
+            '#type' => 'file',
+            '#title' => t('Schedule'),
+            '#description' => t('Upload a schedule file, allowed extensions: csv'),
+        );
 
-    $location_id = $form_state['build_info']['args'][0];
+        $form['location_id'] = array(
+            '#type' => 'value',
+            '#value' => $location_id,
+        );
 
-    $form['file'] = array(
-        '#type' => 'file',
-        '#title' => t('Schedule'),
-        '#description' => t('Upload a schedule file, allowed extensions: csv'),
-    );
-
-    $form['location_id'] = array(
-        '#type' => 'value',
-        '#value' => $location_id,
-    );
-
-    $form['submit'] = array(
-        '#type' => 'submit',
-        '#value' => t('Submit'),
-    );
+        $form['submit'] = array(
+            '#type' => 'submit',
+            '#value' => t('Submit'),
+        );
+    } else {
+        //form is in confirmation form
+        $form['diff'] = array(
+            '#markup' => '<h4>Changes to be made:</h4>' . $_SESSION['cascading_hours_import_diff'],
+        );
+        $form['confirm_message'] = array(
+            '#markup' => '<p>Are you sure you want to confirm these changes? <strong>Any rules in this range will be overwritten, and this action cannot be undone.</strong></p>',
+        );
+        $form['submit'] = array(
+            '#type' => 'submit',
+            '#value' => t('Confirm'),
+        );
+    }
 
     $form['actions']['submit']['#submit'][] = 'cascading_hours_admin_import_form_submit';
 
@@ -66,23 +79,30 @@ function cascading_hours_admin_import_form($form, &$form_state)
  */
 function cascading_hours_admin_import_form_validate($form, &$form_state)
 {
-    $file = file_save_upload('file', array(
-        // Validate extension is a csv
-        'file_validate_extensions' => array('csv'),
-    ));
-    // If the file passed validation:
-    if ($file) {
-        // Move the file into the Drupal file system.
-        if ($file = file_move($file, 'public://')) {
-            // Save the file for use in the submit handler.
-            $form_state['storage']['file'] = $file;
+    if(!isset($form_state['storage']['confirm'])) {
+        //form is in upload stage, validate
+        $file = file_save_upload('file', array(
+            // Validate extension is a csv
+            'file_validate_extensions' => array('csv'),
+        ));
+        // If the file passed validation:
+        if ($file) {
+            // Move the file into the Drupal file system.
+            if ($file = file_move($file, 'public://')) {
+                // Save the file for use in the submit handler.
+                $form_state['storage']['file'] = $file;
+            }
+            else {
+                form_set_error('file', t("Failed to write the uploaded file to the site's file folder."));
+            }
         }
         else {
-            form_set_error('file', t("Failed to write the uploaded file to the site's file folder."));
+            form_set_error('file', t('No file was uploaded.'));
         }
-    }
-    else {
-        form_set_error('file', t('No file was uploaded.'));
+    } else if(!isset($_SESSION['cascading_hours_import_data'])) {
+        //missing session data
+        drupal_set_message("Error: missing session data.", 'error');
+        watchdog('cascading_hours', 'Error: missing session data on schedule import.', [], WATCHDOG_ERROR);
     }
 }
 
@@ -92,21 +112,39 @@ function cascading_hours_admin_import_form_validate($form, &$form_state)
  */
 function cascading_hours_admin_import_form_submit($form, &$form_state)
 {
-    $file = $form_state['storage']['file'];
-    $location_id = $form_state['values']['location_id'];
-    // We are done with the file, remove it from storage.
-    unset($form_state['storage']['file']);
-    // Save file status.
-    file_save($file);
-    $path = drupal_realpath($file->uri);
-    $contents = file_get_contents($path);
-    //delete file now that we have the contents ready for parsing
-    file_delete($file);
+    if(!isset($form_state['storage']['confirm'])) {
+        //form is in upload stage
+        $file = $form_state['storage']['file'];
+        $location_id = $form_state['values']['location_id'];
+        // We are done with the file, remove it from storage.
+        unset($form_state['storage']['file']);
+        // Save file status.
+        file_save($file);
+        $path = drupal_realpath($file->uri);
+        $contents = file_get_contents($path);
+        //delete file now that we have the contents ready for parsing
+        file_delete($file);
 
-    $schedule = cascading_hours_import_parse($contents);
-    if(!isset($schedule['error'])) {
-        $diff = cascading_hours_import_diff($schedule, $location_id);
-        drupal_set_message($diff);
+        $schedule = cascading_hours_import_parse($contents);
+        if(!isset($schedule['errors'])) {
+            $diff = cascading_hours_import_diff($schedule, $location_id);
+            $_SESSION['cascading_hours_import_data'] = $schedule;
+            $_SESSION['cascading_hours_import_diff'] = $diff;
+            $_SESSION['cascading_hours_import_location_id'] = $location_id;
+            $form_state['storage']['confirm'] = TRUE;
+            //rebuild the form for confirmation
+            $form_state['rebuild'] = TRUE;
+        } else {
+            //there was an error in the form
+            drupal_set_message("Syntax Error(s): <ul><li>" . join("</li><li>", $schedule['errors']) . "</li></ul>", 'error');
+        }
+    } else {
+        //form is in confirmation stage, apply changes
+        watchdog('cascading_hours', 'got to import stage');
+        drupal_set_message(json_encode($_SESSION['cascading_hours_import_data']));
+        $location_id = $_SESSION['cascading_hours_import_location_id'];
+        $schedule = $_SESSION['cascading_hours_import_data'];
+        cascading_hours_import_schedule($schedule, $location_id);
     }
 }
 
@@ -161,8 +199,7 @@ function cascading_hours_import_parse($contents)
     }
 
     if($errors != []) {
-        drupal_set_message("Syntax Error(s): <ul><li>" . join("</li><li>", $errors) . "</li></ul>", 'error');
-        $schedule = array('error' => true);
+        $schedule = array('errors' => $errors);
     }
     return $schedule;
 }
@@ -197,7 +234,6 @@ function cascading_hours_import_diff($schedule, $location_id) {
             $block['end_time'] = Date('h:i a', strtotime($val['end']));
             $curr[] = $block;
         }
-        // $diff[] = "test: " . json_encode($values[0]) . " == " . json_encode($curr);
         if(json_encode($values[0]) != json_encode($curr)) {
             $a = [];
             $b = [];
@@ -212,4 +248,22 @@ function cascading_hours_import_diff($schedule, $location_id) {
     }
     $str = '<ul><li>' . join('</li><li>', $diff) . '</li></ul>';
     return $str;
+}
+
+/**
+ * Imports a schedule to a certain location.  Deletes/modifies all rules so that the import rules are the only ones in the import range.
+ * @param array $schedule - keyed array with date strings as keys, arrays of schedule blocks as values
+ * @param int $location_id
+ */
+function cascading_hours_import_schedule($schedule, $location_id) {
+    //delete all rules with start dates > import start and end dates < input end
+    end($schedule);
+    $import_end = strtotime(key($schedule));
+    reset($schedule);
+    $import_start = strtotime(key($schedule));
+
+    $rules = cascading_hours_get_rules_contained_within_range_with_location_id($location_id, $import_start, $import_end);
+    foreach($rules as $rule) {
+        cascading_hours_delete_rule_with_id($rule['id']);
+    }
 }

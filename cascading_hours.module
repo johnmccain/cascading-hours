@@ -336,7 +336,7 @@ function cascading_hours_cron()
         $max_age_in_days = variable_get('cascading_hours_old_rules_age');
         if(!is_numeric($max_age_in_days)) {
             //error, set message and return
-            watchdog('cascading_hours', 'Error: cascading_hours_old_rules_age is not numeric.  Set at Cascading Hours configuration page.');
+            watchdog('cascading_hours', 'Error: cascading_hours_old_rules_age is not numeric.  Set at Cascading Hours configuration page.', [], WATCHDOG_ERROR);
             return;
         }
         $ref_date =  date('Y-m-d H:i:s', time() - ($max_age_in_days * 60 * 60 * 24));
@@ -660,6 +660,26 @@ function cascading_hours_get_location_with_id($location_id)
 }
 
 /**
+ * Gets rules with a given location_id that start and end within the given range
+ * @param int $location_id
+ * @param int $start_date - timestamp for start of date range (inclusive)
+ * @param int $end_date - timestamp for end of date range (inclusive)
+ * @return array - array of rules
+ */
+function cascading_hours_get_rules_contained_within_range_with_location_id($location_id, $start_date, $end_date) {
+    $rules = db_select('cascading_hours_rules', 'c')
+    ->fields('c')
+    ->condition('location_id', $location_id, '=')
+    ->condition(
+        db_and()
+        ->condition('start_date', date('Y-m-d H:i:s', $start_date), '>=')
+        ->condition('end_date', date('Y-m-d H:i:s', $end_date), '<=')
+        )
+        ->execute();
+    return cascading_hours_query_to_array($rules);
+}
+
+/**
  *  Finds all rules for a location within a given range
  *
  *  @param int $location_id
@@ -682,8 +702,6 @@ function cascading_hours_get_rules_in_range_for_location_with_id($location_id, $
     )
     ->orderBy('priority', 'ASC')
     ->execute();
-
-    // echo '<code>' . json_encode(cascading_hours_query_to_array($rules)) . '</code>';
 
     return $rules;
 }
