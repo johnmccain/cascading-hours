@@ -104,7 +104,7 @@ function cascading_hours_admin_edit_location($location_id)
 
         $name = $location["name"];
         $page = "<h3>" . t("Edit Location:") . " $name</h3>";
-        $page .= l(t("Go back"), "admin/structure/cascading_hours/location/" . $location['id']);
+        $page .= l(t("Go back"), "admin/structure/cascading_hours/");
         $page .= "<hr/>";
         $form = drupal_get_form("cascading_hours_admin_edit_location_form", $location);
         $page .= render($form);
@@ -136,15 +136,14 @@ function cascading_hours_admin_edit_location($location_id)
         $page .= "</table>";
         $page .= l(t("Import Schedule"), "admin/structure/cascading_hours/import/" . $location['id']);
         $page .= "<hr/>";
-        $page .= l(t("Go back"), "admin/structure/cascading_hours/location/" . $location['id']);
+        $page .= l(t("Go back"), "admin/structure/cascading_hours/");
         return $page;
     }
     else {
-
         // location doesn't exist
         $page = "<h3>" . t("No Such Location") . "</h3>";
         $page .= "<hr/>";
-        $page .= l(t("Go back"), "admin/structure/cascading_hours");
+        $page .= l(t("Go back"), "admin/structure/cascading_hours/");
         return $page;
     }
 

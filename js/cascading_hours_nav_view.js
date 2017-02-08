@@ -10,27 +10,28 @@
 		render: function() {
 			//gets here
 			console.log('render');
-			console.log(this);
+			// console.log(this);
 
 			var arr = [];
 			var endDate = new Date(this.date);
 			endDate.setDate(endDate.getDate() + 6);
 			arr.push('<p>' + this.dateFormat(this.date) + ' - ' + this.dateFormat(endDate) + '</p>');
-			this.data.map(function(schedule, day) {
+			console.log(this.data);
+			for(var day = 0; day < 7; ++day) {
 				arr.push('<p>');
 				arr.push(this.weekdays[day]);
 				arr.push(': ');
-				if(schedule.length === 0) {
+				if(!this.data[day] || this.data[day].length === 0) {
 					arr.push('Closed');
 				} else {
 					var blocks = [];
-					schedule.map(function(block) {
+					this.data[day].map(function(block) {
 						blocks.push(this.timeFormat(new Date(block.start)) + '-' + this.timeFormat(new Date(block.end)));
 					}, this);
 					arr.push(blocks.join(', '));
 				}
 				arr.push('</p>');
-			}, this);
+			}
 			$('.nav-view-schedule').html(arr.join(''));
 		},
 
