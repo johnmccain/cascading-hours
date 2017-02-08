@@ -343,11 +343,13 @@ function cascading_hours_import_schedule($schedule, $location_id) {
     $delim->setTimestamp($import_start);
     $date_iterator = new DateTime();
     for($date_iterator->setTimestamp($import_start); isset($schedule[$date_iterator->format('Y-m-d')]); $date_iterator->modify('+1 day')) {
-        $day = $schedule[$date_iterator->format('Y-m-d')];
+        $sched = $schedule[$date_iterator->format('Y-m-d')];
         $date_iterator->modify('-7 days'); //last week
-        $prev_day = isset($schedule[$date_iterator->format('Y-m-d')]) ? $schedule[$date_iterator->format('Y-m-d')] : NULL;
+        $prev_day = $date_iterator->getTimestamp();
+        $prev_sched = isset($schedule[$date_iterator->format('Y-m-d')]) ? $schedule[$date_iterator->format('Y-m-d')] : NULL;
         $date_iterator->modify('+7 days'); //bring back to present
-        if($prev_day && json_encode($day) != json_encode($prev_day)) {
+
+        if($prev_day > $delim->getTimestamp() && $prev_sched && json_encode($sched) != json_encode($prev_sched)) {
             //time for a new rule
             $range['start'] = $delim->getTimestamp();
             $range['end'] = $date_iterator->getTimestamp();
@@ -361,10 +363,16 @@ function cascading_hours_import_schedule($schedule, $location_id) {
     $num = 1;
     foreach($rule_ranges as &$rule) {
         $rule['id'] = cascading_hours_create_rule($location_id, 5, $rule['start'], $rule['end'], date('Y-m-d') . ': import #' . $num++);
+        $created = []; //keep track of weekdays schedules have already been created for to avoid duplicates
         for($date_iterator->setTimestamp($rule['start']); $date_iterator->getTimestamp() < $rule['end']; $date_iterator->modify('+1 day')) {
-            $schedule_blocks = $schedule[$date_iterator->format('Y-m-d')];
-            foreach($schedule_blocks as $block) {
-                cascading_hours_create_schedule($rule['id'], (int)$date_iterator->format('w'), strtotime($block['start_time']), strtotime($block['end_time']));
+            if(isset($created[(int)$date_iterator->format('w')])) {
+                break; //weekday schedules already made
+            } else {
+                $created[(int)$date_iterator->format('w')] = true;
+                $schedule_blocks = $schedule[$date_iterator->format('Y-m-d')];
+                foreach($schedule_blocks as $key => $block) {
+                    cascading_hours_create_schedule($rule['id'], (int)$date_iterator->format('w'), strtotime($block['start_time']), strtotime($block['end_time']));
+                }
             }
         }
     }
