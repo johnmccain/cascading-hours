@@ -135,6 +135,8 @@ function cascading_hours_admin_edit_location($location_id)
 
         $page .= "</table>";
         $page .= l(t("Import Schedule"), "admin/structure/cascading_hours/import/" . $location['id']);
+        $page .= '<br/>';
+        $page .= l(t("Export Schedule"), "admin/structure/cascading_hours/export/" . $location['id']);
         $page .= "<hr/>";
         $page .= l(t("Go back"), "admin/structure/cascading_hours/");
         return $page;
@@ -610,7 +612,7 @@ function cascading_hours_admin_edit_rule_form($form, &$form_state)
         '#type' => 'date_popup',
         '#title' => t('Start Date') ,
         '#date_format' => 'm/d/Y',
-        '#default_value' => format_date(strtotime($rule['start_date']), 'custom', 'Y-m-d'),
+        '#default_value' => format_date(strtotime($rule['start_date']), 'custom', 'm/d/Y'),
         '#attributes' => array(
             'class' => array(
                 'datepicker',
@@ -622,7 +624,7 @@ function cascading_hours_admin_edit_rule_form($form, &$form_state)
         '#type' => 'date_popup',
         '#title' => t('End Date') ,
         '#date_format' => 'm/d/Y',
-        '#default_value' => format_date(strtotime($rule['end_date']), 'custom', 'Y-m-d') ,
+        '#default_value' => format_date(strtotime($rule['end_date']), 'custom', 'm/d/Y') ,
         '#attributes' => array(
             'class' => array(
                 'datepicker',

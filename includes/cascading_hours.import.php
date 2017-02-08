@@ -1,4 +1,6 @@
-<?
+<?php
+
+/*** functions necessary for importing schedule data from a .csv ***/
 
 /**
  * @param int $location_id - id of the location to import to
@@ -109,6 +111,8 @@ function cascading_hours_admin_import_form_validate($form, &$form_state)
 /**
  * Submission logic for cascading_hours_admin_import_form().
  *
+ * @param array $form
+ * @param array &$form_state
  */
 function cascading_hours_admin_import_form_submit($form, &$form_state)
 {
@@ -224,21 +228,10 @@ function cascading_hours_import_diff($schedule, $location_id) {
 
     $curr_schedule = cascading_hours_generate_schedule($curr_schedule, $start);
 
-    // $iterator = new MultipleIterator;
-    // $iterator->attachIterator(new ArrayIterator($schedule));
-    // $iterator->attachIterator(new ArrayIterator($curr_schedule));
-    watchdog('cascading_hours', 'IMPORT_DIFF');
-
-    watchdog('cascading_hours', '$schedule: ' . json_encode($schedule));
-
-    watchdog('cascading_hours', '$curr_schedule: ' . json_encode($curr_schedule));
-
     $numeric_iterator = 0;
 
     $diff = [];
     foreach ($schedule as $key => $sched) {
-
-        watchdog('cascading_hours', '    iterating: ' . $numeric_iterator);
 
         $curr = [];
         if(isset($curr_schedule[$numeric_iterator])) {

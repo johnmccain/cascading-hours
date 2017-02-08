@@ -128,6 +128,19 @@ function cascading_hours_menu()
         'file' => 'cascading_hours.import.php',
         'file path' => $include_path
     );
+    $items['admin/structure/cascading_hours/export/%'] = array(
+        'title' => 'Cascading Hours: Export a Schedule',
+        'description' => 'Export a schedule from Cascading Hours.',
+        'page callback' => 'cascading_hours_admin_export',
+        'page arguments' => array(
+            4
+        ) ,
+        'access arguments' => array(
+            'administer_cascading_hours_configuration'
+        ) ,
+        'file' => 'cascading_hours.export.php',
+        'file path' => $include_path
+    );
     return $items;
 }
 
