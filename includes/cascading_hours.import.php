@@ -224,30 +224,49 @@ function cascading_hours_import_diff($schedule, $location_id) {
 
     $curr_schedule = cascading_hours_generate_schedule($curr_schedule, $start);
 
-    $iterator = new MultipleIterator;
-    $iterator->attachIterator(new ArrayIterator($schedule));
-    $iterator->attachIterator(new ArrayIterator($curr_schedule));
+    // $iterator = new MultipleIterator;
+    // $iterator->attachIterator(new ArrayIterator($schedule));
+    // $iterator->attachIterator(new ArrayIterator($curr_schedule));
+    watchdog('cascading_hours', 'IMPORT_DIFF');
+
+    watchdog('cascading_hours', '$schedule: ' . json_encode($schedule));
+
+    watchdog('cascading_hours', '$curr_schedule: ' . json_encode($curr_schedule));
+
+    $numeric_iterator = 0;
 
     $diff = [];
-    foreach ($iterator as $keys => $values) {
+    foreach ($schedule as $key => $sched) {
+
+        watchdog('cascading_hours', '    iterating: ' . $numeric_iterator);
+
         $curr = [];
-        foreach($values[1] as $val) {
-            $block = [];
-            $block['start_time'] = Date('h:i a', strtotime($val['start']));
-            $block['end_time'] = Date('h:i a', strtotime($val['end']));
-            $curr[] = $block;
+        if(isset($curr_schedule[$numeric_iterator])) {
+            foreach($curr_schedule[$numeric_iterator] as $val) {
+                $block = [];
+                $block['start_time'] = Date('h:i a', strtotime($val['start']));
+                $block['end_time'] = Date('h:i a', strtotime($val['end']));
+                $curr[] = $block;
+            }
         }
-        if(json_encode($values[0]) != json_encode($curr)) {
+        if(json_encode($sched) != json_encode($curr)) {
             $a = [];
             $b = [];
+            if($curr == []) {
+                $a[] = 'closed';
+            }
             foreach($curr as $val) {
                 $a[] = $val['start_time'] . '-' . $val['end_time'];
             }
-            foreach($values[0] as $val) {
+            if($sched == []) {
+                $b[] = 'closed';
+            }
+            foreach($sched as $val) {
                 $b[] = $val['start_time'] . '-' . $val['end_time'];
             }
-            $diff[] = '<b>' . $keys[0] . ': Change </b><i>' . join(', ', $a) . '</i><b> to </b><i>' . join(', ', $b) . '</i>';
+            $diff[] = '<b>' . $key . ': Change </b><i>' . join(', ', $a) . '</i><b> to </b><i>' . join(', ', $b) . '</i>';
         }
+        $numeric_iterator++;
     }
     $str = '<ul><li>' . join('</li><li>', $diff) . '</li></ul>';
     return $str;
