@@ -1,6 +1,9 @@
 <?php
 
-/*** functions necessary for exporting schedule data as a .csv ***/
+/**
+ * @file cascading_hours.export.php
+ * functions necessary for exporting schedule data as a .csv
+ */
 
 /**
  * @param int $location_id - id of the location to export from

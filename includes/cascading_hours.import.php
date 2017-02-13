@@ -1,6 +1,9 @@
 <?php
 
-/*** functions necessary for importing schedule data from a .csv ***/
+/**
+ * @file cascading_hours.import.php
+ * functions necessary for importing schedule data from a .csv
+ */
 
 /**
  * @param int $location_id - id of the location to import to

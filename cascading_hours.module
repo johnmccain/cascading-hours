@@ -1,6 +1,7 @@
 <?php
+
 /**
- * @file
+ * @file cascading_hours.module
  * Module file for Cascading Hours module
  */
 
@@ -442,10 +443,8 @@ function cascading_hours_generate_schedule($schedules, $start_date)
     $obj = []; //schedule object (ready for output to json)
     foreach($schedules as $key => $schedule) {
         $date = new DateTime();
-        $date
-        ->setTimestamp($start_date + ($key * 86400));
-        $date_str = $date
-        ->format('Y-m-d ');
+        $date->setTimestamp($start_date + ($key * 86400));
+        $date_str = $date->format('Y-m-d ');
         $schedule_blocks = []; //array of schedule blocks starting in the same day
         foreach($schedule as $value) {
             $block = []; //schedule block object with start and end datetimes

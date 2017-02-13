@@ -1,33 +1,32 @@
 <?php
 
 /**
- * @file
- * Tests for the cascading_hours module
- * TODO: lot's 'o stuff (this is not finished at all)
+ * @file cascading_hours.test
  */
 
 /**
- * The CascadingHoursExampleTestCase is a functional test case, meaning that it
- * actually exercises a particular sequence of actions through the web UI.
+ * Functional test case for cascading_hours
  *
  * @see DrupalWebTestCase
- * @see CascadingHoursUnitTestExampleTestCase
+ * @see SimpleTestUnitTestExampleTestCase
  *
+ * @ingroup cascading_hours
  */
+class CascadingHoursFunctionalTestCase extends DrupalWebTestCase {
 
- class CascadingHoursExampleTestCase extends DrupalWebTestCase {
+  protected $privilegedUser;
 
   /**
-   * getInfo() returns a keyed array of information for CascadingHours to show.
+   * Give display information to the SimpleTest system.
    *
-   * It's a good idea to organize your tests consistently using the 'group'
-   * key.
+   * getInfo() returns a keyed array of information for SimpleTest to show.
+   *
    */
   public static function getInfo() {
     return array(
-      'name' => 'Cascading Hours Example',
-      'description' => 'Ensure that the cascading_hours db interactions function properly.',
-      'group' => 'Hours',
+      'name' => 'Cascading Hours Web Test Case',
+      'description' => 'Ensure that the cascading_hours module functions properly.',
+      'group' => 'cascading_hours',
     );
   }
 
@@ -35,39 +34,35 @@
    * Set up the test environment.
    *
    * This method is called once per test method, before the test is executed.
-   * It gives you a chance to control the setup of the test environment.
-   *
-   * If you need a different test environment, then you should create another
-   * test class which overloads DrupalWebTestCase::setUp() differently.
    *
    * @see DrupalWebTestCase::setUp()
    */
   public function setUp() {
-    // Call parent::setUp() with the list of modules we want to enable.
-    drupal_load('module', 'cascading_hours');
-    parent::setUp('cascading_hours');
-
+    // We call parent::setUp() with the list of modules we want to enable.
+    parent::setUp('cascading_hours', 'date_api', 'date_popup');
+    // Create and log in our user with permission administer_cascading_hours_configuration
+    $this->privilegedUser = $this->drupalCreateUser(array('administer_cascading_hours_configuration'));
+    $this->drupalLogin($this->privilegedUser);
   }
 
   /**
-   * Create a cascading_hours location and test success
+   * Create a simpletest_example node using the node form.
    */
-  public function testCreateLocation() {
-    $location_id = ch_create_location("Test Location");
-    $testquery = db_select('cascading_hours_locations')
-              ->fields('id', 'name')
-              ->condition('id', $location_id, '=')
-              ->execute()
-              ->fetchAssoc();
-    $this->assertEqual();//FIXME
+  public function testSimpleTestExampleCreate() {
+    // Create node to edit.
+    $edit = array();
+    $edit['title'] = $this->randomName(8);
+    $edit["body[und][0][value]"] = $this->randomName(16);
+    $this->drupalPost('node/add/simpletest-example', $edit, t('Save'));
+    $this->assertText(t('SimpleTest Example Node Type @title has been created.', array('@title' => $edit['title'])));
   }
 
   /**
-   * Create a CascadingHours_example node and then see if our user can edit it.
+   * Create a simpletest_example node and then see if our user can edit it.
    */
-  public function testCascadingHoursExampleEdit() {
+  public function testSimpleTestExampleEdit() {
     $settings = array(
-      'type' => 'CascadingHours_example',
+      'type' => 'simpletest_example',
       'title' => $this->randomName(32),
       'body' => array(LANGUAGE_NONE => array(array($this->randomName(64)))),
     );
@@ -108,5 +103,139 @@
     // https://www.drupal.org/node/2565181
     // return env('DRUPALCI');
     return TRUE;
+  }
+}
+
+
+/**
+ * Performs unit tests on the cascading_hours module
+ *
+ * @see DrupalUnitTestCase
+ *
+ * @ingroup cascading_hours
+ */
+class CascadingHoursUnitTestCase extends DrupalUnitTestCase {
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Cascading Hours unit tests',
+      'description' => 'Unit tests for the cascading_hours module.',
+      'group' => 'cascading_hours',
+    );
+  }
+
+  /**
+   * Set up the test environment.
+   *
+   * Note that we use drupal_load() instead of passing our module dependency
+   * to parent::setUp(). That's because we're using DrupalUnitTestCase, and
+   * thus we don't want to install the module, only load it's code.
+   *
+   * Also, DrupalUnitTestCase can't actually install modules. This is by
+   * design.
+   */
+  public function setUp() {
+    drupal_load('module', 'cascading_hours');
+    parent::setUp();
+  }
+
+  /**
+   * Test cascading_hours_block_cmp().
+   * @see cascading_hours_block_cmp
+   */
+  public function test_cascading_hours_block_cmp() {
+    //future timstamp
+    $a['start'] = strtotime('tomorrow');
+    //present timestamp
+    $b['start'] = strtotime('now');
+    //past timestamp
+    $c['start'] = strtotime('yesterday');
+
+    $result = (0 < cascading_hours_block_cmp($a, $b)); //should be positive
+    $message = '(tomorrow, now) should return a positive value.';
+    $this->assertTrue($result, $message);
+
+    $result = (0 > cascading_hours_block_cmp($b, $a)); //should be negative
+    $message = '(now, tomorrow) should return a negative value.';
+    $this->assertTrue($result, $message);
+
+    $result = (0 < cascading_hours_block_cmp($a, $c)); //should be positive
+    $message = '(tomorrow, yesterday) should return a positive value.';
+    $this->assertTrue($result, $message);
+
+    $result = (0 > cascading_hours_block_cmp($c, $b)); //should be negataive
+    $message = '(yesterday, now) should return a negative value.';
+    $this->assertTrue($result, $message);
+
+    $result = (0 == cascading_hours_block_cmp($b, $b)); //should be positive
+    $message = '(now, now) should return 0.';
+    $this->assertTrue($result, $message);
+  }
+
+  /**
+   * Test cascading_hours_generate_schedule().
+   * @see cascading_hours_generate_schedule
+   */
+  public function test_cascading_hours_generate_schedule() {
+
+    //a week's worth of schedule data
+    $test_schedule = [
+      [['start_time' => strtotime('9:00 am'), 'end_time' => strtotime('8:00 pm')]],
+      [['start_time' => strtotime('9:00 am'), 'end_time' => strtotime('8:00 pm')]],
+      [['start_time' => strtotime('9:00 am'), 'end_time' => strtotime('8:00 pm')]],
+      [['start_time' => strtotime('9:00 am'), 'end_time' => strtotime('3:00 pm')], ['start_time' => strtotime('4:00 pm'), 'end_time' => strtotime('8:00 pm')]],
+      [['start_time' => strtotime('9:00 am'), 'end_time' => strtotime('8:00 pm')]],
+      [['start_time' => strtotime('9:00 am'), 'end_time' => strtotime('8:00 pm')]],
+      [['start_time' => strtotime('9:00 am'), 'end_time' => strtotime('8:00 pm')]]
+    ];
+
+    $test_start_date = strtotime('today midnight');
+
+    $test_data = cascading_hours_generate_schedule($test_schedule, $test_start_date);
+
+    $result = (count($test_schedule) == count($test_data)); //should be true
+    $message = 'The test schedule and test data should have the same length.';
+    $this->assertTrue($result, $message);
+
+    $result = true;
+    for($i = 0; $i < count($test_data); ++$i) {
+      for($j = 0; $j < count($test_data); ++$j) {
+        $result &= (Date('h:i a', strtotime($test_data[$i][$j]['start'])) == Date('h:i a', strtotime($test_schedule[$i][$j]['start_time'])));
+        $result &= (Date('h:i a', strtotime($test_data[$i][$j]['end'])) == Date('h:i a', strtotime($test_schedule[$i][$j]['end_time'])));
+      }
+    }
+    $message = 'The test schedule and the test data should have the same schedule information';
+    $this->assertTrue($result, $message);
+  }
+
+  /**
+   * Test cascading_hours_day_cmp()
+   * @see cascading_hours_day_cmp
+   */
+  function test_cascading_hours_day_cmp() {
+    // negative if $a < $b, 0 if $a == $b, positive if $a > $b
+
+    $result = (0 < cascading_hours_day_cmp(6, 3)); //should be positive
+    $message = '(6, 3) should return a positive value.';
+    $this->assertTrue($result, $message);
+
+    $result = (0 > cascading_hours_day_cmp(3, 6)); //should be negative
+    $message = '(3, 6) should return a negative value.';
+    $this->assertTrue($result, $message);
+
+    $result = (0 < cascading_hours_day_cmp(5, 1)); //should be positive
+    $message = '(5, 1) should return a positive value.';
+    $this->assertTrue($result, $message);
+
+    $result = (0 > cascading_hours_day_cmp(2, 4)); //should be negataive
+    $message = '(2, 4) should return a negative value.';
+    $this->assertTrue($result, $message);
+
+    $result = (0 == cascading_hours_day_cmp(3, 3)); //should be positive
+    $message = '(3, 3) should return 0.';
+    $this->assertTrue($result, $message);
   }
 }

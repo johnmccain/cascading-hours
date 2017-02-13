@@ -1,4 +1,10 @@
 <?php
+
+/**
+ * @file cascading_hours.admin.php
+ * admin interface functions
+ */
+
 /**
  * Main admin settings page
  */
