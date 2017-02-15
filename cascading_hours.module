@@ -587,7 +587,6 @@ function cascading_hours_get_schedule_in_range_for_location_with_name($location_
 function cascading_hours_get_schedule_in_range_for_location_with_id($location_id, $start_date, $end_date)
 {
     $rules = cascading_hours_get_rules_in_range_for_location_with_id($location_id, $start_date, $end_date);
-    $rules = cascading_hours_query_to_array($rules);
 
     // array of indexes of the rule that applies on that day offset from $start_date (NULL if no applicable rule found)
 
@@ -648,18 +647,13 @@ function cascading_hours_get_locations()
     $locations = db_select('cascading_hours_locations', 'c')
     ->fields('c')
     ->execute();
-    $arr = [];
-    while ($loc = $locations->fetchAssoc()) {
-        $arr[] = $loc;
-    }
-
-    return $arr;
+    return cascading_hours_query_to_array($locations);
 }
 
 /**
- *  Finds all locations and returns an associative array of their ids and names
- *
- *  @return array - 2d keyed array of locations
+ * Finds a location with a given id and returns an associative array of its data
+ * @param integer $location_id
+ * @return array - 2d keyed array of the location's data
  */
 function cascading_hours_get_location_with_id($location_id)
 {
@@ -672,13 +666,29 @@ function cascading_hours_get_location_with_id($location_id)
 }
 
 /**
+ * Finds a location with a given name and returns an associative array of its data
+ * @param  string $name
+ * @return array - 2d keyed array of the location's data
+ */
+function cascading_hours_get_location_with_name($name) {
+    $location = db_select('cascading_hours_locations', 'c')
+    ->fields('c')
+    ->condition('name', $name, '=')
+    ->execute()
+    ->fetchAssoc();
+    return $location;
+}
+
+/**
  * Gets rules with a given location_id that start and end within the given range
- * @param int $location_id
- * @param int $start_date - timestamp for start of date range (inclusive)
- * @param int $end_date - timestamp for end of date range (inclusive)
+ *
+ * @param  int $location_id
+ * @param  int $start_date  - timestamp for start of date range (inclusive)
+ * @param  int $end_date    - timestamp for end of date range (inclusive)
  * @return array - array of rules
  */
-function cascading_hours_get_rules_contained_within_range_with_location_id($location_id, $start_date, $end_date) {
+function cascading_hours_get_rules_contained_within_range_with_location_id($location_id, $start_date, $end_date)
+{
     $rules = db_select('cascading_hours_rules', 'c')
     ->fields('c')
     ->condition('location_id', $location_id, '=')
@@ -686,7 +696,7 @@ function cascading_hours_get_rules_contained_within_range_with_location_id($loca
         db_and()
         ->condition('start_date', date('Y-m-d H:i:s', $start_date), '>=')
         ->condition('end_date', date('Y-m-d H:i:s', $end_date), '<=')
-        )
+    )
         ->execute();
     return cascading_hours_query_to_array($rules);
 }
@@ -715,7 +725,7 @@ function cascading_hours_get_rules_in_range_for_location_with_id($location_id, $
     ->orderBy('priority', 'ASC')
     ->execute();
 
-    return $rules;
+    return cascading_hours_query_to_array($rules);
 }
 
 /**
@@ -810,8 +820,8 @@ function cascading_hours_get_schedule_with_id($id)
 /**
  * Update a location
  *
- * @param int $location_id
- * @param
+ * @param int    $location_id
+ * @param string $name
  */
 function cascading_hours_update_location($location_id, $name = null)
 {

@@ -12,98 +12,349 @@
  *
  * @ingroup cascading_hours
  */
-class CascadingHoursFunctionalTestCase extends DrupalWebTestCase {
+class CascadingHoursFunctionalCRUDTestCase extends DrupalWebTestCase
+{
 
-  protected $privilegedUser;
+	protected $privilegedUser;
 
-  /**
-   * Give display information to the SimpleTest system.
-   *
-   * getInfo() returns a keyed array of information for SimpleTest to show.
-   *
-   */
-  public static function getInfo() {
-    return array(
-      'name' => 'Cascading Hours Web Test Case',
-      'description' => 'Ensure that the cascading_hours module functions properly.',
-      'group' => 'cascading_hours',
-    );
-  }
+	/**
+	* Give display information to the SimpleTest system.
+	*
+	* getInfo() returns a keyed array of information for SimpleTest to show.
+	*/
+	public static function getInfo()
+	{
+		return array(
+		'name' => 'Cascading Hours Functional CRUD Test Case',
+		'description' => 'Ensure that the cascading_hours module functions properly when creating/reading/updating/deleting from different cascading_hours tables.',
+		'group' => 'cascading_hours',
+		);
+	}
 
-  /**
-   * Set up the test environment.
-   *
-   * This method is called once per test method, before the test is executed.
-   *
-   * @see DrupalWebTestCase::setUp()
-   */
-  public function setUp() {
-    // We call parent::setUp() with the list of modules we want to enable.
-    parent::setUp('cascading_hours', 'date_api', 'date_popup');
-    // Create and log in our user with permission administer_cascading_hours_configuration
-    $this->privilegedUser = $this->drupalCreateUser(array('administer_cascading_hours_configuration'));
-    $this->drupalLogin($this->privilegedUser);
-  }
+	/**
+	 * Set up the test environment.
+	 *
+	 * This method is called once per test method, before the test is executed.
+	 *
+	 * @see DrupalWebTestCase::setUp()
+	 */
+	public function setUp()
+	{
+		// We call parent::setUp() with the list of modules we want to enable.
+		parent::setUp('cascading_hours', 'date_api', 'date_popup');
+		// Create and log in our user with permission administer_cascading_hours_configuration
+		$this->privilegedUser = $this->drupalCreateUser(array('administer_cascading_hours_configuration'));
+		$this->drupalLogin($this->privilegedUser);
+	}
 
-  /**
-   * Create a simpletest_example node using the node form.
-   */
-  public function testSimpleTestExampleCreate() {
-    // Create node to edit.
-    $edit = array();
-    $edit['title'] = $this->randomName(8);
-    $edit["body[und][0][value]"] = $this->randomName(16);
-    $this->drupalPost('node/add/simpletest-example', $edit, t('Save'));
-    $this->assertText(t('SimpleTest Example Node Type @title has been created.', array('@title' => $edit['title'])));
-  }
+	/**
+	 * Tests creation and finding of locations
+	 */
+	public function test_create_locations()
+	{
+		$location_names = array('Location 1', 'Location 2', 'Location 3', 'Location 4', 'Location 5');
+		$location_ids = [];
+		foreach($location_names as $name) {
+			$location_ids[] = cascading_hours_create_location($name);
+		}
 
-  /**
-   * Create a simpletest_example node and then see if our user can edit it.
-   */
-  public function testSimpleTestExampleEdit() {
-    $settings = array(
-      'type' => 'simpletest_example',
-      'title' => $this->randomName(32),
-      'body' => array(LANGUAGE_NONE => array(array($this->randomName(64)))),
-    );
-    $node = $this->drupalCreateNode($settings);
+		//find by id (cascading_hours_get_location_with_id)
+		foreach($location_ids as $key => $id) {
+			$location = cascading_hours_get_location_with_id($id);
+			$result = (isset($location['name']) && $location['name'] == $location_names[$key]);
+			$message = "Search by id for location $key.";
+			$this->assertTrue($result, $message);
+		}
 
-    // For debugging, we might output the node structure with $this->verbose()
-    // It would only be output if the testing settings had 'verbose' set.
-    $this->verbose('Node created: ' . var_export($node, TRUE));
+		//find by name (cascading_hours_get_location_with_name)
+		foreach($location_names as $key => $name) {
+			$location = cascading_hours_get_location_with_name($name);
+			$result = (isset($location['id']) && $location['id'] == $location_ids[$key]);
+			$message = "Search by name for location $name.";
+			$this->assertTrue($result, $message);
+		}
 
-    // We'll run this test normally, but not on the testbot, as it would
-    // indicate that the examples module was failing tests.
-    if (!$this->runningOnTestbot()) {
-      // The debug() statement will output information into the test results.
-      // It can also be used in Drupal 7 anywhere in code and will come out
-      // as a drupal_set_message().
-      debug('We are not running on the PIFR testing server, so will go ahead and catch the failure.');
-      $this->drupalGet("node/{$node->nid}/edit");
-      // Make sure we don't get a 401 unauthorized response:
-      $this->assertResponse(200, 'User is allowed to edit the content.');
+		//find all and validate (cascading_hours_get_locations)
+		$locations = cascading_hours_get_locations();
+		foreach($location_ids as $id) {
+			$result = (array_search($id, array_column($locations, 'id')) !== false);
+			$result = (isset($location['id']) && $location['id'] == $location_ids[$key]);
+			$message = "Search of get_locations for location $name.";
+			$this->assertTrue($result, $message);
+		}
+	}
 
-      // Looking for title text in the page to determine whether we were
-      // successful opening edit form.
-      $this->assertText(t("@title", array('@title' => $settings['title'])), "Found title in edit form");
-    }
-  }
+	/**
+	 * Tests updating of locations
+	 *
+	 * @see cascading_hours_update_location
+	 */
+	function test_update_locations()
+	{
+		//create locations for testing
+		$location_names = array('Location 1', 'Location 2', 'Location 3', 'Location 4', 'Location 5');
+		$location_alt_names = array('Alt 1', 'Alt 2', 'Alt 3', 'Alt 4', 'Alt 5');
+		$location_ids = [];
+		foreach($location_names as $name) {
+			$location_ids[] = cascading_hours_create_location($name);
+		}
 
-  /**
-   * Detect if we're running on PIFR testbot.
-   *
-   * Skip intentional failure in that case. It happens that on the testbot the
-   * site under test is in a directory named 'checkout' or 'site_under_test'.
-   *
-   * @return bool
-   *   TRUE if running on testbot.
-   */
-  public function runningOnTestbot() {
-    // @todo: Add this line back once the testbot variable is available.
-    // https://www.drupal.org/node/2565181
-    // return env('DRUPALCI');
-    return TRUE;
-  }
+		//test valid updating (should rename)
+		foreach($location_ids as $key => $id) {
+			cascading_hours_update_location($id, $location_alt_names[$key]);
+			$location = cascading_hours_get_location_with_id($id);
+			$result = ($location['name'] == $location_alt_names[$key]);
+			$message = "Renaming of location $id.";
+			$this->assertTrue($result, $message);
+		}
+
+		//test invalid updating (should not rename)
+		foreach($location_ids as $key => $id) {
+			cascading_hours_update_location($id);
+			$location = cascading_hours_get_location_with_id($id);
+			$result = ($location['name'] == $location_alt_names[$key]);
+			$message = "Invalid renaming of location $id.";
+			$this->assertTrue($result, $message);
+		}
+	}
+
+	/**
+	 * Tests deletion of locations
+	 *
+	 * @see cascading_hours_delete_location_with_id
+	 */
+	function test_delete_locations()
+	{
+		//create locations for testing
+		$location_names = array('Location 1', 'Location 2', 'Location 3', 'Location 4', 'Location 5');
+		$location_ids = [];
+		foreach($location_names as $name) {
+			$location_ids[] = cascading_hours_create_location($name);
+		}
+
+		//for testing child rule deletion
+		$rule_ids = [];
+
+		//delete locations by id & verify (cascading_hours_delete_location_with_id)
+		foreach($location_ids as $id) {
+			cascading_hours_delete_location_with_id($id);
+			$location = cascading_hours_get_location_with_id($id);
+			$result = !isset($location['id']);
+			$message = "Deletion by id of location $id.";
+			$this->assertTrue($result, $message);
+		}
+
+		$location_ids = [];
+		foreach($location_names as $name) {
+			$location_ids[] = cascading_hours_create_location($name);
+		}
+
+		//delete locations by name & verify (cascading_hours_delete_location_with_id)
+		foreach($location_names as $name) {
+			cascading_hours_delete_location_with_name($name);
+			$location = cascading_hours_get_location_with_name($name);
+			$result = !isset($location['name']);
+			$message = "Deletion by name of location $name.";
+			$this->assertTrue($result, $message);
+		}
+
+		//create new locations for testing with rules for child deletion
+		$location_ids = [];
+		foreach($location_names as $name) {
+			$location_ids[] = cascading_hours_create_location($name);
+		}
+
+		//create test rules
+		foreach($location_ids as $location_id) {
+			for($i = 0; $i < 5; ++$i) {
+				$priority = $i;
+				$start_date = strtotime($i + ' days ago midnight');
+				$end_date = strtotime($i + ' days midnight');
+				$rule_ids[] = cascading_hours_create_rule($location_id, $priority, $start_date, $end_date);
+			}
+		}
+
+		//delete locations by id & verify w/ child rule deletion (cascading_hours_delete_location_with_id)
+		foreach($location_ids as $id) {
+			cascading_hours_delete_location_with_id($id);
+			$rules = cascading_hours_get_rules_with_location_id($id);
+			$result = (count($rules) === 0);
+			$message = "Deletion by id of location $id with child rules.";
+			$this->assertTrue($result, $message);
+		}
+	}
+
+	/**
+	 * Tests the creation and finding of rules
+	 */
+	function test_create_rules()
+	{
+		//create locations for testing
+		$location_names = array('Location 1', 'Location 2', 'Location 3', 'Location 4', 'Location 5');
+		$location_ids = [];
+		foreach($location_names as $name) {
+			$location_ids[] = cascading_hours_create_location($name);
+		}
+
+		$rule_ids = [];
+
+		//create rules for testing
+		foreach($location_ids as $key => $location_id) {
+			for($i = 0; $i < 5; ++$i) {
+				$priority = $i;
+				$start_date = strtotime($i + ' days ago midnight');
+				$end_date = strtotime($i + ' days midnight');
+				$rule_ids[] = cascading_hours_create_rule($location_id, $priority, $start_date, $end_date);
+			}
+		}
+
+		//test getting rules by location_id (cascading_hours_get_rules_with_location_id)
+		foreach($location_ids as $location_id) {
+			$rules = cascading_hours_get_rules_with_location_id($location_id);
+			$result = (count($rules) == 5);
+			$message = "Number of rules with location_id $location_id should be 5.";
+			$this->assertTrue($result, $message);
+		}
+
+		//test getting rules by id (cascading_hours_get_rules_with_id)
+		foreach($rule_ids as $id) {
+			$rule = cascading_hours_get_rule_with_id($id);
+			$result = ($rule['id'] == $id);
+			$message = "Search by id for rule $id.";
+			$this->assertTrue($result, $message);
+		}
+	}
+
+	/**
+	 * Tests rule updating
+	 */
+	function test_update_rules() {
+		//create test location
+		$location_id = cascading_hours_create_location('My Location');
+
+		//create test rules
+		$rule_ids = [];
+		for($i = 0; $i < 5; ++$i) {
+			$priority = $i;
+			$start_date = strtotime($i + ' days ago midnight');
+			$end_date = strtotime($i + ' days midnight');
+			$rule_ids[] = cascading_hours_create_rule($location_id, $priority, $start_date, $end_date);
+		}
+
+		//update all the rules and verify
+		foreach($rule_ids as $id) {
+			$priority = -2;
+			$start_date = strtotime('2 weeks midnight');
+			$end_date = strtotime('3 weeks midnight');
+			cascading_hours_update_rule($id, $location_id, $priority, $start_date, $end_date);
+			$rule = cascading_hours_get_rule_with_id($id);
+			$result = (isset($rule['id'])
+						  && $rule['id'] == $id
+						  && $rule['location_id'] == $location_id
+						  && strtotime($rule['start_date']) == $start_date
+						  && strtotime($rule['end_date']) == $end_date);
+			$message = "Updating rule $id.";
+			$this->assertTrue($result, $message);
+		}
+	}
+
+	/**
+	 * Test rule deletion
+	 */
+	function test_delete_rules() {
+		//create test location
+		$location_id = cascading_hours_create_location('My Location');
+
+		//for testing child deletion
+		$schedule_ids = [];
+
+		//create test rules
+		$rule_ids = [];
+		for($i = 0; $i < 5; ++$i) {
+			$priority = $i;
+			$start_date = strtotime($i + ' days ago midnight');
+			$end_date = strtotime($i + ' days midnight');
+			$rule_ids[] = cascading_hours_create_rule($location_id, $priority, $start_date, $end_date);
+		}
+
+		//test rule deletion (cascading_hours_delete_rule_with_id)
+		foreach($rule_ids as $id) {
+			cascading_hours_delete_rule_with_id($id);
+			$result = !isset(cascading_hours_get_rule_with_id($id)['id']);
+			$message = "Deleting rule $id.";
+			$this->assertTrue($result, $message);
+		}
+
+		//create new test rules
+		$rule_ids = [];
+		for($i = 0; $i < 5; ++$i) {
+			$priority = $i;
+			$start_date = strtotime($i + ' days ago midnight');
+			$end_date = strtotime($i + ' days midnight');
+			$rule_ids[] = cascading_hours_create_rule($location_id, $priority, $start_date, $end_date);
+		}
+
+		//create test schedules
+		foreach($rule_ids as $rule_id) {
+			for($i = 0; $i < 7; ++$i) {
+				$schedule_ids[] = cascading_hours_create_schedule($rule_id, $i, strtotime('9:00 am'), strtotime('5:00 pm'));
+			}
+		}
+
+		//test rule deletion with children (cascading_hours_delete_rule_with_id)
+		foreach($rule_ids as $id) {
+			cascading_hours_delete_rule_with_id($id);
+			$schedules = cascading_hours_get_schedules_with_rule_id($id);
+			$result = (count($schedules) === 0);
+			$message = "Deleting rule $id with child schedules deleted.";
+			$this->assertTrue($result, $message);
+		}
+	}
+
+	/**
+	 * Test schedule creation
+	 */
+	function test_create_schedules() {
+		//create test location & rule
+		$location_id = cascading_hours_create_location('My Location');
+		$rule_id = cascading_hours_create_rule($location_id, 0, strtotime('2 weeks ago'), strtotime('2 weeks'));
+
+		//test creating schedules (cascading_hours_create_schedule)
+		$schedule_ids = [];
+		for($i = 0; $i < 7; ++$i) {
+			$schdule_ids[] = cascading_hours_create_schedule($rule_id, $i, strtotime('9:00 am'), strtotime('5:00 pm'));
+		}
+
+		//test getting schedules by rule id (cascading_hours_get_schedules_with_rule_id)
+		$schedules = cascading_hours_get_schedules_with_rule_id($rule_id);
+		foreach($schedule_ids as $id) {
+			$result = (array_search($id, array_column($schedules, 'id')) !== false);
+			$message = "Search by rule_id for schedule $id.";
+			$this->assertTrue($result, $message);
+		}
+
+		foreach($schedule_ids as $id) {
+			$result = isset(cascading_hours_get_schedule_with_id($id)['id']);
+			$message = "Search by id for schedule $id.";
+			$this->assertTrue($result, $message);
+		}
+	}
+
+	/**
+	 * Detect if we're running on PIFR testbot.
+	 *
+	 * Skip intentional failure in that case. It happens that on the testbot the
+	 * site under test is in a directory named 'checkout' or 'site_under_test'.
+	 *
+	 * @return bool
+	 *   TRUE if running on testbot.
+	 */
+	public function runningOnTestbot() {
+	  // @todo: Add this line back once the testbot variable is available.
+	  // https://www.drupal.org/node/2565181
+	  // return env('DRUPALCI');
+	  return TRUE;
+	}
 }
 
 
@@ -114,128 +365,95 @@ class CascadingHoursFunctionalTestCase extends DrupalWebTestCase {
  *
  * @ingroup cascading_hours
  */
-class CascadingHoursUnitTestCase extends DrupalUnitTestCase {
+class CascadingHoursUnitTestCase extends DrupalUnitTestCase
+{
 
-  /**
-   * {@inheritdoc}
-   */
-  public static function getInfo() {
-    return array(
-      'name' => 'Cascading Hours unit tests',
-      'description' => 'Unit tests for the cascading_hours module.',
-      'group' => 'cascading_hours',
-    );
-  }
+	/**
+	 * Give display information to the SimpleTest system.
+	 *
+	 * getInfo() returns a keyed array of information for SimpleTest to show.
+	 */
+	public static function getInfo()
+	{
+		return array(
+		'name' => 'Cascading Hours unit tests',
+		'description' => 'Unit tests for the cascading_hours module.',
+		'group' => 'cascading_hours',
+		);
+	}
 
-  /**
-   * Set up the test environment.
-   *
-   * Note that we use drupal_load() instead of passing our module dependency
-   * to parent::setUp(). That's because we're using DrupalUnitTestCase, and
-   * thus we don't want to install the module, only load it's code.
-   *
-   * Also, DrupalUnitTestCase can't actually install modules. This is by
-   * design.
-   */
-  public function setUp() {
-    drupal_load('module', 'cascading_hours');
-    parent::setUp();
-  }
+	/**
+	 * Set up the test environment.
+	 */
+	public function setUp()
+	{
+		drupal_load('module', 'cascading_hours');
+		parent::setUp();
+	}
 
-  /**
-   * Test cascading_hours_block_cmp().
-   * @see cascading_hours_block_cmp
-   */
-  public function test_cascading_hours_block_cmp() {
-    //future timstamp
-    $a['start'] = strtotime('tomorrow');
-    //present timestamp
-    $b['start'] = strtotime('now');
-    //past timestamp
-    $c['start'] = strtotime('yesterday');
+	/**
+	 * Test cascading_hours_block_cmp().
+	 *
+	 * @see cascading_hours_block_cmp
+	 */
+	public function test_cascading_hours_block_cmp()
+	{
+		//future timstamp
+		$a['start'] = date(DATE_ATOM, strtotime('tomorrow'));
+		//present timestamp
+		$b['start'] = date(DATE_ATOM, strtotime('now'));
+		//past timestamp
+		$c['start'] = date(DATE_ATOM, strtotime('yesterday'));
 
-    $result = (0 < cascading_hours_block_cmp($a, $b)); //should be positive
-    $message = '(tomorrow, now) should return a positive value.';
-    $this->assertTrue($result, $message);
+		$result = (0 < cascading_hours_block_cmp($a, $b)); //should be positive
+		$message = '(tomorrow, now) should return a positive value.';
+		$this->assertTrue($result, $message);
 
-    $result = (0 > cascading_hours_block_cmp($b, $a)); //should be negative
-    $message = '(now, tomorrow) should return a negative value.';
-    $this->assertTrue($result, $message);
+		$result = (0 > cascading_hours_block_cmp($b, $a)); //should be negative
+		$message = '(now, tomorrow) should return a negative value.';
+		$this->assertTrue($result, $message);
 
-    $result = (0 < cascading_hours_block_cmp($a, $c)); //should be positive
-    $message = '(tomorrow, yesterday) should return a positive value.';
-    $this->assertTrue($result, $message);
+		$result = (0 < cascading_hours_block_cmp($a, $c)); //should be positive
+		$message = '(tomorrow, yesterday) should return a positive value.';
+		$this->assertTrue($result, $message);
 
-    $result = (0 > cascading_hours_block_cmp($c, $b)); //should be negataive
-    $message = '(yesterday, now) should return a negative value.';
-    $this->assertTrue($result, $message);
+		$result = (0 > cascading_hours_block_cmp($c, $b)); //should be negataive
+		$message = '(yesterday, now) should return a negative value.';
+		$this->assertTrue($result, $message);
 
-    $result = (0 == cascading_hours_block_cmp($b, $b)); //should be positive
-    $message = '(now, now) should return 0.';
-    $this->assertTrue($result, $message);
-  }
+		$result = (0 == cascading_hours_block_cmp($b, $b)); //should be positive
+		$message = '(now, now) should return 0.';
+		$this->assertTrue($result, $message);
+	}
 
-  /**
-   * Test cascading_hours_generate_schedule().
-   * @see cascading_hours_generate_schedule
-   */
-  public function test_cascading_hours_generate_schedule() {
-
-    //a week's worth of schedule data
-    $test_schedule = [
-      [['start_time' => strtotime('9:00 am'), 'end_time' => strtotime('8:00 pm')]],
-      [['start_time' => strtotime('9:00 am'), 'end_time' => strtotime('8:00 pm')]],
-      [['start_time' => strtotime('9:00 am'), 'end_time' => strtotime('8:00 pm')]],
-      [['start_time' => strtotime('9:00 am'), 'end_time' => strtotime('3:00 pm')], ['start_time' => strtotime('4:00 pm'), 'end_time' => strtotime('8:00 pm')]],
-      [['start_time' => strtotime('9:00 am'), 'end_time' => strtotime('8:00 pm')]],
-      [['start_time' => strtotime('9:00 am'), 'end_time' => strtotime('8:00 pm')]],
-      [['start_time' => strtotime('9:00 am'), 'end_time' => strtotime('8:00 pm')]]
-    ];
-
-    $test_start_date = strtotime('today midnight');
-
-    $test_data = cascading_hours_generate_schedule($test_schedule, $test_start_date);
-
-    $result = (count($test_schedule) == count($test_data)); //should be true
-    $message = 'The test schedule and test data should have the same length.';
-    $this->assertTrue($result, $message);
-
-    $result = true;
-    for($i = 0; $i < count($test_data); ++$i) {
-      for($j = 0; $j < count($test_data); ++$j) {
-        $result &= (Date('h:i a', strtotime($test_data[$i][$j]['start'])) == Date('h:i a', strtotime($test_schedule[$i][$j]['start_time'])));
-        $result &= (Date('h:i a', strtotime($test_data[$i][$j]['end'])) == Date('h:i a', strtotime($test_schedule[$i][$j]['end_time'])));
-      }
-    }
-    $message = 'The test schedule and the test data should have the same schedule information';
-    $this->assertTrue($result, $message);
-  }
-
-  /**
-   * Test cascading_hours_day_cmp()
-   * @see cascading_hours_day_cmp
-   */
-  function test_cascading_hours_day_cmp() {
-    // negative if $a < $b, 0 if $a == $b, positive if $a > $b
-
-    $result = (0 < cascading_hours_day_cmp(6, 3)); //should be positive
-    $message = '(6, 3) should return a positive value.';
-    $this->assertTrue($result, $message);
-
-    $result = (0 > cascading_hours_day_cmp(3, 6)); //should be negative
-    $message = '(3, 6) should return a negative value.';
-    $this->assertTrue($result, $message);
-
-    $result = (0 < cascading_hours_day_cmp(5, 1)); //should be positive
-    $message = '(5, 1) should return a positive value.';
-    $this->assertTrue($result, $message);
-
-    $result = (0 > cascading_hours_day_cmp(2, 4)); //should be negataive
-    $message = '(2, 4) should return a negative value.';
-    $this->assertTrue($result, $message);
-
-    $result = (0 == cascading_hours_day_cmp(3, 3)); //should be positive
-    $message = '(3, 3) should return 0.';
-    $this->assertTrue($result, $message);
-  }
+	// TODO: figure out how to unit test .inc files
+	/**
+	 * Test cascading_hours_day_cmp()
+	 *
+	 * @see cascading_hours_day_cmp
+	 */
+	// function test_cascading_hours_day_cmp()
+	// {
+	// 	// negative if $a < $b, 0 if $a == $b, positive if $a > $b
+	//
+	// 	$result = (0 < cascading_hours_day_cmp(6, 3)); //should be positive
+	// 	$message = '(6, 3) should return a positive value.';
+	// 	$this->assertTrue($result, $message);
+	//
+	// 	$result = (0 > cascading_hours_day_cmp(3, 6)); //should be negative
+	// 	$message = '(3, 6) should return a negative value.';
+	// 	$this->assertTrue($result, $message);
+	//
+	// 	$result = (0 < cascading_hours_day_cmp(5, 1)); //should be positive
+	// 	$message = '(5, 1) should return a positive value.';
+	// 	$this->assertTrue($result, $message);
+	//
+	// 	$result = (0 > cascading_hours_day_cmp(2, 4)); //should be negataive
+	// 	$message = '(2, 4) should return a negative value.';
+	// 	$this->assertTrue($result, $message);
+	//
+	// 	$result = (0 == cascading_hours_day_cmp(3, 3)); //should be positive
+	// 	$message = '(3, 3) should return 0.';
+	// 	$this->assertTrue($result, $message);
+	// }
 }
