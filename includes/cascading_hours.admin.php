@@ -64,6 +64,27 @@ function cascading_hours_admin_settings_form($form, &$form_state)
         )
     );
 
+    $form['cascading_hours_delete_old_files'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Automatically delete old files'),
+        '#default_value' => variable_get('cascading_hours_delete_old_files', false),
+        '#description' => t("When enabled, files with created dates older than a set age will be automatically deleted."),
+        '#required' => true,
+    );
+
+    $form['cascading_hours_old_files_age'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Maximum export file age (in days)'),
+        '#default_value' => variable_get('cascading_hours_old_files_age', 90),
+        '#description' => t("Maximum age in days of export files.  If \"Automatically delete old files\" is enabled, export files with created dates older than this will be deleted."),
+        '#attributes' => array(
+            'class' => array(
+                'numeric-field',
+            ) ,
+            '#required' => true,
+        )
+    );
+
     $form['submit'] = array(
         '#type' => 'submit',
         '#value' => 'Save',
@@ -86,11 +107,17 @@ function cascading_hours_admin_settings_form_submit($form, &$form_state)
 {
     $cascading_hours_delete_old_rules = $form_state['values']['cascading_hours_delete_old_rules'];
     $cascading_hours_old_rules_age = $form_state['values']['cascading_hours_old_rules_age'];
+    $cascading_hours_delete_old_files = $form_state['values']['cascading_hours_delete_old_files'];
+    $cascading_hours_old_files_age = $form_state['values']['cascading_hours_old_files_age'];
     if(!is_numeric($cascading_hours_old_rules_age)) {
-        form_set_error("cascading_hours_old_rules_age", "Maximum age must be a number");
+        form_set_error("cascading_hours_old_rules_age", "Maximum rule age must be a number");
+    } else if(!is_numeric($cascading_hours_old_files_age)) {
+        form_set_error("cascading_hours_old_files_age", "Maximum file age must be a number");
     } else {
         variable_set('cascading_hours_delete_old_rules', (bool) $cascading_hours_delete_old_rules);
         variable_set('cascading_hours_old_rules_age', (int) $cascading_hours_old_rules_age);
+        variable_set('cascading_hours_delete_old_files', (bool) $cascading_hours_delete_old_files);
+        variable_set('cascading_hours_old_files_age', (int) $cascading_hours_old_files_age);
     }
 }
 
