@@ -109,13 +109,13 @@ function cascading_hours_menu()
 		'file' => 'cascading_hours.admin.php',
 		'file path' => $include_path
 	);
-
-	$items['admin/structure/cascading_hours/cron'] = array(
-	  'title' => 'Cascading Hours Cron',
-	  'page callback' => 'drupal_get_form',
-	  'page arguments' => array('cascading_hours_cron_form'),
-	  'access callback' => true,
-	);
+	// TODO: delete this if it is not needed
+	// $items['admin/structure/cascading_hours/cron'] = array(
+	//   'title' => 'Cascading Hours Cron',
+	//   'page callback' => 'drupal_get_form',
+	//   'page arguments' => array('cascading_hours_cron_form'),
+	//   'access callback' => true,
+	// );
 	$items['admin/structure/cascading_hours/import/%'] = array(
 		'title' => 'Cascading Hours: Import a Schedule',
 		'description' => 'Import a schedule to Cascading Hours.',
@@ -142,6 +142,39 @@ function cascading_hours_menu()
 		'file' => 'cascading_hours.export.php',
 		'file path' => $include_path
 	);
+	$items['admin/structure/cascading_hours/block'] = array(
+		'title' => 'Cascading Hours: Blocks',
+		'description' => 'View and edit Cascading Hours\' blocks.',
+		'page callback' => 'cascading_hours_admin_blocks',
+		'access arguments' => array(
+			'administer_cascading_hours_configuration'
+		) ,
+		'file' => 'cascading_hours.admin.php',
+		'file path' => $include_path
+	);
+	$items['admin/structure/cascading_hours/block/add'] = array(
+		'title' => 'Cascading Hours: Add a Block',
+		'description' => 'Add a Cascading Hours block.',
+		'page callback' => 'cascading_hours_admin_block_add',
+		'access arguments' => array(
+			'administer_cascading_hours_configuration'
+		) ,
+		'file' => 'cascading_hours.admin.php',
+		'file path' => $include_path
+	);
+	$items['admin/structure/cascading_hours/block/%/delete'] = array(
+		'title' => 'Cascading Hours: Delete a Block',
+		'description' => 'Delete a Cascading Hours block.',
+		'page callback' => 'cascading_hours_admin_block_delete',
+		'page arguments' => array(
+			4
+		) ,
+		'access arguments' => array(
+			'administer_cascading_hours_configuration'
+		) ,
+		'file' => 'cascading_hours.admin.php',
+		'file path' => $include_path
+	);
 	return $items;
 }
 
@@ -151,12 +184,14 @@ function cascading_hours_menu()
 function cascading_hours_block_info()
 {
 	$blocks = array();
-	$blocks['week_view'] = array(
-		'info' => t('Cascading Hours Week View'),
-	);
-	$blocks['nav_view'] = array(
-		'info' => t('Cascading Hours Nav View'),
-	);
+
+	$block_data = cascading_hours_get_blocks();
+	foreach($block_data as $data) {
+		$blocks[$data['type'] . $data['id']] = array(
+			'info' => t('Cascading Hours ' . $data['type'] . ' ' . $data['id']),
+		);
+	}
+
 	return $blocks;
 }
 
@@ -168,34 +203,53 @@ function cascading_hours_block_info()
  */
 function cascading_hours_block_configure($delta = '')
 {
-	//TODO: check for deleted locations
-	$current_display_locations;
-
-	switch($delta) {
-	case 'week_view':
-		$current_display_locations = variable_get('cascading_hours_week_view_display_locations', array());
-		break;
-	case 'nav_view':
-		$current_display_locations = variable_get('cascading_hours_nav_view_display_locations', array());
-		break;
-	}
-
-	$locations = cascading_hours_get_locations();
-	$display_locations = [];
-	foreach($locations as $location) {
-		$display_locations[$location['id']] = $location['name'];
-	}
-
 	$form = [];
+	if($delta !== ''){
+		$block_id;
+		$block_type;
+		if(substr($delta, 0, 4) == 'week') {
+			$block_id = (int) substr($delta, 9);
+			$block_type = substr($delta, 0, 9);
+		} else if(substr($delta, 0, 3) == 'nav') {
+			$block_id = (int) substr($delta, 8);
+			$block_type = substr($delta, 0, 8);
+		} else {
+			//otherwise there is no such block
+			$form = [];
+			$form['markup'] = array(
+				'#markup' => 'Invalid block type',
+			);
+			watchdog('cascading_hours', 'Invalid block type ' . $delta, [], WATCHDOG_ERROR);
+			return $form;
+		}
+		$block = cascading_hours_get_block_with_id($block_id);
 
-	$form['locations'] = array(
-		'#type' => 'checkboxes',
-		'#title' => t('Select Locations to Display'),
-		'#description' => t('Select locations for which the should render schedules.'),
-		'#options' => $display_locations,
-		'#default_value' => $current_display_locations,
-	);
+		$current_display_locations = json_decode($block['locations']);
 
+		$locations = cascading_hours_get_locations();
+		$display_locations = [];
+		foreach($locations as $location) {
+			$display_locations[$location['id']] = $location['name'];
+		}
+
+		$form['block_id'] = array(
+			'#type' => 'value',
+			'#value' => $block_id,
+		);
+
+		$form['block_type'] = array(
+			'#type' => 'value',
+			'#value' => $block_type,
+		);
+
+		$form['block_locations'] = array(
+			'#type' => 'checkboxes',
+			'#title' => t('Select Locations to Display'),
+			'#description' => t('Select locations for which the block should render schedules.'),
+			'#options' => $display_locations,
+			'#default_value' => $current_display_locations,
+		);
+	}
 	return $form;
 }
 
@@ -207,14 +261,18 @@ function cascading_hours_block_configure($delta = '')
  */
 function cascading_hours_block_save($delta = '', $edit = array())
 {
-	switch($delta) {
-	case 'week_view':
-		variable_set('cascading_hours_week_view_display_locations', $edit['locations']);
-		break;
-	case 'nav_view':
-		variable_set('cascading_hours_nav_view_display_locations', $edit['locations']);
-		break;
+	if(isset($edit['block_id'])) {
+		$locations = [];
+		foreach($edit['block_locations'] as $id => $checked) {
+			if($checked) {
+				$locations[] = $id;
+			}
+		}
+		cascading_hours_update_block($edit['block_id'], $edit['block_type'], json_encode($locations));
+	} else {
+		form_set_error('You may be trying to edit an invalid block.');
 	}
+	//otherwise there was a form error
 }
 
 /**
@@ -223,31 +281,36 @@ function cascading_hours_block_save($delta = '', $edit = array())
 function cascading_hours_block_view($delta = '')
 {
 	$block = array();
-
-	switch($delta) {
-	case 'week_view' :
-		$block['content'] = cascading_hours_block_week_view();
-		break;
-	case 'nav_view' :
-		$block['content'] = cascading_hours_block_nav_view();
-		break;
+	if($delta !== '') {
+		if(substr($delta, 0, 4) == 'week') {
+			//generate a week view block
+			$block_id = (int) substr($delta, 9);
+			$block['content'] = cascading_hours_block_week_view($block_id);
+		} else if(substr($delta, 0, 3) == 'nav') {
+			//generate a nav view block
+			$block_id = (int) substr($delta, 8);
+			$block['content'] = cascading_hours_block_nav_view($block_id);
+		}
+		//otherwise there is no such block
 	}
 	return $block;
 }
 
 /**
  * Helper function that generates the markup for the week_view block
+ * @param int $block_id - id of the block to be rendered
  */
-function cascading_hours_block_week_view()
+function cascading_hours_block_week_view($block_id)
 {
 	$page = '';
-	$display_locations = variable_get('cascading_hours_week_view_display_locations');
+	$block = cascading_hours_get_block_with_id($block_id);
+	$display_locations = json_decode($block['locations']);
 	$start = strtotime('today midnight');
 	$end = strtotime('today midnight', $start + 60 * 60 * 24 * 7);
 	foreach($display_locations as $location_id) {
 		$location = cascading_hours_get_location_with_id($location_id);
 		$start = strtotime('today midnight');
-		$end = strtotime('today midnight', $start + 60 * 60 * 24 * 7);
+		$end = strtotime('1 week midnight');
 		$schedule = cascading_hours_get_schedule_in_range_for_location_with_id($location_id, $start, $end);
 		$schedule = cascading_hours_generate_schedule($schedule, $start);
 
@@ -272,11 +335,12 @@ function cascading_hours_block_week_view()
 
 /**
  * Helper function that generates the markup for the nav_view block
+ * @param int $block_id - id of the block to be rendered
  */
-function cascading_hours_block_nav_view()
+function cascading_hours_block_nav_view($block_id)
 {
-	$display_locations = variable_get('cascading_hours_nav_view_display_locations');
-
+	$block = cascading_hours_get_block_with_id($block_id);
+	$display_locations = json_decode($block['locations']);
 	$page = '<div class="cascading-hours-nav-view" data-module-path="' . base_path() . drupal_get_path('module', 'cascading_hours') . '">
 	<a class="nav-view-left" href="javascript:void(0)">&lsaquo;</a>
 	<select class="nav-view-locations" name="nav-view-locations">';
@@ -507,6 +571,27 @@ function cascading_hours_generate_schedule($schedules, $start_date)
 /*** CREATE FUNCTIONS ***/
 
 /**
+ * Creates a block with given $id, $type, and $locations
+ * @param  string $type - the type of the block (should be either 'nav_view' or 'week_view' though this is restriction not enforced)
+ * @param  string $locations - a JSON encoded array of location_ids that the block should display (creation is rejected if this is invalid)
+ * @return int - the id of the newly created block when successfully created
+ */
+function cascading_hours_create_block($type, $locations) {
+	if(json_decode($locations) !== null) {
+		//$locations is valid json, create the block
+		$entry = [];
+		$entry['type'] = $type;
+		$entry['locations'] = $locations;
+		$block_id = db_insert('cascading_hours_blocks')
+		->fields($entry)
+		->execute();
+		return $block_id;
+	} else {
+		watchdog('cascading_hours', 'Poorly formatted block location json string ' . $locations, [], WATCHDOG_ERROR);
+	}
+}
+
+/**
  * Create an entry in cascading_hours_files to track export files
  * @param id $fid - file id (as set by drupal managed files)
  */
@@ -607,6 +692,33 @@ function cascading_hours_create_schedule($rule_id, $day, $start_time, $end_time)
 }
 
 /*** GET FUNCTIONS ***/
+
+/**
+ * Get a list of all blocks
+ * @return array - a keyed array of block data
+ */
+function cascading_hours_get_blocks() {
+	$blocks = db_select('cascading_hours_blocks', 'c')
+	->fields('c')
+	->execute();
+
+	$blocks = cascading_hours_query_to_array($blocks);
+	return $blocks;
+}
+
+/**
+ * Get the block with a given id
+ * @param  int $id - the id of a block
+ * @return array - a keyed array of the block's data
+ */
+function cascading_hours_get_block_with_id($id) {
+	$block = db_select('cascading_hours_blocks', 'c')
+	->fields('c')
+	->condition('id', $id, '=')
+	->execute()
+	->fetchAssoc();
+	return $block;
+}
 
 /**
  *
@@ -871,6 +983,28 @@ function cascading_hours_get_schedule_with_id($id)
 /*** UPDATE FUNCTIONS ***/
 
 /**
+ * Update the database entry for a block with given id to have given $type and $locations
+ * @param  int $id - the id of the block
+ * @param  string $type - the type of the block (should be either 'nav_view' or 'week_view' though this is restriction not enforced)
+ * @param  string $locations - a JSON encoded array of location_ids that the block should display
+ */
+function cascading_hours_update_block($id, $type, $locations) {
+	if(json_decode($locations) !== null) {
+		$block = db_update('cascading_hours_blocks')
+		->fields(
+			array(
+			'type' => $type,
+			'locations' => $locations,
+			)
+		)
+		->condition('id', $id, '=')
+		->execute();
+	} else {
+		watchdog('cascading_hours', 'Poorly formatted block location json string ' . $locations, [], WATCHDOG_ERROR);
+	}
+}
+
+/**
  * Update a location
  *
  * @param int	$location_id
@@ -924,6 +1058,16 @@ function cascading_hours_update_rule($rule_id, $location_id, $priority, $start_d
 /*** DELETE FUNCTIONS ***/
 
 /**
+ * Delete the block with a given id
+ * @param  int $id - the id of a block
+ */
+function cascading_hours_delete_block_with_id($id) {
+	$block = db_delete('cascading_hours_blocks')
+	->condition('id', $id, '=')
+	->execute();
+}
+
+/**
  * Deletes a managed file with a given $fid and removes the file's entry from the cascading_hours_files table
  * @param int $fid - file id (fid) used by the drupal managed file system
  */
@@ -959,6 +1103,7 @@ function cascading_hours_delete_location_with_name($name)
  */
 function cascading_hours_delete_location_with_id($id)
 {
+	//TODO: search through blocks to remove this location if found
 	cascading_hours_delete_rules_with_location_id($id);
 	$result = db_delete('cascading_hours_locations')
 	->condition('id', $id, '=')
