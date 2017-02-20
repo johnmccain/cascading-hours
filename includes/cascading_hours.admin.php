@@ -236,6 +236,7 @@ function cascading_hours_admin_block_add_form_submit($form, &$form_state) {
 	}
 
 	cascading_hours_create_block($form_state['values']['block_type'], json_encode($locations));
+	$form_state['redirect'] = 'admin/structure/cascading_hours/block';
 }
 
 /**
@@ -293,6 +294,7 @@ function cascading_hours_admin_block_delete_form($form,  &$form_state) {
  * @param array &$form_state
  */
 function cascading_hours_admin_block_delete_form_submit($form,  &$form_state) {
+	$form_state['redirect'] = 'admin/structure/cascading_hours/block/';
 	cascading_hours_delete_block_with_id($form_state['values']['block_id']);
 }
 
