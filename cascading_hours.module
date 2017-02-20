@@ -109,13 +109,6 @@ function cascading_hours_menu()
 		'file' => 'cascading_hours.admin.php',
 		'file path' => $include_path
 	);
-	// TODO: delete this if it is not needed
-	// $items['admin/structure/cascading_hours/cron'] = array(
-	//   'title' => 'Cascading Hours Cron',
-	//   'page callback' => 'drupal_get_form',
-	//   'page arguments' => array('cascading_hours_cron_form'),
-	//   'access callback' => true,
-	// );
 	$items['admin/structure/cascading_hours/import/%'] = array(
 		'title' => 'Cascading Hours: Import a Schedule',
 		'description' => 'Import a schedule to Cascading Hours.',
@@ -191,7 +184,6 @@ function cascading_hours_block_info()
 			'info' => t('Cascading Hours ' . $data['type'] . ' ' . $data['id']),
 		);
 	}
-
 	return $blocks;
 }
 
@@ -366,6 +358,7 @@ function cascading_hours_block_nav_view($block_id)
 
 /**
  * Form to run cron manually
+ * @deprecated
  */
 function cascading_hours_cron_form($form, &$form_state)
 {
@@ -390,6 +383,7 @@ function cascading_hours_cron_form($form, &$form_state)
 
 /**
  * Allow user to directly execute cron, optionally forcing it.
+ * @deprecated
  */
 function cascading_hours_form_submit($form, &$form_state)
 {

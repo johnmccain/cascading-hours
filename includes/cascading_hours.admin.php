@@ -156,7 +156,6 @@ function cascading_hours_admin_blocks() {
 		$page .= l(t('configure'), 'admin/structure/block/manage/cascading_hours/' . $block['type'] . $block['id'] . '/configure');
 		$page .= '<hr/><br/>';
 	}
-	$page .= '<br/>';
 	$page .= l('Add New Block', 'admin/structure/cascading_hours/block/add');
 	$page .= '<hr/>';
 	$page .= l(t("Go back"), "admin/structure/cascading_hours/");
@@ -170,7 +169,6 @@ function cascading_hours_admin_blocks() {
  * @return string - A string of markup
  */
 function cascading_hours_admin_block_add() {
-	//TODO: this
 	$page = '';
 	$page .= '<h3>Add a Block</h3>';
 	$page .= l(t("Go back"), "admin/structure/cascading_hours/block/");
@@ -246,7 +244,6 @@ function cascading_hours_admin_block_add_form_submit($form, &$form_state) {
  * @return string - A string of markup
  */
 function cascading_hours_admin_block_delete($block_id) {
-	//TODO: this
 	$block = cascading_hours_get_block_with_id($block_id);
 	if (isset($block['type'])) {
 		// location exists, show delete form
@@ -400,7 +397,7 @@ function cascading_hours_admin_edit_location_form($form, &$form_state)
  */
 function cascading_hours_admin_edit_location_form_submit($form, &$form_state)
 {
-	cascading_hours_update_location($form_state['values']['location_id'], $form_state['values']['name']);
+	cascading_hours_update_location($form_state['values']['location_id'], filter_xss($form_state['values']['name']));
 }
 
 /**
@@ -450,7 +447,7 @@ function cascading_hours_admin_add_location_form($form, &$form_state)
  */
 function cascading_hours_admin_add_location_form_submit($form, &$form_state)
 {
-	cascading_hours_create_location($form_state['values']['name']);
+	cascading_hours_create_location(filter_xss($form_state['values']['name']));
 	$form_state['redirect'] = 'admin/structure/cascading_hours';
 }
 
@@ -654,8 +651,9 @@ function cascading_hours_admin_add_rule_form_submit($form, &$form_state)
 	$priority = $form_state['values']['priority'];
 	$start_date = strtotime($form_state['values']['start_date']);
 	$end_date = strtotime($form_state['values']['end_date']);
-	$alias = $form_state['values']['alias'];
-	if (!$alias) { $alias = null;
+	$alias = filter_xss($form_state['values']['alias']);
+	if (!$alias) {
+		$alias = null;
 	}
 	cascading_hours_create_rule($location_id, $priority, $start_date, $end_date, $alias);
 
@@ -876,7 +874,7 @@ function cascading_hours_admin_edit_rule_form_submit($form, &$form_state)
 	$priority = $form_state['values']['priority'];
 	$start_date = strtotime($form_state['values']['start_date']);
 	$end_date = strtotime($form_state['values']['end_date']);
-	$alias = $form_state['values']['alias'];
+	$alias = filter_xss($form_state['values']['alias']);
 	if (!$alias) { $alias = null;
 	}
 	cascading_hours_update_rule($rule_id, $location_id, $priority, $start_date, $end_date, $alias);
