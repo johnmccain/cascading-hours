@@ -60,7 +60,6 @@ function cascading_hours_schema()
 				'type' => 'varchar',
 				'length' => 255,
 				'not null' => true,
-				'default' => '',
 				'description' => 'Name of the location.',
 			)
 		),

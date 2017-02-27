@@ -21,3 +21,5 @@ xmlrpc.php
 /scripts
 /themes
 .php_cs.cache
+phpdox.phar
+apigen.phar

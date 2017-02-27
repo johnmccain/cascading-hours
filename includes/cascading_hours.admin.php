@@ -30,7 +30,7 @@ function cascading_hours_admin()
 	$page .= "</table>";
 	$page .= l(t("Add Location"), "admin/structure/cascading_hours/location/add");
 	$page .= '<hr/>';
-	$page .= l(t("Edit Blocks"), "admin/structure/cascading_hours/block");
+	$page .= l(t("Manage Blocks"), "admin/structure/cascading_hours/block");
 	return $page;
 }
 
@@ -793,6 +793,7 @@ function cascading_hours_admin_edit_rule($id)
  */
 function cascading_hours_admin_edit_rule_form($form, &$form_state)
 {
+	//FIXME default start/end dates not populating
 	$form = [];
 	$rule = $form_state['build_info']['args'][0];
 	$locations = cascading_hours_get_locations();
