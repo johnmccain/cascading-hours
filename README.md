@@ -49,6 +49,7 @@ In order to delete a location, click the delete link next to the name of the loc
 ## <a name="rules"></a>Rules
 
 Rules can be viewed from the individual configuration page of the location to which they belong. Rules have properties:
++ __ID__ - An automatically assigned unique integer identifier
 + __Location__ - The location the rule applies to
 + __Alias__ - An optional string to help organize rules
 + __Start Date__ - The date a rule begins on (defaults to midnight that day, so inclusive)
@@ -105,14 +106,14 @@ Cascading Hours uses the following spreadsheet format for importing and exportin
 		<td></td>
 	</tr>
 	<tr>
-		<td>_date_</td>
-		<td>_start time of first block_</td>
-		<td>_end time of first block_</td>
-		<td>_start time of second block_</td>
-		<td>_end time of second block (and so on)_</td>
+		<td>*date*</td>
+		<td>*start time of first block*</td>
+		<td>*end time of first block*</td>
+		<td>*start time of second block*</td>
+		<td>*end time of second block (and so on)*</td>
 	</tr>
 	<tr>
-		<td>_..._</td>
+		<td>...</td>
 		<td></td>
 		<td></td>
 		<td></td>
@@ -172,7 +173,11 @@ The API queries for schedule data as specified by a number of get parameters. Th
 + location_id (integer) - The unique integer identifier of a Cascading Hours location.
 + location_name (string) - The name of a Cascading Hours location
 
- *(Note: this parameter is case sensitive and location names can be changed, so queries by location\_id is)*
+ *(Note: this parameter is case sensitive and location names can be changed, so queries by location\_id are preferred if possible)*
 
-+ start_date (integer) - The start datetime of the search time range as a Unix timestamp (the number of seconds since 1970)
-+ end_date (integer) - The end datetime of the search time range as a Unix timestamp (the number of seconds since 1970)
++ start (integer) - The start datetime of the search time range as a Unix timestamp (the number of seconds since 1970)
++ end (integer) - The end datetime of the search time range as a Unix timestamp (the number of seconds since 1970)
+
+So an example request to the api might be:
+
+> example.com/modules/cascading_hours/api.php?location_id=4&start=1487545200&end=1488236400

@@ -823,8 +823,8 @@ function cascading_hours_admin_edit_rule_form($form, &$form_state)
 	$form['start_date'] = array(
 		'#type' => 'date_popup',
 		'#title' => t('Start Date') ,
-		'#date_format' => 'm/d/Y',
-		'#default_value' => format_date(strtotime($rule['start_date']), 'custom', 'm/d/Y'),
+		'#date_format' => 'Y-m-d',
+		'#default_value' => format_date(strtotime($rule['start_date']), 'custom', 'Y-m-d'),
 		'#attributes' => array(
 			'class' => array(
 				'datepicker',
@@ -835,8 +835,8 @@ function cascading_hours_admin_edit_rule_form($form, &$form_state)
 	$form['end_date'] = array(
 		'#type' => 'date_popup',
 		'#title' => t('End Date') ,
-		'#date_format' => 'm/d/Y',
-		'#default_value' => format_date(strtotime($rule['end_date']), 'custom', 'm/d/Y') ,
+		'#date_format' => 'Y-m-d',
+		'#default_value' => format_date(strtotime($rule['end_date']), 'custom', 'Y-m-d') ,
 		'#attributes' => array(
 			'class' => array(
 				'datepicker',
