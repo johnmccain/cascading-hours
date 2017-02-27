@@ -278,9 +278,10 @@ function cascading_hours_import_diff($schedule, $location_id) {
 function cascading_hours_import_schedule($schedule, $location_id) {
 	//delete all rules with start dates > import start and end dates < input end
 	end($schedule);
-	$import_end = strtotime(key($schedule));
+	$import_end = strtotime('tomorrow midnight', strtotime(key($schedule)));
 	reset($schedule);
 	$import_start = strtotime(key($schedule));
+	watchdog('cascading_hours', 'import_end: ' . date('Y-m-d H:i:s', $import_end));
 
 	$old_rules = cascading_hours_get_rules_contained_within_range_with_location_id($location_id, $import_start, $import_end);
 	foreach($old_rules as $rule) {
