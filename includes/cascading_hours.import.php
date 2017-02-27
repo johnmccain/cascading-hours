@@ -6,6 +6,17 @@
  */
 
 /**
+ * @param string $str - The string for which remove any encapsulating quotes
+ * @return string - The string with any encapsulating quotes removed
+ */
+function cascading_hours_remove_encapsulating_quotes($str) {
+    if(!empty($str) && $str{0} == '"' && $str{strlen($str) - 1} == '"') {
+        return substr($str, 1, -1);
+    }
+    return $str;
+}
+
+/**
  * @param int $location_id - id of the location to import to
  */
 function cascading_hours_admin_import($location_id)
@@ -175,6 +186,7 @@ function cascading_hours_import_parse($contents)
     $prev_day = false;
     foreach($contents as $key => &$row) {
         $row = explode(",", $row);
+        array_map('cascading_hours_remove_encapsulating_quotes', $row);
         if(count($row) % 2 != 1) {
             //there should be an odd number of columns for each row (date + pairs of start/end times)
             $errors[] = t("On row $key: incorrect number of columns.  Each row should begin with a date and continue with pairs of start/end times.");
