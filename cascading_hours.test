@@ -392,6 +392,27 @@ class CascadingHoursUnitTestCase extends DrupalUnitTestCase
 	}
 
 	/**
+	 * Test cascading_hours_remove_encapsulating_quotes().
+	 *
+	 * @see cascading_hours_remove_encapsulating_quotes
+	 */
+	public function test_cascading_hours_remove_encapsulating_quotes()
+	{
+		$result = 'test!' === cascading_hours_remove_encapsulating_quotes('"test!"');
+		$message = '"test!" should return test!';
+		$this->assertTrue($result, $message);
+		$result = 'test!' === cascading_hours_remove_encapsulating_quotes('test!');
+		$message = 'test! should return test!';
+		$this->assertTrue($result, $message);
+		$result = '"test!' === cascading_hours_remove_encapsulating_quotes('"test!');
+		$message = '"test! should return "test!';
+		$this->assertTrue($result, $message);
+		$result = 'test!"' === cascading_hours_remove_encapsulating_quotes('test!"');
+		$message = 'test!" should return test!"';
+		$this->assertTrue($result, $message);
+	}
+
+	/**
 	 * Test cascading_hours_block_cmp().
 	 *
 	 * @see cascading_hours_block_cmp

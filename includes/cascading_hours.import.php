@@ -178,7 +178,6 @@ function cascading_hours_admin_import_form_submit($form, &$form_state)
  */
 function cascading_hours_import_parse($contents)
 {
-	//FIXME: add functionality to parse csv's with double quotes around content
     //parse file contents from string to multidimensional array
     $errors = [];
     $contents = explode("\n", $contents);
