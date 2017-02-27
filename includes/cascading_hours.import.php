@@ -6,17 +6,6 @@
  */
 
 /**
- * @param string $str - The string for which remove any encapsulating quotes
- * @return string - The string with any encapsulating quotes removed
- */
-function cascading_hours_remove_encapsulating_quotes($str) {
-    if(!empty($str) && $str{0} == '"' && $str{strlen($str) - 1} == '"') {
-        return substr($str, 1, -1);
-    }
-    return $str;
-}
-
-/**
  * @param int $location_id - id of the location to import to
  */
 function cascading_hours_admin_import($location_id)
@@ -163,7 +152,7 @@ function cascading_hours_admin_import_form_submit($form, &$form_state)
         $schedule = $_SESSION['cascading_hours_import_data'];
         if(cascading_hours_import_schedule($schedule, $location_id)) {
             //successfully imported schedule, display success message
-            drupal_set_message('Success! <br/>' . json_encode($_SESSION['cascading_hours_import_data']));
+            drupal_set_message('Success!');
         }
         watchdog('cascading_hours', "Imported schedule for location with id $location_id");
     }

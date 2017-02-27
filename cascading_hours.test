@@ -453,28 +453,28 @@ class CascadingHoursUnitTestCase extends DrupalUnitTestCase
 	 *
 	 * @see cascading_hours_day_cmp
 	 */
-	// function test_cascading_hours_day_cmp()
-	// {
-	// 	// negative if $a < $b, 0 if $a == $b, positive if $a > $b
-	//
-	// 	$result = (0 < cascading_hours_day_cmp(6, 3)); //should be positive
-	// 	$message = '(6, 3) should return a positive value.';
-	// 	$this->assertTrue($result, $message);
-	//
-	// 	$result = (0 > cascading_hours_day_cmp(3, 6)); //should be negative
-	// 	$message = '(3, 6) should return a negative value.';
-	// 	$this->assertTrue($result, $message);
-	//
-	// 	$result = (0 < cascading_hours_day_cmp(5, 1)); //should be positive
-	// 	$message = '(5, 1) should return a positive value.';
-	// 	$this->assertTrue($result, $message);
-	//
-	// 	$result = (0 > cascading_hours_day_cmp(2, 4)); //should be negataive
-	// 	$message = '(2, 4) should return a negative value.';
-	// 	$this->assertTrue($result, $message);
-	//
-	// 	$result = (0 == cascading_hours_day_cmp(3, 3)); //should be positive
-	// 	$message = '(3, 3) should return 0.';
-	// 	$this->assertTrue($result, $message);
-	// }
+	function test_cascading_hours_day_cmp()
+	{
+		// negative if $a < $b, 0 if $a == $b, positive if $a > $b
+
+		$result = (0 < cascading_hours_day_cmp(array('day' => 6), array('day' => 3))); //should be positive
+		$message = '(6, 3) should return a positive value.';
+		$this->assertTrue($result, $message);
+
+		$result = (0 > cascading_hours_day_cmp(array('day' => 3), array('day' => 6))); //should be negative
+		$message = '(3, 6) should return a negative value.';
+		$this->assertTrue($result, $message);
+
+		$result = (0 < cascading_hours_day_cmp(array('day' => 5), array('day' => 1))); //should be positive
+		$message = '(5, 1) should return a positive value.';
+		$this->assertTrue($result, $message);
+
+		$result = (0 > cascading_hours_day_cmp(array('day' => 2), array('day' => 4))); //should be negative
+		$message = '(2, 4) should return a negative value.';
+		$this->assertTrue($result, $message);
+
+		$result = (0 === cascading_hours_day_cmp(array('day' => 3), array('day' => 3))); //should be positive
+		$message = '(3, 3) should return 0.';
+		$this->assertTrue($result, $message);
+	}
 }

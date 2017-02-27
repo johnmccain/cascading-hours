@@ -1084,18 +1084,6 @@ function cascading_hours_admin_delete_schedule_form_submit($form, &$form_state)
 }
 
 /**
- *  Comparison function for sorting arrays of schedule blocks
- *
- *  @param  array $a - schedule
- *  @param  array $b - schedule
- *  @return int - negative if $a < $b, 0 if $a == $b, positive if $a > $b
- */
-function cascading_hours_day_cmp($a, $b)
-{
-	return $a['day'] - $b['day'];
-}
-
-/**
  * Generates the markup for a table of schedules with a given rule id
  *
  * @param  int $rule_id
