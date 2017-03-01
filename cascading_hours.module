@@ -297,26 +297,30 @@ function cascading_hours_block_week_view($block_id)
 	$page = '';
 	$block = cascading_hours_get_block_with_id($block_id);
 	$display_locations = json_decode($block['locations']);
-	$start = strtotime('today midnight');
-	$end = strtotime('today midnight', $start + 60 * 60 * 24 * 7);
 	foreach($display_locations as $location_id) {
 		$location = cascading_hours_get_location_with_id($location_id);
 		$start = strtotime('today midnight');
 		$end = strtotime('1 week midnight');
 		$schedule = cascading_hours_get_schedule_in_range_for_location_with_id($location_id, $start, $end);
 		$schedule = cascading_hours_generate_schedule($schedule, $start);
+		$date_iterator = new DateTime();
 
-		$page .= '<h3>' . $location['name'] . '</h3><ul>';
+		$page .= "<script>console.log('" . json_encode($schedule) . "');</script>"; //TODO: deleteme
+		$week_schedule = [];
 		foreach($schedule as $day => $day_schedule) {
-			$page .= '<li>' . date('l, n/d', $start + ($day * 60 * 60 * 24)) . ': ';
-			if($day_schedule == []) {
+			foreach($day_schedule as $schedule_block) {
+				$week_schedule[date('Y-m-d', strtotime($schedule_block['start']))][] = date('g:ia', strtotime($schedule_block['start'])) . ' - ' . date('g:ia', strtotime($schedule_block['end']));
+			}
+		}
+
+		$page .= "<script>console.log('" . json_encode($week_schedule) . "');</script>"; //TODO: deleteme
+		$page .= '<h3>' . $location['name'] . '</h3><ul>';
+		for($date_iterator->setTimestamp($start); $date_iterator->getTimestamp() < $end; $date_iterator->modify('+1 day')) {
+			$page .= '<li>' . $date_iterator->format('l, n/d') . ': ';
+			if(!isset($week_schedule[$date_iterator->format('Y-m-d')])) {
 				$page .= 'closed';
 			} else {
-				foreach($day_schedule as $schedule_block) {
-					$page .= date('g:ia', strtotime($schedule_block['start']));
-					$page .= ' - ';
-					$page .= date('g:ia', strtotime($schedule_block['end'])) . " ";
-				}
+				$page .= join($week_schedule[$date_iterator->format('Y-m-d')], ', ');
 			}
 			$page .= '</li>';
 		}
@@ -338,7 +342,6 @@ function cascading_hours_block_nav_view($block_id)
 	<select class="nav-view-locations" name="nav-view-locations">';
 	$first = true;
 	foreach($display_locations as $location_id) {
-		echo "<script>console.log('" . json_encode($display_locations) . "')</script>";
 		$location = cascading_hours_get_location_with_id($location_id);
 		if($first) {
 			$page .= '<option selected value="' . $location['id'] . '">' . $location['name'] . '</option>';
