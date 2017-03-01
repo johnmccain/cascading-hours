@@ -50,7 +50,6 @@ function cascading_hours_admin_settings_form($form, &$form_state)
 		'#title' => t('Automatically delete old rules'),
 		'#default_value' => variable_get('cascading_hours_delete_old_rules', false),
 		'#description' => t("When enabled, rules with end dates older than a set age will be automatically deleted."),
-		'#required' => true,
 	);
 
 	$form['cascading_hours_old_rules_age'] = array(
@@ -71,7 +70,6 @@ function cascading_hours_admin_settings_form($form, &$form_state)
 		'#title' => t('Automatically delete old files'),
 		'#default_value' => variable_get('cascading_hours_delete_old_files', false),
 		'#description' => t("When enabled, files with created dates older than a set age will be automatically deleted."),
-		'#required' => true,
 	);
 
 	$form['cascading_hours_old_files_age'] = array(
