@@ -987,7 +987,6 @@ function cascading_hours_get_schedules_with_rule_id_and_day($rule_id, $day_of_we
  *  Returns the schedule with specified id
  *
  *  @param  int $id		  - the schedule's id
- *  @param  int $day_of_week - the day of the week to filter by
  *  @return array - an array of schedules
  */
 function cascading_hours_get_schedule_with_id($id)

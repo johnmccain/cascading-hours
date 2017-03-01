@@ -1,0 +1,178 @@
+\hypertarget{cascading__hours_8import_8php}{}\section{includes/cascading\+\_\+hours.import.\+php File Reference}
+\label{cascading__hours_8import_8php}\index{includes/cascading\+\_\+hours.\+import.\+php@{includes/cascading\+\_\+hours.\+import.\+php}}
+
+
+functions necessary for importing schedule data from a .csv  
+
+
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{cascading__hours_8import_8php_a9b40bb1438b71a75f27a70530506573e_a9b40bb1438b71a75f27a70530506573e}{cascading\+\_\+hours\+\_\+admin\+\_\+import} (\$location\+\_\+id)
+\item 
+\hyperlink{cascading__hours_8import_8php_a7841127be48fe0c9c3fc7193afffd528_a7841127be48fe0c9c3fc7193afffd528}{cascading\+\_\+hours\+\_\+admin\+\_\+import\+\_\+form} (\$form, \&\$form\+\_\+state)
+\begin{DoxyCompactList}\small\item\em Builds form for uploading a csv to import as a schedule. \end{DoxyCompactList}\item 
+\hyperlink{cascading__hours_8import_8php_ad3e547d19ca1eb655fbdccfd95ee8de7_ad3e547d19ca1eb655fbdccfd95ee8de7}{cascading\+\_\+hours\+\_\+admin\+\_\+import\+\_\+form\+\_\+validate} (\$form, \&\$form\+\_\+state)
+\begin{DoxyCompactList}\small\item\em Validate handler for \hyperlink{cascading__hours_8import_8php_a7841127be48fe0c9c3fc7193afffd528_a7841127be48fe0c9c3fc7193afffd528}{cascading\+\_\+hours\+\_\+admin\+\_\+import\+\_\+form()}. \end{DoxyCompactList}\item 
+\hyperlink{cascading__hours_8import_8php_abcbb13992846821794f6280ccd243dac_abcbb13992846821794f6280ccd243dac}{cascading\+\_\+hours\+\_\+admin\+\_\+import\+\_\+form\+\_\+submit} (\$form, \&\$form\+\_\+state)
+\begin{DoxyCompactList}\small\item\em Submission logic for \hyperlink{cascading__hours_8import_8php_a7841127be48fe0c9c3fc7193afffd528_a7841127be48fe0c9c3fc7193afffd528}{cascading\+\_\+hours\+\_\+admin\+\_\+import\+\_\+form()}. \end{DoxyCompactList}\item 
+\hyperlink{cascading__hours_8import_8php_af7a0e4a5b1480d92433e1c9ee1267859_af7a0e4a5b1480d92433e1c9ee1267859}{cascading\+\_\+hours\+\_\+import\+\_\+parse} (\$contents)
+\begin{DoxyCompactList}\small\item\em Parses a schedule csv string into a format suitable for comparison and insertion. \end{DoxyCompactList}\item 
+\hyperlink{cascading__hours_8import_8php_a9a7dae9ea96d27575e655699a5e89864_a9a7dae9ea96d27575e655699a5e89864}{cascading\+\_\+hours\+\_\+import\+\_\+diff} (\$schedule, \$location\+\_\+id)
+\begin{DoxyCompactList}\small\item\em Calculates the difference between the current and imported schedules for user feedback purposes. \end{DoxyCompactList}\item 
+\hyperlink{cascading__hours_8import_8php_a39f52134d819174065fe5f060295809a_a39f52134d819174065fe5f060295809a}{cascading\+\_\+hours\+\_\+import\+\_\+schedule} (\$schedule, \$location\+\_\+id)
+\begin{DoxyCompactList}\small\item\em Imports a schedule to a certain location. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+functions necessary for importing schedule data from a .csv 
+
+
+
+\subsection{Function Documentation}
+\mbox{\Hypertarget{cascading__hours_8import_8php_a9b40bb1438b71a75f27a70530506573e_a9b40bb1438b71a75f27a70530506573e}\label{cascading__hours_8import_8php_a9b40bb1438b71a75f27a70530506573e_a9b40bb1438b71a75f27a70530506573e}} 
+\index{cascading\+\_\+hours.\+import.\+php@{cascading\+\_\+hours.\+import.\+php}!cascading\+\_\+hours\+\_\+admin\+\_\+import@{cascading\+\_\+hours\+\_\+admin\+\_\+import}}
+\index{cascading\+\_\+hours\+\_\+admin\+\_\+import@{cascading\+\_\+hours\+\_\+admin\+\_\+import}!cascading\+\_\+hours.\+import.\+php@{cascading\+\_\+hours.\+import.\+php}}
+\subsubsection{\texorpdfstring{cascading\+\_\+hours\+\_\+admin\+\_\+import()}{cascading\_hours\_admin\_import()}}
+{\footnotesize\ttfamily cascading\+\_\+hours\+\_\+admin\+\_\+import (\begin{DoxyParamCaption}\item[{}]{\$location\+\_\+id }\end{DoxyParamCaption})}
+
+
+\begin{DoxyParams}[1]{Parameters}
+int & {\em \$location\+\_\+id} & -\/ id of the location to import to \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 11 of file cascading\+\_\+hours.\+import.\+php.
+
+\mbox{\Hypertarget{cascading__hours_8import_8php_a7841127be48fe0c9c3fc7193afffd528_a7841127be48fe0c9c3fc7193afffd528}\label{cascading__hours_8import_8php_a7841127be48fe0c9c3fc7193afffd528_a7841127be48fe0c9c3fc7193afffd528}} 
+\index{cascading\+\_\+hours.\+import.\+php@{cascading\+\_\+hours.\+import.\+php}!cascading\+\_\+hours\+\_\+admin\+\_\+import\+\_\+form@{cascading\+\_\+hours\+\_\+admin\+\_\+import\+\_\+form}}
+\index{cascading\+\_\+hours\+\_\+admin\+\_\+import\+\_\+form@{cascading\+\_\+hours\+\_\+admin\+\_\+import\+\_\+form}!cascading\+\_\+hours.\+import.\+php@{cascading\+\_\+hours.\+import.\+php}}
+\subsubsection{\texorpdfstring{cascading\+\_\+hours\+\_\+admin\+\_\+import\+\_\+form()}{cascading\_hours\_admin\_import\_form()}}
+{\footnotesize\ttfamily cascading\+\_\+hours\+\_\+admin\+\_\+import\+\_\+form (\begin{DoxyParamCaption}\item[{}]{\$form,  }\item[{\&}]{\$form\+\_\+state }\end{DoxyParamCaption})}
+
+
+
+Builds form for uploading a csv to import as a schedule. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+array & {\em \$form} & \\
+\hline
+array & {\em \&\$form\+\_\+state} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxySeeAlso}{See also}
+\hyperlink{cascading__hours_8import_8php_abcbb13992846821794f6280ccd243dac_abcbb13992846821794f6280ccd243dac}{cascading\+\_\+hours\+\_\+admin\+\_\+import\+\_\+form\+\_\+submit()} 
+
+\hyperlink{cascading__hours_8import_8php_ad3e547d19ca1eb655fbdccfd95ee8de7_ad3e547d19ca1eb655fbdccfd95ee8de7}{cascading\+\_\+hours\+\_\+admin\+\_\+import\+\_\+form\+\_\+validate()} 
+\end{DoxySeeAlso}
+
+
+Definition at line 42 of file cascading\+\_\+hours.\+import.\+php.
+
+\mbox{\Hypertarget{cascading__hours_8import_8php_abcbb13992846821794f6280ccd243dac_abcbb13992846821794f6280ccd243dac}\label{cascading__hours_8import_8php_abcbb13992846821794f6280ccd243dac_abcbb13992846821794f6280ccd243dac}} 
+\index{cascading\+\_\+hours.\+import.\+php@{cascading\+\_\+hours.\+import.\+php}!cascading\+\_\+hours\+\_\+admin\+\_\+import\+\_\+form\+\_\+submit@{cascading\+\_\+hours\+\_\+admin\+\_\+import\+\_\+form\+\_\+submit}}
+\index{cascading\+\_\+hours\+\_\+admin\+\_\+import\+\_\+form\+\_\+submit@{cascading\+\_\+hours\+\_\+admin\+\_\+import\+\_\+form\+\_\+submit}!cascading\+\_\+hours.\+import.\+php@{cascading\+\_\+hours.\+import.\+php}}
+\subsubsection{\texorpdfstring{cascading\+\_\+hours\+\_\+admin\+\_\+import\+\_\+form\+\_\+submit()}{cascading\_hours\_admin\_import\_form\_submit()}}
+{\footnotesize\ttfamily cascading\+\_\+hours\+\_\+admin\+\_\+import\+\_\+form\+\_\+submit (\begin{DoxyParamCaption}\item[{}]{\$form,  }\item[{\&}]{\$form\+\_\+state }\end{DoxyParamCaption})}
+
+
+
+Submission logic for \hyperlink{cascading__hours_8import_8php_a7841127be48fe0c9c3fc7193afffd528_a7841127be48fe0c9c3fc7193afffd528}{cascading\+\_\+hours\+\_\+admin\+\_\+import\+\_\+form()}. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+array & {\em \$form} & \\
+\hline
+array & {\em \&\$form\+\_\+state} & \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 120 of file cascading\+\_\+hours.\+import.\+php.
+
+\mbox{\Hypertarget{cascading__hours_8import_8php_ad3e547d19ca1eb655fbdccfd95ee8de7_ad3e547d19ca1eb655fbdccfd95ee8de7}\label{cascading__hours_8import_8php_ad3e547d19ca1eb655fbdccfd95ee8de7_ad3e547d19ca1eb655fbdccfd95ee8de7}} 
+\index{cascading\+\_\+hours.\+import.\+php@{cascading\+\_\+hours.\+import.\+php}!cascading\+\_\+hours\+\_\+admin\+\_\+import\+\_\+form\+\_\+validate@{cascading\+\_\+hours\+\_\+admin\+\_\+import\+\_\+form\+\_\+validate}}
+\index{cascading\+\_\+hours\+\_\+admin\+\_\+import\+\_\+form\+\_\+validate@{cascading\+\_\+hours\+\_\+admin\+\_\+import\+\_\+form\+\_\+validate}!cascading\+\_\+hours.\+import.\+php@{cascading\+\_\+hours.\+import.\+php}}
+\subsubsection{\texorpdfstring{cascading\+\_\+hours\+\_\+admin\+\_\+import\+\_\+form\+\_\+validate()}{cascading\_hours\_admin\_import\_form\_validate()}}
+{\footnotesize\ttfamily cascading\+\_\+hours\+\_\+admin\+\_\+import\+\_\+form\+\_\+validate (\begin{DoxyParamCaption}\item[{}]{\$form,  }\item[{\&}]{\$form\+\_\+state }\end{DoxyParamCaption})}
+
+
+
+Validate handler for \hyperlink{cascading__hours_8import_8php_a7841127be48fe0c9c3fc7193afffd528_a7841127be48fe0c9c3fc7193afffd528}{cascading\+\_\+hours\+\_\+admin\+\_\+import\+\_\+form()}. 
+
+
+
+Definition at line 85 of file cascading\+\_\+hours.\+import.\+php.
+
+\mbox{\Hypertarget{cascading__hours_8import_8php_a9a7dae9ea96d27575e655699a5e89864_a9a7dae9ea96d27575e655699a5e89864}\label{cascading__hours_8import_8php_a9a7dae9ea96d27575e655699a5e89864_a9a7dae9ea96d27575e655699a5e89864}} 
+\index{cascading\+\_\+hours.\+import.\+php@{cascading\+\_\+hours.\+import.\+php}!cascading\+\_\+hours\+\_\+import\+\_\+diff@{cascading\+\_\+hours\+\_\+import\+\_\+diff}}
+\index{cascading\+\_\+hours\+\_\+import\+\_\+diff@{cascading\+\_\+hours\+\_\+import\+\_\+diff}!cascading\+\_\+hours.\+import.\+php@{cascading\+\_\+hours.\+import.\+php}}
+\subsubsection{\texorpdfstring{cascading\+\_\+hours\+\_\+import\+\_\+diff()}{cascading\_hours\_import\_diff()}}
+{\footnotesize\ttfamily cascading\+\_\+hours\+\_\+import\+\_\+diff (\begin{DoxyParamCaption}\item[{}]{\$schedule,  }\item[{}]{\$location\+\_\+id }\end{DoxyParamCaption})}
+
+
+
+Calculates the difference between the current and imported schedules for user feedback purposes. 
+
+\begin{DoxyPrecond}{Precondition}
+\$schedule is a valid importable schedule 
+\end{DoxyPrecond}
+
+\begin{DoxyParams}[1]{Parameters}
+array & {\em \$schedule} & -\/ array of schedule block arrays keyed by date strings \\
+\hline
+int & {\em \$location\+\_\+id} & -\/ id of the location to calculate the schedule changes for \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+string -\/ a string of list markup noting all differences between the new and current schedules 
+\end{DoxyReturn}
+
+
+Definition at line 225 of file cascading\+\_\+hours.\+import.\+php.
+
+\mbox{\Hypertarget{cascading__hours_8import_8php_af7a0e4a5b1480d92433e1c9ee1267859_af7a0e4a5b1480d92433e1c9ee1267859}\label{cascading__hours_8import_8php_af7a0e4a5b1480d92433e1c9ee1267859_af7a0e4a5b1480d92433e1c9ee1267859}} 
+\index{cascading\+\_\+hours.\+import.\+php@{cascading\+\_\+hours.\+import.\+php}!cascading\+\_\+hours\+\_\+import\+\_\+parse@{cascading\+\_\+hours\+\_\+import\+\_\+parse}}
+\index{cascading\+\_\+hours\+\_\+import\+\_\+parse@{cascading\+\_\+hours\+\_\+import\+\_\+parse}!cascading\+\_\+hours.\+import.\+php@{cascading\+\_\+hours.\+import.\+php}}
+\subsubsection{\texorpdfstring{cascading\+\_\+hours\+\_\+import\+\_\+parse()}{cascading\_hours\_import\_parse()}}
+{\footnotesize\ttfamily cascading\+\_\+hours\+\_\+import\+\_\+parse (\begin{DoxyParamCaption}\item[{}]{\$contents }\end{DoxyParamCaption})}
+
+
+
+Parses a schedule csv string into a format suitable for comparison and insertion. 
+
+Validates and checks for syntax errors. Syntactical errors lead to rejection and an error message being displayed. Rejects the input if\+: a row has even number of columns, parsing of a date fails, parsing of a time fails, days are not contiguous and chronological 
+\begin{DoxyParams}[1]{Parameters}
+string & {\em \$contents} & -\/ contents of the csv of schedule data to be parsed \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+array -\/ array of schedule block arrays keyed by date strings, or array with single field \textquotesingle{}error\textquotesingle{} if parsing failed 
+\end{DoxyReturn}
+
+
+Definition at line 168 of file cascading\+\_\+hours.\+import.\+php.
+
+\mbox{\Hypertarget{cascading__hours_8import_8php_a39f52134d819174065fe5f060295809a_a39f52134d819174065fe5f060295809a}\label{cascading__hours_8import_8php_a39f52134d819174065fe5f060295809a_a39f52134d819174065fe5f060295809a}} 
+\index{cascading\+\_\+hours.\+import.\+php@{cascading\+\_\+hours.\+import.\+php}!cascading\+\_\+hours\+\_\+import\+\_\+schedule@{cascading\+\_\+hours\+\_\+import\+\_\+schedule}}
+\index{cascading\+\_\+hours\+\_\+import\+\_\+schedule@{cascading\+\_\+hours\+\_\+import\+\_\+schedule}!cascading\+\_\+hours.\+import.\+php@{cascading\+\_\+hours.\+import.\+php}}
+\subsubsection{\texorpdfstring{cascading\+\_\+hours\+\_\+import\+\_\+schedule()}{cascading\_hours\_import\_schedule()}}
+{\footnotesize\ttfamily cascading\+\_\+hours\+\_\+import\+\_\+schedule (\begin{DoxyParamCaption}\item[{}]{\$schedule,  }\item[{}]{\$location\+\_\+id }\end{DoxyParamCaption})}
+
+
+
+Imports a schedule to a certain location. 
+
+Deletes/modifies all rules so that the import rules are the only ones in the import range. 
+\begin{DoxyParams}[1]{Parameters}
+array & {\em \$schedule} & -\/ keyed array with date strings as keys, arrays of schedule blocks as values \\
+\hline
+int & {\em \$location\+\_\+id} & \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 278 of file cascading\+\_\+hours.\+import.\+php.
+

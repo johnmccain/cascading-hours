@@ -743,7 +743,7 @@ function cascading_hours_admin_delete_rule_form_submit($form, &$form_state)
 /**
  * Generates page to edit a rule
  *
- * @param int $rule_id - the id of the rule to edit
+ * @param int $id - the id of the rule to edit
  */
 function cascading_hours_admin_edit_rule($id)
 {
