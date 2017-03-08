@@ -80,7 +80,8 @@ function cascading_hours_admin_import_form($form, &$form_state)
 
 /**
  * Validate handler for cascading_hours_admin_import_form().
- *
+ * @param array $form
+ * @param array &$form_state
  */
 function cascading_hours_admin_import_form_validate($form, &$form_state)
 {

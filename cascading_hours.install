@@ -91,9 +91,9 @@ function cascading_hours_schema()
 			'priority' => array(
 				'type' => 'int',
 				'not null' => true,
-				'default' => -50,
+				'default' => -5,
 				'size' => 'tiny',
-				'description' => 'Priority of the rule from -50 to 50, with 50 being the highest priority.',
+				'description' => 'Priority of the rule from -5 to 5, with 5 being the lowest priority.',
 			),
 			'start_date' => array(
 				'type' => 'datetime',
