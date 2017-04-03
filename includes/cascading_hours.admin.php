@@ -341,6 +341,8 @@ function cascading_hours_admin_edit_location($location_id)
 			$page .= "<td>" . l(t("delete"), "admin/structure/cascading_hours/rule/$rule_id/delete") . "</td></tr>";
 		}
 
+		$page .= cascading_hours_admin_render_rule_view($rules, strtotime('today midnight'), strtotime('7 days midnight'));
+
 		$page .= "</table>";
 		$page .= l(t("Import Schedule"), "admin/structure/cascading_hours/import/" . $location['id']);
 		$page .= '<br/>';
@@ -357,6 +359,37 @@ function cascading_hours_admin_edit_location($location_id)
 		return $page;
 	}
 
+	return $page;
+}
+
+/**
+ * Generates a 2d table view of rules and their priorities
+ * @param  Array $rules        An array of rules as returned by cascading_hours_get_rules etc.
+ * @param  int $start_date     A unix timestamp of the starting date of the visualization
+ * @param  int $end_date       A unix timestamp of the ending date of the visualization
+ * @return string              String of markup for the view
+ */
+function cascading_hours_admin_render_rule_view($rules, $start_date, $end_date) {
+	$page = '';
+	$date_iterator = new DateTime();
+	$end = new DateTime();
+	$end->setTimestamp($end_date);
+	$page .= '<table><tr><th>Weight</th>';
+	for($date_iterator->setTimestamp($start_date); $date_iterator < $end; $date_iterator->modify('+1 day')) {
+		$page .= '<th>' . $date_iterator->format('m/d') . '</th>';
+	}
+	$page .= '</tr>';
+
+	//iterate through priorities
+	for($i = -5; $i <= 5; $i++) {
+		$end->setTimestamp($end_date);
+		$page .= '<tr><th>' . $i . '</th>';
+		for($date_iterator->setTimestamp($start_date); $date_iterator < $end; $date_iterator->modify('+1 day')) {
+			$page .= '<td>&nbsp;</td>';
+		}
+		$page .= '</tr>';
+	}
+	$page .= '</table>';
 	return $page;
 }
 
