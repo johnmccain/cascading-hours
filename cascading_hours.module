@@ -1081,7 +1081,7 @@ function cascading_hours_update_rule($rule_id, $location_id, $priority, $start_d
  * @param  int $id - the id of a block
  */
 function cascading_hours_delete_block_with_id($id) {
-	$block = db_delete('cascading_hours_blocks')
+	db_delete('cascading_hours_blocks')
 	->condition('id', $id, '=')
 	->execute();
 }

@@ -1,12 +1,10 @@
 <?
-//FIXME
 header('Access-Control-Allow-Origin: *');
-header('Content-Type: text/html; charset=ISO-8859-1');
+header('Content-Type: application/json; charset=utf-8');
 
 // drupal root and include
 define('DRUPAL_ROOT', '/var/www/public/drupal');
 require_once DRUPAL_ROOT . '/includes/bootstrap.inc';
-
 
 // Load Drupal
 drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);

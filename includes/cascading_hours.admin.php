@@ -332,7 +332,7 @@ function cascading_hours_admin_edit_location($location_id)
 
 		foreach($rules as $rule) {
 			$name = $rule['alias']; //alias is optional, check if defined
-			$name = $name ? "\"" . $name . "\"" : $name;
+			$name = $name ? "\"" . $name . "\"" : '';
 			$rule_id = $rule['id'];
 			$page .= "<tr><td>" . l($rule_id . " " . $name, "admin/structure/cascading_hours/rule/$rule_id") . "</td>";
 			$page .= "<td>" . DateTime::createFromFormat('Y-m-d H:i:s', $rule['start_date'])->format('m/d/Y') . "</td>";
@@ -981,7 +981,7 @@ function cascading_hours_admin_add_schedule_form($form, &$form_state)
  * @return array
  *   Renderable array (the box element)
  */
-function cascading_hours_admin_add_schedule_form_submit_callback($form, $form_state)
+function cascading_hours_admin_add_schedule_form_submit_callback($form, &$form_state)
 {
 	$rule_id = $form_state['values']['rule_id'];
 	$day = $form_state['values']['day'];
