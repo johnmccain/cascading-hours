@@ -1,0 +1,11 @@
+#cascading_hours_grid_view_left {
+	display: inline-block;
+}
+
+#cascading_hours_grid_view_right {
+	float: right;
+}
+
+.cascading_hours_grid_view_on {
+	background: #A0A19C;
+}
