@@ -30,6 +30,14 @@ admin interface functions
 \begin{DoxyCompactList}\small\item\em Submission logic for deleting blocks. \end{DoxyCompactList}\item 
 \hyperlink{cascading__hours_8admin_8php_a85421c52ee7021f3d6fb7febc583a4a3_a85421c52ee7021f3d6fb7febc583a4a3}{cascading\+\_\+hours\+\_\+admin\+\_\+edit\+\_\+location} (\$location\+\_\+id)
 \begin{DoxyCompactList}\small\item\em Generates page to edit a location. \end{DoxyCompactList}\item 
+\hyperlink{cascading__hours_8admin_8php_a06863b3e7cefd3e270c4f417f8ade1f6_a06863b3e7cefd3e270c4f417f8ade1f6}{cascading\+\_\+hours\+\_\+admin\+\_\+rule\+\_\+view\+\_\+form} (\$form, \&\$form\+\_\+state)
+\begin{DoxyCompactList}\small\item\em Builds form for displaying rules as a grid with navigation. \end{DoxyCompactList}\item 
+\hyperlink{cascading__hours_8admin_8php_acf29372c7493cde569596cefec57396a_acf29372c7493cde569596cefec57396a}{cascading\+\_\+hours\+\_\+admin\+\_\+rule\+\_\+view\+\_\+form\+\_\+submit\+\_\+back} (\$form, \&\$form\+\_\+state)
+\begin{DoxyCompactList}\small\item\em Submission logic for back-\/button navigation for the rule view form. \end{DoxyCompactList}\item 
+\hyperlink{cascading__hours_8admin_8php_a399a1be8f2a58fb2a69fac52c09e8fe1_a399a1be8f2a58fb2a69fac52c09e8fe1}{cascading\+\_\+hours\+\_\+admin\+\_\+rule\+\_\+view\+\_\+form\+\_\+submit\+\_\+next} (\$form, \&\$form\+\_\+state)
+\begin{DoxyCompactList}\small\item\em Submission logic for next-\/button navigation for the rule view form. \end{DoxyCompactList}\item 
+\hyperlink{cascading__hours_8admin_8php_a86495531ad047fcd6632efeea5e1f1bb_a86495531ad047fcd6632efeea5e1f1bb}{cascading\+\_\+hours\+\_\+admin\+\_\+render\+\_\+rule\+\_\+view} (\$rules, \$start\+\_\+date, \$end\+\_\+date)
+\begin{DoxyCompactList}\small\item\em Generates a 2d table view of rules and their priorities. \end{DoxyCompactList}\item 
 \hyperlink{cascading__hours_8admin_8php_a8706149902213051645f6b3d5bff772e_a8706149902213051645f6b3d5bff772e}{cascading\+\_\+hours\+\_\+admin\+\_\+edit\+\_\+location\+\_\+form} (\$form, \&\$form\+\_\+state)
 \begin{DoxyCompactList}\small\item\em Builds form for editing a location. \end{DoxyCompactList}\item 
 \hyperlink{cascading__hours_8admin_8php_a9956edb6cdf88b12f3e7fadcf9e36e4b_a9956edb6cdf88b12f3e7fadcf9e36e4b}{cascading\+\_\+hours\+\_\+admin\+\_\+edit\+\_\+location\+\_\+form\+\_\+submit} (\$form, \&\$form\+\_\+state)
@@ -66,7 +74,7 @@ admin interface functions
 \begin{DoxyCompactList}\small\item\em Submission logic for location editing. \end{DoxyCompactList}\item 
 \hyperlink{cascading__hours_8admin_8php_a9b2e894393962d6ff93edaa6771b8b70_a9b2e894393962d6ff93edaa6771b8b70}{cascading\+\_\+hours\+\_\+admin\+\_\+add\+\_\+schedule\+\_\+form} (\$form, \&\$form\+\_\+state)
 \begin{DoxyCompactList}\small\item\em Builds form for schedule creation Ajax submission enabled, generates a list of schedules associated with a rule. \end{DoxyCompactList}\item 
-\hyperlink{cascading__hours_8admin_8php_ad8222cb24e2caab8a061ea74d3f26c7b_ad8222cb24e2caab8a061ea74d3f26c7b}{cascading\+\_\+hours\+\_\+admin\+\_\+add\+\_\+schedule\+\_\+form\+\_\+submit\+\_\+callback} (\$form, \$form\+\_\+state)
+\hyperlink{cascading__hours_8admin_8php_aa59e787ac3091e4c611471f8fc83b196_aa59e787ac3091e4c611471f8fc83b196}{cascading\+\_\+hours\+\_\+admin\+\_\+add\+\_\+schedule\+\_\+form\+\_\+submit\+\_\+callback} (\$form, \&\$form\+\_\+state)
 \begin{DoxyCompactList}\small\item\em Callback for submit\+\_\+driven example. \end{DoxyCompactList}\item 
 \hyperlink{cascading__hours_8admin_8php_a57b852e3ac3da923d48c0e65cffce2df_a57b852e3ac3da923d48c0e65cffce2df}{cascading\+\_\+hours\+\_\+admin\+\_\+delete\+\_\+schedule} (\$schedule\+\_\+id)
 \begin{DoxyCompactList}\small\item\em Generates page to delete a schedule (with confirmation) \end{DoxyCompactList}\item 
@@ -110,7 +118,7 @@ Generates page to add a location.
 
 
 
-Definition at line 406 of file cascading\+\_\+hours.\+admin.\+php.
+Definition at line 551 of file cascading\+\_\+hours.\+admin.\+php.
 
 \mbox{\Hypertarget{cascading__hours_8admin_8php_a4f4ac8068097a34c4e7a11b0157d3fb5_a4f4ac8068097a34c4e7a11b0157d3fb5}\label{cascading__hours_8admin_8php_a4f4ac8068097a34c4e7a11b0157d3fb5_a4f4ac8068097a34c4e7a11b0157d3fb5}} 
 \index{cascading\+\_\+hours.\+admin.\+php@{cascading\+\_\+hours.\+admin.\+php}!cascading\+\_\+hours\+\_\+admin\+\_\+add\+\_\+location\+\_\+form@{cascading\+\_\+hours\+\_\+admin\+\_\+add\+\_\+location\+\_\+form}}
@@ -134,7 +142,7 @@ array & {\em \&\$form\+\_\+state} & \\
 \end{DoxyParams}
 
 
-Definition at line 426 of file cascading\+\_\+hours.\+admin.\+php.
+Definition at line 571 of file cascading\+\_\+hours.\+admin.\+php.
 
 \mbox{\Hypertarget{cascading__hours_8admin_8php_a405957141431d872e0a35251149a61bc_a405957141431d872e0a35251149a61bc}\label{cascading__hours_8admin_8php_a405957141431d872e0a35251149a61bc_a405957141431d872e0a35251149a61bc}} 
 \index{cascading\+\_\+hours.\+admin.\+php@{cascading\+\_\+hours.\+admin.\+php}!cascading\+\_\+hours\+\_\+admin\+\_\+add\+\_\+location\+\_\+form\+\_\+submit@{cascading\+\_\+hours\+\_\+admin\+\_\+add\+\_\+location\+\_\+form\+\_\+submit}}
@@ -155,7 +163,7 @@ array & {\em \&\$form\+\_\+state} & \\
 \end{DoxyParams}
 
 
-Definition at line 448 of file cascading\+\_\+hours.\+admin.\+php.
+Definition at line 593 of file cascading\+\_\+hours.\+admin.\+php.
 
 \mbox{\Hypertarget{cascading__hours_8admin_8php_a3fe993a03c9e877a31e4842059e7e22a_a3fe993a03c9e877a31e4842059e7e22a}\label{cascading__hours_8admin_8php_a3fe993a03c9e877a31e4842059e7e22a_a3fe993a03c9e877a31e4842059e7e22a}} 
 \index{cascading\+\_\+hours.\+admin.\+php@{cascading\+\_\+hours.\+admin.\+php}!cascading\+\_\+hours\+\_\+admin\+\_\+add\+\_\+rule@{cascading\+\_\+hours\+\_\+admin\+\_\+add\+\_\+rule}}
@@ -169,7 +177,7 @@ Generates page to add a rule.
 
 
 
-Definition at line 524 of file cascading\+\_\+hours.\+admin.\+php.
+Definition at line 669 of file cascading\+\_\+hours.\+admin.\+php.
 
 \mbox{\Hypertarget{cascading__hours_8admin_8php_adffbec174f6459c8e137c503546d85aa_adffbec174f6459c8e137c503546d85aa}\label{cascading__hours_8admin_8php_adffbec174f6459c8e137c503546d85aa_adffbec174f6459c8e137c503546d85aa}} 
 \index{cascading\+\_\+hours.\+admin.\+php@{cascading\+\_\+hours.\+admin.\+php}!cascading\+\_\+hours\+\_\+admin\+\_\+add\+\_\+rule\+\_\+form@{cascading\+\_\+hours\+\_\+admin\+\_\+add\+\_\+rule\+\_\+form}}
@@ -193,7 +201,7 @@ array & {\em \&\$form\+\_\+state} & \\
 \end{DoxyParams}
 
 
-Definition at line 566 of file cascading\+\_\+hours.\+admin.\+php.
+Definition at line 711 of file cascading\+\_\+hours.\+admin.\+php.
 
 \mbox{\Hypertarget{cascading__hours_8admin_8php_a3a9f1797a1338cb2e90712966361c4f3_a3a9f1797a1338cb2e90712966361c4f3}\label{cascading__hours_8admin_8php_a3a9f1797a1338cb2e90712966361c4f3_a3a9f1797a1338cb2e90712966361c4f3}} 
 \index{cascading\+\_\+hours.\+admin.\+php@{cascading\+\_\+hours.\+admin.\+php}!cascading\+\_\+hours\+\_\+admin\+\_\+add\+\_\+rule\+\_\+form\+\_\+submit@{cascading\+\_\+hours\+\_\+admin\+\_\+add\+\_\+rule\+\_\+form\+\_\+submit}}
@@ -214,7 +222,7 @@ array & {\em \&\$form\+\_\+state} & \\
 \end{DoxyParams}
 
 
-Definition at line 648 of file cascading\+\_\+hours.\+admin.\+php.
+Definition at line 793 of file cascading\+\_\+hours.\+admin.\+php.
 
 \mbox{\Hypertarget{cascading__hours_8admin_8php_a9b2e894393962d6ff93edaa6771b8b70_a9b2e894393962d6ff93edaa6771b8b70}\label{cascading__hours_8admin_8php_a9b2e894393962d6ff93edaa6771b8b70_a9b2e894393962d6ff93edaa6771b8b70}} 
 \index{cascading\+\_\+hours.\+admin.\+php@{cascading\+\_\+hours.\+admin.\+php}!cascading\+\_\+hours\+\_\+admin\+\_\+add\+\_\+schedule\+\_\+form@{cascading\+\_\+hours\+\_\+admin\+\_\+add\+\_\+schedule\+\_\+form}}
@@ -241,13 +249,13 @@ array & {\em \&\$form\+\_\+state} & \\
 \end{DoxyParams}
 
 
-Definition at line 896 of file cascading\+\_\+hours.\+admin.\+php.
+Definition at line 1041 of file cascading\+\_\+hours.\+admin.\+php.
 
-\mbox{\Hypertarget{cascading__hours_8admin_8php_ad8222cb24e2caab8a061ea74d3f26c7b_ad8222cb24e2caab8a061ea74d3f26c7b}\label{cascading__hours_8admin_8php_ad8222cb24e2caab8a061ea74d3f26c7b_ad8222cb24e2caab8a061ea74d3f26c7b}} 
+\mbox{\Hypertarget{cascading__hours_8admin_8php_aa59e787ac3091e4c611471f8fc83b196_aa59e787ac3091e4c611471f8fc83b196}\label{cascading__hours_8admin_8php_aa59e787ac3091e4c611471f8fc83b196_aa59e787ac3091e4c611471f8fc83b196}} 
 \index{cascading\+\_\+hours.\+admin.\+php@{cascading\+\_\+hours.\+admin.\+php}!cascading\+\_\+hours\+\_\+admin\+\_\+add\+\_\+schedule\+\_\+form\+\_\+submit\+\_\+callback@{cascading\+\_\+hours\+\_\+admin\+\_\+add\+\_\+schedule\+\_\+form\+\_\+submit\+\_\+callback}}
 \index{cascading\+\_\+hours\+\_\+admin\+\_\+add\+\_\+schedule\+\_\+form\+\_\+submit\+\_\+callback@{cascading\+\_\+hours\+\_\+admin\+\_\+add\+\_\+schedule\+\_\+form\+\_\+submit\+\_\+callback}!cascading\+\_\+hours.\+admin.\+php@{cascading\+\_\+hours.\+admin.\+php}}
 \subsubsection{\texorpdfstring{cascading\+\_\+hours\+\_\+admin\+\_\+add\+\_\+schedule\+\_\+form\+\_\+submit\+\_\+callback()}{cascading\_hours\_admin\_add\_schedule\_form\_submit\_callback()}}
-{\footnotesize\ttfamily cascading\+\_\+hours\+\_\+admin\+\_\+add\+\_\+schedule\+\_\+form\+\_\+submit\+\_\+callback (\begin{DoxyParamCaption}\item[{}]{\$form,  }\item[{}]{\$form\+\_\+state }\end{DoxyParamCaption})}
+{\footnotesize\ttfamily cascading\+\_\+hours\+\_\+admin\+\_\+add\+\_\+schedule\+\_\+form\+\_\+submit\+\_\+callback (\begin{DoxyParamCaption}\item[{}]{\$form,  }\item[{\&}]{\$form\+\_\+state }\end{DoxyParamCaption})}
 
 
 
@@ -260,7 +268,7 @@ array Renderable array (the box element)
 \end{DoxyReturn}
 
 
-Definition at line 984 of file cascading\+\_\+hours.\+admin.\+php.
+Definition at line 1129 of file cascading\+\_\+hours.\+admin.\+php.
 
 \mbox{\Hypertarget{cascading__hours_8admin_8php_a0d64f6bf9eb2692725c9590191a55c03_a0d64f6bf9eb2692725c9590191a55c03}\label{cascading__hours_8admin_8php_a0d64f6bf9eb2692725c9590191a55c03_a0d64f6bf9eb2692725c9590191a55c03}} 
 \index{cascading\+\_\+hours.\+admin.\+php@{cascading\+\_\+hours.\+admin.\+php}!cascading\+\_\+hours\+\_\+admin\+\_\+block\+\_\+add@{cascading\+\_\+hours\+\_\+admin\+\_\+block\+\_\+add}}
@@ -428,7 +436,7 @@ int & {\em \$location\+\_\+id} & -\/ the id of the location to delete \\
 \end{DoxyParams}
 
 
-Definition at line 459 of file cascading\+\_\+hours.\+admin.\+php.
+Definition at line 604 of file cascading\+\_\+hours.\+admin.\+php.
 
 \mbox{\Hypertarget{cascading__hours_8admin_8php_a0c55391c2ef3dedd13b15f979d3340ad_a0c55391c2ef3dedd13b15f979d3340ad}\label{cascading__hours_8admin_8php_a0c55391c2ef3dedd13b15f979d3340ad_a0c55391c2ef3dedd13b15f979d3340ad}} 
 \index{cascading\+\_\+hours.\+admin.\+php@{cascading\+\_\+hours.\+admin.\+php}!cascading\+\_\+hours\+\_\+admin\+\_\+delete\+\_\+location\+\_\+form@{cascading\+\_\+hours\+\_\+admin\+\_\+delete\+\_\+location\+\_\+form}}
@@ -449,7 +457,7 @@ array & {\em \&\$form\+\_\+state} & \\
 \end{DoxyParams}
 
 
-Definition at line 492 of file cascading\+\_\+hours.\+admin.\+php.
+Definition at line 637 of file cascading\+\_\+hours.\+admin.\+php.
 
 \mbox{\Hypertarget{cascading__hours_8admin_8php_a1a327a3b36e6b6338ea9407a7f14a5f9_a1a327a3b36e6b6338ea9407a7f14a5f9}\label{cascading__hours_8admin_8php_a1a327a3b36e6b6338ea9407a7f14a5f9_a1a327a3b36e6b6338ea9407a7f14a5f9}} 
 \index{cascading\+\_\+hours.\+admin.\+php@{cascading\+\_\+hours.\+admin.\+php}!cascading\+\_\+hours\+\_\+admin\+\_\+delete\+\_\+location\+\_\+form\+\_\+submit@{cascading\+\_\+hours\+\_\+admin\+\_\+delete\+\_\+location\+\_\+form\+\_\+submit}}
@@ -470,7 +478,7 @@ array & {\em \&\$form\+\_\+state} & \\
 \end{DoxyParams}
 
 
-Definition at line 513 of file cascading\+\_\+hours.\+admin.\+php.
+Definition at line 658 of file cascading\+\_\+hours.\+admin.\+php.
 
 \mbox{\Hypertarget{cascading__hours_8admin_8php_a31b87b732814d7f02f2e101376de5471_a31b87b732814d7f02f2e101376de5471}\label{cascading__hours_8admin_8php_a31b87b732814d7f02f2e101376de5471_a31b87b732814d7f02f2e101376de5471}} 
 \index{cascading\+\_\+hours.\+admin.\+php@{cascading\+\_\+hours.\+admin.\+php}!cascading\+\_\+hours\+\_\+admin\+\_\+delete\+\_\+rule@{cascading\+\_\+hours\+\_\+admin\+\_\+delete\+\_\+rule}}
@@ -489,7 +497,7 @@ int & {\em \$rule\+\_\+id} & -\/ the id of the rule to delete \\
 \end{DoxyParams}
 
 
-Definition at line 668 of file cascading\+\_\+hours.\+admin.\+php.
+Definition at line 813 of file cascading\+\_\+hours.\+admin.\+php.
 
 \mbox{\Hypertarget{cascading__hours_8admin_8php_a7940c215a217e5d798198fb4d0500e96_a7940c215a217e5d798198fb4d0500e96}\label{cascading__hours_8admin_8php_a7940c215a217e5d798198fb4d0500e96_a7940c215a217e5d798198fb4d0500e96}} 
 \index{cascading\+\_\+hours.\+admin.\+php@{cascading\+\_\+hours.\+admin.\+php}!cascading\+\_\+hours\+\_\+admin\+\_\+delete\+\_\+rule\+\_\+form@{cascading\+\_\+hours\+\_\+admin\+\_\+delete\+\_\+rule\+\_\+form}}
@@ -510,7 +518,7 @@ array & {\em \&\$form\+\_\+state} & \\
 \end{DoxyParams}
 
 
-Definition at line 711 of file cascading\+\_\+hours.\+admin.\+php.
+Definition at line 856 of file cascading\+\_\+hours.\+admin.\+php.
 
 \mbox{\Hypertarget{cascading__hours_8admin_8php_a14427be08e46eaae79d5f5af58204187_a14427be08e46eaae79d5f5af58204187}\label{cascading__hours_8admin_8php_a14427be08e46eaae79d5f5af58204187_a14427be08e46eaae79d5f5af58204187}} 
 \index{cascading\+\_\+hours.\+admin.\+php@{cascading\+\_\+hours.\+admin.\+php}!cascading\+\_\+hours\+\_\+admin\+\_\+delete\+\_\+rule\+\_\+form\+\_\+submit@{cascading\+\_\+hours\+\_\+admin\+\_\+delete\+\_\+rule\+\_\+form\+\_\+submit}}
@@ -531,7 +539,7 @@ array & {\em \&\$form\+\_\+state} & \\
 \end{DoxyParams}
 
 
-Definition at line 732 of file cascading\+\_\+hours.\+admin.\+php.
+Definition at line 877 of file cascading\+\_\+hours.\+admin.\+php.
 
 \mbox{\Hypertarget{cascading__hours_8admin_8php_a57b852e3ac3da923d48c0e65cffce2df_a57b852e3ac3da923d48c0e65cffce2df}\label{cascading__hours_8admin_8php_a57b852e3ac3da923d48c0e65cffce2df_a57b852e3ac3da923d48c0e65cffce2df}} 
 \index{cascading\+\_\+hours.\+admin.\+php@{cascading\+\_\+hours.\+admin.\+php}!cascading\+\_\+hours\+\_\+admin\+\_\+delete\+\_\+schedule@{cascading\+\_\+hours\+\_\+admin\+\_\+delete\+\_\+schedule}}
@@ -550,7 +558,7 @@ int & {\em \$schedule\+\_\+id} & -\/ the id of the schedule to delete \\
 \end{DoxyParams}
 
 
-Definition at line 1018 of file cascading\+\_\+hours.\+admin.\+php.
+Definition at line 1160 of file cascading\+\_\+hours.\+admin.\+php.
 
 \mbox{\Hypertarget{cascading__hours_8admin_8php_a883a2af8b6434faccc0ff58acc372d5a_a883a2af8b6434faccc0ff58acc372d5a}\label{cascading__hours_8admin_8php_a883a2af8b6434faccc0ff58acc372d5a_a883a2af8b6434faccc0ff58acc372d5a}} 
 \index{cascading\+\_\+hours.\+admin.\+php@{cascading\+\_\+hours.\+admin.\+php}!cascading\+\_\+hours\+\_\+admin\+\_\+delete\+\_\+schedule\+\_\+form@{cascading\+\_\+hours\+\_\+admin\+\_\+delete\+\_\+schedule\+\_\+form}}
@@ -571,7 +579,7 @@ array & {\em \&\$form\+\_\+state} & \\
 \end{DoxyParams}
 
 
-Definition at line 1050 of file cascading\+\_\+hours.\+admin.\+php.
+Definition at line 1192 of file cascading\+\_\+hours.\+admin.\+php.
 
 \mbox{\Hypertarget{cascading__hours_8admin_8php_a4d1dc1a37c49d7cedb74aa92ecf04a74_a4d1dc1a37c49d7cedb74aa92ecf04a74}\label{cascading__hours_8admin_8php_a4d1dc1a37c49d7cedb74aa92ecf04a74_a4d1dc1a37c49d7cedb74aa92ecf04a74}} 
 \index{cascading\+\_\+hours.\+admin.\+php@{cascading\+\_\+hours.\+admin.\+php}!cascading\+\_\+hours\+\_\+admin\+\_\+delete\+\_\+schedule\+\_\+form\+\_\+submit@{cascading\+\_\+hours\+\_\+admin\+\_\+delete\+\_\+schedule\+\_\+form\+\_\+submit}}
@@ -592,7 +600,7 @@ array & {\em \&\$form\+\_\+state} & \\
 \end{DoxyParams}
 
 
-Definition at line 1071 of file cascading\+\_\+hours.\+admin.\+php.
+Definition at line 1213 of file cascading\+\_\+hours.\+admin.\+php.
 
 \mbox{\Hypertarget{cascading__hours_8admin_8php_a85421c52ee7021f3d6fb7febc583a4a3_a85421c52ee7021f3d6fb7febc583a4a3}\label{cascading__hours_8admin_8php_a85421c52ee7021f3d6fb7febc583a4a3_a85421c52ee7021f3d6fb7febc583a4a3}} 
 \index{cascading\+\_\+hours.\+admin.\+php@{cascading\+\_\+hours.\+admin.\+php}!cascading\+\_\+hours\+\_\+admin\+\_\+edit\+\_\+location@{cascading\+\_\+hours\+\_\+admin\+\_\+edit\+\_\+location}}
@@ -635,7 +643,7 @@ array & {\em \&\$form\+\_\+state} & \\
 \end{DoxyParams}
 
 
-Definition at line 370 of file cascading\+\_\+hours.\+admin.\+php.
+Definition at line 515 of file cascading\+\_\+hours.\+admin.\+php.
 
 \mbox{\Hypertarget{cascading__hours_8admin_8php_a9956edb6cdf88b12f3e7fadcf9e36e4b_a9956edb6cdf88b12f3e7fadcf9e36e4b}\label{cascading__hours_8admin_8php_a9956edb6cdf88b12f3e7fadcf9e36e4b_a9956edb6cdf88b12f3e7fadcf9e36e4b}} 
 \index{cascading\+\_\+hours.\+admin.\+php@{cascading\+\_\+hours.\+admin.\+php}!cascading\+\_\+hours\+\_\+admin\+\_\+edit\+\_\+location\+\_\+form\+\_\+submit@{cascading\+\_\+hours\+\_\+admin\+\_\+edit\+\_\+location\+\_\+form\+\_\+submit}}
@@ -656,7 +664,7 @@ array & {\em \&\$form\+\_\+state} & \\
 \end{DoxyParams}
 
 
-Definition at line 398 of file cascading\+\_\+hours.\+admin.\+php.
+Definition at line 543 of file cascading\+\_\+hours.\+admin.\+php.
 
 \mbox{\Hypertarget{cascading__hours_8admin_8php_acb4b52112f97af8049d40a7f05956bd1_acb4b52112f97af8049d40a7f05956bd1}\label{cascading__hours_8admin_8php_acb4b52112f97af8049d40a7f05956bd1_acb4b52112f97af8049d40a7f05956bd1}} 
 \index{cascading\+\_\+hours.\+admin.\+php@{cascading\+\_\+hours.\+admin.\+php}!cascading\+\_\+hours\+\_\+admin\+\_\+edit\+\_\+rule@{cascading\+\_\+hours\+\_\+admin\+\_\+edit\+\_\+rule}}
@@ -675,7 +683,7 @@ int & {\em \$id} & -\/ the id of the rule to edit \\
 \end{DoxyParams}
 
 
-Definition at line 748 of file cascading\+\_\+hours.\+admin.\+php.
+Definition at line 893 of file cascading\+\_\+hours.\+admin.\+php.
 
 \mbox{\Hypertarget{cascading__hours_8admin_8php_acfed64ec633bff9a42395c24c040f322_acfed64ec633bff9a42395c24c040f322}\label{cascading__hours_8admin_8php_acfed64ec633bff9a42395c24c040f322_acfed64ec633bff9a42395c24c040f322}} 
 \index{cascading\+\_\+hours.\+admin.\+php@{cascading\+\_\+hours.\+admin.\+php}!cascading\+\_\+hours\+\_\+admin\+\_\+edit\+\_\+rule\+\_\+form@{cascading\+\_\+hours\+\_\+admin\+\_\+edit\+\_\+rule\+\_\+form}}
@@ -699,7 +707,7 @@ array & {\em \&\$form\+\_\+state} & \\
 \end{DoxyParams}
 
 
-Definition at line 792 of file cascading\+\_\+hours.\+admin.\+php.
+Definition at line 937 of file cascading\+\_\+hours.\+admin.\+php.
 
 \mbox{\Hypertarget{cascading__hours_8admin_8php_aed96ff9532714a4d9bcf48e63ff4d6c0_aed96ff9532714a4d9bcf48e63ff4d6c0}\label{cascading__hours_8admin_8php_aed96ff9532714a4d9bcf48e63ff4d6c0_aed96ff9532714a4d9bcf48e63ff4d6c0}} 
 \index{cascading\+\_\+hours.\+admin.\+php@{cascading\+\_\+hours.\+admin.\+php}!cascading\+\_\+hours\+\_\+admin\+\_\+edit\+\_\+rule\+\_\+form\+\_\+submit@{cascading\+\_\+hours\+\_\+admin\+\_\+edit\+\_\+rule\+\_\+form\+\_\+submit}}
@@ -720,7 +728,7 @@ array & {\em \&\$form\+\_\+state} & \\
 \end{DoxyParams}
 
 
-Definition at line 871 of file cascading\+\_\+hours.\+admin.\+php.
+Definition at line 1016 of file cascading\+\_\+hours.\+admin.\+php.
 
 \mbox{\Hypertarget{cascading__hours_8admin_8php_a997aa68f4607a3ef09a3dee86881633f_a997aa68f4607a3ef09a3dee86881633f}\label{cascading__hours_8admin_8php_a997aa68f4607a3ef09a3dee86881633f_a997aa68f4607a3ef09a3dee86881633f}} 
 \index{cascading\+\_\+hours.\+admin.\+php@{cascading\+\_\+hours.\+admin.\+php}!cascading\+\_\+hours\+\_\+admin\+\_\+generate\+\_\+schedule\+\_\+table@{cascading\+\_\+hours\+\_\+admin\+\_\+generate\+\_\+schedule\+\_\+table}}
@@ -742,7 +750,99 @@ string -\/ A string of markup for a table of schedules
 \end{DoxyReturn}
 
 
-Definition at line 1090 of file cascading\+\_\+hours.\+admin.\+php.
+Definition at line 1232 of file cascading\+\_\+hours.\+admin.\+php.
+
+\mbox{\Hypertarget{cascading__hours_8admin_8php_a86495531ad047fcd6632efeea5e1f1bb_a86495531ad047fcd6632efeea5e1f1bb}\label{cascading__hours_8admin_8php_a86495531ad047fcd6632efeea5e1f1bb_a86495531ad047fcd6632efeea5e1f1bb}} 
+\index{cascading\+\_\+hours.\+admin.\+php@{cascading\+\_\+hours.\+admin.\+php}!cascading\+\_\+hours\+\_\+admin\+\_\+render\+\_\+rule\+\_\+view@{cascading\+\_\+hours\+\_\+admin\+\_\+render\+\_\+rule\+\_\+view}}
+\index{cascading\+\_\+hours\+\_\+admin\+\_\+render\+\_\+rule\+\_\+view@{cascading\+\_\+hours\+\_\+admin\+\_\+render\+\_\+rule\+\_\+view}!cascading\+\_\+hours.\+admin.\+php@{cascading\+\_\+hours.\+admin.\+php}}
+\subsubsection{\texorpdfstring{cascading\+\_\+hours\+\_\+admin\+\_\+render\+\_\+rule\+\_\+view()}{cascading\_hours\_admin\_render\_rule\_view()}}
+{\footnotesize\ttfamily cascading\+\_\+hours\+\_\+admin\+\_\+render\+\_\+rule\+\_\+view (\begin{DoxyParamCaption}\item[{}]{\$rules,  }\item[{}]{\$start\+\_\+date,  }\item[{}]{\$end\+\_\+date }\end{DoxyParamCaption})}
+
+
+
+Generates a 2d table view of rules and their priorities. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+Array & {\em \$rules} & An array of rules as returned by cascading\+\_\+hours\+\_\+get\+\_\+rules etc. \\
+\hline
+int & {\em \$start\+\_\+date} & A unix timestamp of the starting date of the visualization \\
+\hline
+int & {\em \$end\+\_\+date} & A unix timestamp of the ending date of the visualization \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+string String of markup for the view 
+\end{DoxyReturn}
+
+
+Definition at line 469 of file cascading\+\_\+hours.\+admin.\+php.
+
+\mbox{\Hypertarget{cascading__hours_8admin_8php_a06863b3e7cefd3e270c4f417f8ade1f6_a06863b3e7cefd3e270c4f417f8ade1f6}\label{cascading__hours_8admin_8php_a06863b3e7cefd3e270c4f417f8ade1f6_a06863b3e7cefd3e270c4f417f8ade1f6}} 
+\index{cascading\+\_\+hours.\+admin.\+php@{cascading\+\_\+hours.\+admin.\+php}!cascading\+\_\+hours\+\_\+admin\+\_\+rule\+\_\+view\+\_\+form@{cascading\+\_\+hours\+\_\+admin\+\_\+rule\+\_\+view\+\_\+form}}
+\index{cascading\+\_\+hours\+\_\+admin\+\_\+rule\+\_\+view\+\_\+form@{cascading\+\_\+hours\+\_\+admin\+\_\+rule\+\_\+view\+\_\+form}!cascading\+\_\+hours.\+admin.\+php@{cascading\+\_\+hours.\+admin.\+php}}
+\subsubsection{\texorpdfstring{cascading\+\_\+hours\+\_\+admin\+\_\+rule\+\_\+view\+\_\+form()}{cascading\_hours\_admin\_rule\_view\_form()}}
+{\footnotesize\ttfamily cascading\+\_\+hours\+\_\+admin\+\_\+rule\+\_\+view\+\_\+form (\begin{DoxyParamCaption}\item[{}]{\$form,  }\item[{\&}]{\$form\+\_\+state }\end{DoxyParamCaption})}
+
+
+
+Builds form for displaying rules as a grid with navigation. 
+
+\begin{DoxySeeAlso}{See also}
+drupal\+\_\+get\+\_\+form 
+\end{DoxySeeAlso}
+
+\begin{DoxyParams}[1]{Parameters}
+array & {\em \$form} & \\
+\hline
+array & {\em \&\$form\+\_\+state} & \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 373 of file cascading\+\_\+hours.\+admin.\+php.
+
+\mbox{\Hypertarget{cascading__hours_8admin_8php_acf29372c7493cde569596cefec57396a_acf29372c7493cde569596cefec57396a}\label{cascading__hours_8admin_8php_acf29372c7493cde569596cefec57396a_acf29372c7493cde569596cefec57396a}} 
+\index{cascading\+\_\+hours.\+admin.\+php@{cascading\+\_\+hours.\+admin.\+php}!cascading\+\_\+hours\+\_\+admin\+\_\+rule\+\_\+view\+\_\+form\+\_\+submit\+\_\+back@{cascading\+\_\+hours\+\_\+admin\+\_\+rule\+\_\+view\+\_\+form\+\_\+submit\+\_\+back}}
+\index{cascading\+\_\+hours\+\_\+admin\+\_\+rule\+\_\+view\+\_\+form\+\_\+submit\+\_\+back@{cascading\+\_\+hours\+\_\+admin\+\_\+rule\+\_\+view\+\_\+form\+\_\+submit\+\_\+back}!cascading\+\_\+hours.\+admin.\+php@{cascading\+\_\+hours.\+admin.\+php}}
+\subsubsection{\texorpdfstring{cascading\+\_\+hours\+\_\+admin\+\_\+rule\+\_\+view\+\_\+form\+\_\+submit\+\_\+back()}{cascading\_hours\_admin\_rule\_view\_form\_submit\_back()}}
+{\footnotesize\ttfamily cascading\+\_\+hours\+\_\+admin\+\_\+rule\+\_\+view\+\_\+form\+\_\+submit\+\_\+back (\begin{DoxyParamCaption}\item[{}]{\$form,  }\item[{\&}]{\$form\+\_\+state }\end{DoxyParamCaption})}
+
+
+
+Submission logic for back-\/button navigation for the rule view form. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+array & {\em \$form} & \\
+\hline
+array & {\em \&\$form\+\_\+state} & \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 427 of file cascading\+\_\+hours.\+admin.\+php.
+
+\mbox{\Hypertarget{cascading__hours_8admin_8php_a399a1be8f2a58fb2a69fac52c09e8fe1_a399a1be8f2a58fb2a69fac52c09e8fe1}\label{cascading__hours_8admin_8php_a399a1be8f2a58fb2a69fac52c09e8fe1_a399a1be8f2a58fb2a69fac52c09e8fe1}} 
+\index{cascading\+\_\+hours.\+admin.\+php@{cascading\+\_\+hours.\+admin.\+php}!cascading\+\_\+hours\+\_\+admin\+\_\+rule\+\_\+view\+\_\+form\+\_\+submit\+\_\+next@{cascading\+\_\+hours\+\_\+admin\+\_\+rule\+\_\+view\+\_\+form\+\_\+submit\+\_\+next}}
+\index{cascading\+\_\+hours\+\_\+admin\+\_\+rule\+\_\+view\+\_\+form\+\_\+submit\+\_\+next@{cascading\+\_\+hours\+\_\+admin\+\_\+rule\+\_\+view\+\_\+form\+\_\+submit\+\_\+next}!cascading\+\_\+hours.\+admin.\+php@{cascading\+\_\+hours.\+admin.\+php}}
+\subsubsection{\texorpdfstring{cascading\+\_\+hours\+\_\+admin\+\_\+rule\+\_\+view\+\_\+form\+\_\+submit\+\_\+next()}{cascading\_hours\_admin\_rule\_view\_form\_submit\_next()}}
+{\footnotesize\ttfamily cascading\+\_\+hours\+\_\+admin\+\_\+rule\+\_\+view\+\_\+form\+\_\+submit\+\_\+next (\begin{DoxyParamCaption}\item[{}]{\$form,  }\item[{\&}]{\$form\+\_\+state }\end{DoxyParamCaption})}
+
+
+
+Submission logic for next-\/button navigation for the rule view form. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+array & {\em \$form} & \\
+\hline
+array & {\em \&\$form\+\_\+state} & \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 447 of file cascading\+\_\+hours.\+admin.\+php.
 
 \mbox{\Hypertarget{cascading__hours_8admin_8php_a7f3e9e97d9422b74476750a426bfc962_a7f3e9e97d9422b74476750a426bfc962}\label{cascading__hours_8admin_8php_a7f3e9e97d9422b74476750a426bfc962_a7f3e9e97d9422b74476750a426bfc962}} 
 \index{cascading\+\_\+hours.\+admin.\+php@{cascading\+\_\+hours.\+admin.\+php}!cascading\+\_\+hours\+\_\+admin\+\_\+settings\+\_\+form@{cascading\+\_\+hours\+\_\+admin\+\_\+settings\+\_\+form}}
