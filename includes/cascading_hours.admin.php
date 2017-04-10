@@ -365,16 +365,17 @@ function cascading_hours_admin_edit_location($location_id)
 
 /**
  * Builds form for displaying rules as a grid with navigation
- * Ajax submission enabled, generates the grid rule display
  *
  * @see   drupal_get_form
- * @pre   A valid rule_id is passed in as a param to the drupal_get_form function
  * @param array $form
  * @param array &$form_state
  */
 function cascading_hours_admin_rule_view_form($form, &$form_state)
 {
-	$ref_date = $form_state['build_info']['args'][0];
+	if(!isset($form_state['storage']['ref_date'])) {
+		$form_state['storage']['ref_date'] = strtotime('today midnight');
+	}
+	$ref_date = $form_state['storage']['ref_date'];
 	$location_id = $form_state['build_info']['args'][1];
 
 	$start_date = $ref_date;
@@ -393,13 +394,7 @@ function cascading_hours_admin_rule_view_form($form, &$form_state)
 		'#type' => 'submit',
 		'#id' => 'cascading_hours_grid_view_left',
 		'#prefix' => '<div>',
-		'#ajax' => array(
-			'submitter' => FALSE,
-			'callback' => 'cascading_hours_admin_rule_view_form_submit_callback_l',
-			'wrapper' => 'cascading_hours_rule_view',
-			'method' => 'replace',
-			'effect' => 'fade',
-		),
+		'#submit' => array('cascading_hours_admin_rule_view_form_submit_back'),
 		'#value' => t('Prev'),
 	);
 
@@ -407,26 +402,13 @@ function cascading_hours_admin_rule_view_form($form, &$form_state)
 		'#type' => 'submit',
 		'#id' => 'cascading_hours_grid_view_right',
 		'#suffix' => '</div>',
-		'#ajax' => array(
-			'submitter' => FALSE,
-			'callback' => 'cascading_hours_admin_rule_view_form_submit_callback_r',
-			'wrapper' => 'cascading_hours_rule_view',
-			'method' => 'replace',
-			'effect' => 'fade',
-		),
+		'#submit' => array('cascading_hours_admin_rule_view_form_submit_next'),
 		'#value' => t('Next'),
 	);
 
 	$form['location_id'] = array(
 		'#type' => 'value',
 		'#value' => $location_id,
-	);
-
-	$form['ref_date'] = array(
-		'#prefix' => '<div style="display:none!important;">',
-		'#suffix' => '</div>',
-		'#type' => 'textfield',
-		'#value' => $ref_date,
 	);
 
 	$form['#attached']['css'] = array(
@@ -438,18 +420,13 @@ function cascading_hours_admin_rule_view_form($form, &$form_state)
 }
 
 /**
- * [cascading_hours_admin_rule_view_form_submit_callback_l description]
+ * Submission logic for back-button navigation for the rule view form
  * @param array $form
  * @param array &$form_state
- * @return array Renderable array (the box element)
  */
-function cascading_hours_admin_rule_view_form_submit_callback_l($form, &$form_state)
+function cascading_hours_admin_rule_view_form_submit_back($form, &$form_state)
 {
-	watchdog('cascading_hours', 'wutup l');
-	$location_id = $form_state['values']['location_id'];
-	$ref_date = $form_state['values']['ref_date'];
-
-	watchdog('cascading_hours', 'LEFT: ' . date('Y-m-d H:i', $ref_date));
+	$ref_date = $form_state['storage']['ref_date'];
 
 	$datetime = new DateTime();
 	$datetime->setTimestamp($ref_date);
@@ -458,38 +435,18 @@ function cascading_hours_admin_rule_view_form_submit_callback_l($form, &$form_st
 	$datetime->modify('+7 days');
 	$end_date = $datetime->getTimestamp();
 
-	$rules = cascading_hours_get_rules_with_location_id($location_id);
-	$grid = cascading_hours_admin_render_rule_view($rules, $start_date, $end_date);
-	$elements = $form;
-	$elements['cascading_hours_rules_grid'] = array(
-		'#type' => 'markup',
-		'#markup' => $grid,
-	);
-	$elements['ref_date'] = array(
-		'#prefix' => '<div style="display:none!important;">',
-		'#suffix' => '</div>',
-		'#type' => 'textfield',
-		'#value' => $start_date,
-	);
-
-	watchdog('cascading_hours', json_encode($elements));
-
-	return $elements;
+	$form_state['storage']['ref_date'] = $start_date;
+	$form_state['rebuild'] = true;
 }
 
 /**
- * [cascading_hours_admin_rule_view_form_submit_callback_r description]
+ * Submission logic for next-button navigation for the rule view form
  * @param array $form
  * @param array &$form_state
- * @return array Renderable array (the box element)
  */
-function cascading_hours_admin_rule_view_form_submit_callback_r($form, &$form_state)
+function cascading_hours_admin_rule_view_form_submit_next($form, &$form_state)
 {
-	watchdog('cascading_hours', 'wutup r');
-	$location_id = $form_state['values']['location_id'];
-	$ref_date = $form_state['values']['ref_date'];
-
-	watchdog('cascading_hours', 'RIGHT: ' . date('Y-m-d H:i', $ref_date));
+	$ref_date = $form_state['storage']['ref_date'];
 
 	$datetime = new DateTime();
 	$datetime->setTimestamp($ref_date);
@@ -498,23 +455,8 @@ function cascading_hours_admin_rule_view_form_submit_callback_r($form, &$form_st
 	$datetime->modify('+7 days');
 	$end_date = $datetime->getTimestamp();
 
-	$rules = cascading_hours_get_rules_with_location_id($location_id);
-	$grid = cascading_hours_admin_render_rule_view($rules, $start_date, $end_date);
-	$elements = $form;
-	$elements['cascading_hours_rules_grid'] = array(
-		'#type' => 'markup',
-		'#markup' => $grid . '<script>console.log("' . json_encode($elements) . '");</script>',
-	);
-	$elements['ref_date'] = array(
-		'#prefix' => '<div style="display:none!important;">',
-		'#suffix' => '</div>',
-		'#type' => 'textfield',
-		'#value' => $start_date,
-	);
-
-	watchdog('cascading_hours', json_encode($elements));
-
-	return $elements;
+	$form_state['storage']['ref_date'] = $start_date;
+	$form_state['rebuild'] = true;
 }
 
 /**
