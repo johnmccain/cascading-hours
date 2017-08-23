@@ -16,7 +16,7 @@ function cascading_hours_admin()
 	$page .= "<br><hr/><br>";
 	$page .= "<table><tr><th colspan='2'>Location</th></tr>";
 	$locations = cascading_hours_get_locations();
-	if ($locations == []) {
+	if ($locations == array()) {
 		$page .= "<tr><td colspan='2'>No locations found</td></tr>";
 	}
 
@@ -43,7 +43,7 @@ function cascading_hours_admin()
  */
 function cascading_hours_admin_settings_form($form, &$form_state)
 {
-	$form = [];
+	$form = array();
 
 	$form['cascading_hours_delete_old_rules'] = array(
 		'#type' => 'checkbox',
@@ -136,7 +136,7 @@ function cascading_hours_admin_blocks() {
 
 	foreach($blocks as $block) {
 		$location_ids = json_decode($block['locations']);
-		$locations = [];
+		$locations = array();
 		foreach($location_ids as $lid) {
 			$locations[] = cascading_hours_get_location_with_id($lid);
 		}
@@ -186,10 +186,10 @@ function cascading_hours_admin_block_add() {
  * @return array - A renderable form array
  */
 function cascading_hours_admin_block_add_form($form, &$form_state) {
-	$form = [];
+	$form = array();
 
 	$locations = cascading_hours_get_locations();
-	$display_locations = [];
+	$display_locations = array();
 	foreach($locations as $location) {
 		$display_locations[$location['id']] = $location['name'];
 	}
@@ -226,7 +226,7 @@ function cascading_hours_admin_block_add_form($form, &$form_state) {
 function cascading_hours_admin_block_add_form_submit($form, &$form_state) {
 	watchdog('cascading_hours', 'Block locations: ' . json_encode($form_state['values']['block_locations']));
 
-	$locations = [];
+	$locations = array();
 	foreach($form_state['values']['block_locations'] as $id => $checked) {
 		if($checked) {
 			$locations[] = $id;
@@ -326,7 +326,7 @@ function cascading_hours_admin_edit_location($location_id)
 		);
 		$page .= "<table><tr><th>" . t("Rule") . "</th><th>" . t("Start Date") . "</th><th>" . t("End Date") . "</th><th>" . t("Weight") . "</th><th></th></tr>";
 		$rules = cascading_hours_get_rules_with_location_id($location_id);
-		if ($rules == []) {
+		if ($rules == array()) {
 			$page .= "<tr><td colspan='5'>" . t("No rules found") . "</td></tr>";
 		}
 
@@ -514,7 +514,7 @@ function cascading_hours_admin_render_rule_view($rules, $start_date, $end_date) 
  */
 function cascading_hours_admin_edit_location_form($form, &$form_state)
 {
-	$form = [];
+	$form = array();
 	$location = $form_state['build_info']['args'][0];
 	$form['location_id'] = array(
 		'#type' => 'value',
@@ -570,7 +570,7 @@ function cascading_hours_admin_add_location()
  */
 function cascading_hours_admin_add_location_form($form, &$form_state)
 {
-	$form = [];
+	$form = array();
 	$form['name'] = array(
 		'#type' => 'textfield',
 		'#title' => 'Location Name',
@@ -636,7 +636,7 @@ function cascading_hours_admin_delete_location($location_id)
  */
 function cascading_hours_admin_delete_location_form($form, &$form_state)
 {
-	$form = [];
+	$form = array();
 	$form['location_id'] = array(
 		'#type' => 'value',
 		'#value' => $form_state['build_info']['args'][0],
@@ -669,7 +669,7 @@ function cascading_hours_admin_delete_location_form_submit($form, &$form_state)
 function cascading_hours_admin_add_rule()
 {
 	$location_id = isset($_GET['location']) ? (int)$_GET['location'] : null;
-	$location = [];
+	$location = array();
 	if ($location_id != null) {
 		$location = cascading_hours_get_location_with_id($location_id);
 	}
@@ -710,9 +710,9 @@ function cascading_hours_admin_add_rule()
  */
 function cascading_hours_admin_add_rule_form($form, &$form_state)
 {
-	$form = [];
+	$form = array();
 	$locations = cascading_hours_get_locations();
-	$location_select = [];
+	$location_select = array();
 	foreach($locations as $location) {
 		$location_select[$location['id']] = $location['name'];
 	}
@@ -855,7 +855,7 @@ function cascading_hours_admin_delete_rule($rule_id)
  */
 function cascading_hours_admin_delete_rule_form($form, &$form_state)
 {
-	$form = [];
+	$form = array();
 	$form['rule_id'] = array(
 		'#type' => 'value',
 		'#value' => $form_state['build_info']['args'][0],
@@ -937,10 +937,10 @@ function cascading_hours_admin_edit_rule($id)
 function cascading_hours_admin_edit_rule_form($form, &$form_state)
 {
 	//FIXME default start/end dates not populating
-	$form = [];
+	$form = array();
 	$rule = $form_state['build_info']['args'][0];
 	$locations = cascading_hours_get_locations();
-	$location_select = [];
+	$location_select = array();
 	foreach($locations as $location) {
 		$location_select[$location['id']] = $location['name'];
 	}
@@ -1191,7 +1191,7 @@ function cascading_hours_admin_delete_schedule($schedule_id)
  */
 function cascading_hours_admin_delete_schedule_form($form, &$form_state)
 {
-	$form = [];
+	$form = array();
 	$form['schedule_id'] = array(
 		'#type' => 'value',
 		'#value' => $form_state['build_info']['args'][0],
@@ -1243,7 +1243,7 @@ function cascading_hours_admin_generate_schedule_table($rule_id)
 	$schedules = cascading_hours_get_schedules_with_rule_id($rule_id);
 	usort($schedules, "cascading_hours_day_cmp");
 	$table = "<table><tr><th>" . t("id") . "</th><th>" . t("Day") . "</th><th>" . t("Start Time") . "</th><th>" . t("End Time") . "</th><th></th></tr>";
-	if ($schedules == []) {
+	if ($schedules == array()) {
 		$table .= "<tr><td colspan='5'>" . t("No schedules found") . "</td></tr>";
 	}
 

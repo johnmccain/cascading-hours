@@ -22,7 +22,7 @@ if(isset($_GET['location_id'])) {
 	$location_name = htmlspecialchars($_GET['location_name']);
 	$schedule = cascading_hours_get_schedule_in_range_for_location_with_name($location_name, $start_date, $end_date);
 } else {
-	$arr = [];
+	$arr = array();
 	$arr['error'] = 'No location defined';
 	echo json_encode($error);
 	die();

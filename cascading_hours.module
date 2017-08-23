@@ -13,7 +13,7 @@
 function cascading_hours_menu()
 {
 	$include_path = drupal_get_path('module', 'cascading_hours') . '/includes';
-	$items = [];
+	$items = array();
 	$items['admin/structure/cascading_hours'] = array(
 		'title' => 'Cascading Hours',
 		'description' => 'Manage Cascading Hours general settings.',
@@ -195,7 +195,7 @@ function cascading_hours_block_info()
  */
 function cascading_hours_block_configure($delta = '')
 {
-	$form = [];
+	$form = array();
 	if($delta !== ''){
 		$block_id;
 		$block_type;
@@ -207,11 +207,11 @@ function cascading_hours_block_configure($delta = '')
 			$block_type = substr($delta, 0, 8);
 		} else {
 			//otherwise there is no such block
-			$form = [];
+			$form = array();
 			$form['markup'] = array(
 				'#markup' => 'Invalid block type',
 			);
-			watchdog('cascading_hours', 'Invalid block type ' . $delta, [], WATCHDOG_ERROR);
+			watchdog('cascading_hours', 'Invalid block type ' . $delta, array(), WATCHDOG_ERROR);
 			return $form;
 		}
 		$block = cascading_hours_get_block_with_id($block_id);
@@ -219,7 +219,7 @@ function cascading_hours_block_configure($delta = '')
 		$current_display_locations = json_decode($block['locations']);
 
 		$locations = cascading_hours_get_locations();
-		$display_locations = [];
+		$display_locations = array();
 		foreach($locations as $location) {
 			$display_locations[$location['id']] = $location['name'];
 		}
@@ -254,7 +254,7 @@ function cascading_hours_block_configure($delta = '')
 function cascading_hours_block_save($delta = '', $edit = array())
 {
 	if(isset($edit['block_id'])) {
-		$locations = [];
+		$locations = array();
 		foreach($edit['block_locations'] as $id => $checked) {
 			if($checked) {
 				$locations[] = $id;
@@ -306,7 +306,7 @@ function cascading_hours_block_week_view($block_id)
 		$date_iterator = new DateTime();
 
 		$page .= "<script>console.log('" . json_encode($schedule) . "');</script>"; //TODO: deleteme
-		$week_schedule = [];
+		$week_schedule = array();
 		foreach($schedule as $day => $day_schedule) {
 			foreach($day_schedule as $schedule_block) {
 				$week_schedule[date('Y-m-d', strtotime($schedule_block['start']))][] = date('g:ia', strtotime($schedule_block['start'])) . ' - ' . date('g:ia', strtotime($schedule_block['end']));
@@ -427,7 +427,7 @@ function cascading_hours_cron()
 function cascading_hours_delete_old_files($max_file_age_in_days) {
 	if(!is_numeric($max_file_age_in_days)) {
 		//error, set message and return
-		watchdog('cascading_hours', 'Error: cascading_hours_old_files_age is not numeric.  Set at Cascading Hours configuration page.', [], WATCHDOG_ERROR);
+		watchdog('cascading_hours', 'Error: cascading_hours_old_files_age is not numeric.  Set at Cascading Hours configuration page.', array(), WATCHDOG_ERROR);
 		return;
 	}
 	$ref_date =  date('Y-m-d H:i:s', time() - ($max_file_age_in_days * 60 * 60 * 24));
@@ -453,7 +453,7 @@ function cascading_hours_delete_old_rules($max_rule_age_in_days)
 {
 	if(!is_numeric($max_rule_age_in_days)) {
 		//error, set message and return
-		watchdog('cascading_hours', 'Error: cascading_hours_old_rules_age is not numeric.  Set at Cascading Hours configuration page.', [], WATCHDOG_ERROR);
+		watchdog('cascading_hours', 'Error: cascading_hours_old_rules_age is not numeric.  Set at Cascading Hours configuration page.', array(), WATCHDOG_ERROR);
 		return;
 	}
 	$ref_date =  date('Y-m-d H:i:s', time() - ($max_rule_age_in_days * 60 * 60 * 24));
@@ -547,7 +547,7 @@ function cascading_hours_day_cmp($a, $b)
  */
 function cascading_hours_query_to_array($query)
 {
-	$arr = [];
+	$arr = array();
 	while ($row = $query->fetchAssoc()) {
 		$arr[] = $row;
 	}
@@ -564,14 +564,14 @@ function cascading_hours_query_to_array($query)
  */
 function cascading_hours_generate_schedule($schedules, $start_date)
 {
-	$obj = []; //schedule object (ready for output to json)
+	$obj = array(); //schedule object (ready for output to json)
 	foreach($schedules as $key => $schedule) {
 		$date = new DateTime();
 		$date->setTimestamp($start_date + ($key * 86400));
 		$date_str = $date->format('Y-m-d ');
-		$schedule_blocks = []; //array of schedule blocks starting in the same day
+		$schedule_blocks = array(); //array of schedule blocks starting in the same day
 		foreach($schedule as $value) {
-			$block = []; //schedule block object with start and end datetimes
+			$block = array(); //schedule block object with start and end datetimes
 			$block['start'] = DateTime::createFromFormat('Y-m-d H:i:s', $date_str . $value['start_time'])
 			->format(DATE_ATOM);
 			$block['end'] = DateTime::createFromFormat('Y-m-d H:i:s', $date_str . $value['end_time'])
@@ -599,7 +599,7 @@ function cascading_hours_generate_schedule($schedules, $start_date)
 function cascading_hours_create_block($type, $locations) {
 	if(json_decode($locations) !== null) {
 		//$locations is valid json, create the block
-		$entry = [];
+		$entry = array();
 		$entry['type'] = $type;
 		$entry['locations'] = $locations;
 		$block_id = db_insert('cascading_hours_blocks')
@@ -607,7 +607,7 @@ function cascading_hours_create_block($type, $locations) {
 		->execute();
 		return $block_id;
 	} else {
-		watchdog('cascading_hours', 'Poorly formatted block location json string ' . $locations, [], WATCHDOG_ERROR);
+		watchdog('cascading_hours', 'Poorly formatted block location json string ' . $locations, array(), WATCHDOG_ERROR);
 	}
 }
 
@@ -617,7 +617,7 @@ function cascading_hours_create_block($type, $locations) {
  */
 function cascading_hours_create_file($fid)
 {
-	$entry = [];
+	$entry = array();
 	$entry['fid'] = (int) $fid;
 	$entry['date'] = date('Y-m-d H:i:s');
 	db_insert('cascading_hours_files')
@@ -653,7 +653,7 @@ function cascading_hours_create_location($name)
 	}
 	else {
 		// Create location
-		$entry = [];
+		$entry = array();
 		$entry['name'] = $name;
 		$location_id = db_insert('cascading_hours_locations')
 		->fields($entry)
@@ -674,7 +674,7 @@ function cascading_hours_create_location($name)
  */
 function cascading_hours_create_rule($location_id, $priority, $start_date, $end_date, $alias = null)
 {
-	$entry = [];
+	$entry = array();
 	$entry['location_id'] = $location_id;
 	$entry['priority'] = $priority;
 	$entry['start_date'] = date('Y-m-d H:i:s', $start_date);
@@ -700,7 +700,7 @@ function cascading_hours_create_rule($location_id, $priority, $start_date, $end_
  */
 function cascading_hours_create_schedule($rule_id, $day, $start_time, $end_time)
 {
-	$entry = [];
+	$entry = array();
 	$entry['rule_id'] = $rule_id;
 	$entry['day'] = $day;
 	$entry['start_time'] = date('H:i:s', $start_time);
@@ -775,7 +775,7 @@ function cascading_hours_get_schedule_in_range_for_location_with_id($location_id
 	$rules = cascading_hours_get_rules_in_range_for_location_with_id($location_id, $start_date, $end_date);
 
 	// array of indexes of the rule that applies on that day offset from $start_date (NULL if no applicable rule found)
-	$days_rules = [];
+	$days_rules = array();
 	$num_days = round(($end_date - $start_date) / 86400);
 	for ($i = 0; $i < $num_days; ++$i) {
 		$day = $start_date + ($i * 86400);
@@ -787,11 +787,11 @@ function cascading_hours_get_schedule_in_range_for_location_with_id($location_id
 		}
 	}
 
-	$schedules = [];
+	$schedules = array();
 	foreach($days_rules as $i => $rule) {
 		$day_of_week = (int)date('w', $start_date + ($i * 86400));
 		$rules_schedules = cascading_hours_get_schedules_with_rule_id_and_day($rule['id'], $day_of_week);
-		$day_schedule = [];
+		$day_schedule = array();
 		foreach($rules_schedules as $schedule) {
 			$schedule = json_decode(json_encode($schedule), true); //convert from object to array
 			if (array_key_exists('day', $schedule)) {
@@ -925,7 +925,7 @@ function cascading_hours_get_rules_with_location_id($location_id)
 	->fields('c')
 	->condition('location_id', $location_id, '=')
 	->execute();
-	$arr = [];
+	$arr = array();
 	while ($rule = $rules->fetchAssoc()) {
 		$arr[] = $rule;
 	}
@@ -1019,7 +1019,7 @@ function cascading_hours_update_block($id, $type, $locations) {
 		->condition('id', $id, '=')
 		->execute();
 	} else {
-		watchdog('cascading_hours', 'Poorly formatted block location json string ' . $locations, [], WATCHDOG_ERROR);
+		watchdog('cascading_hours', 'Poorly formatted block location json string ' . $locations, array(), WATCHDOG_ERROR);
 	}
 }
 
@@ -1059,7 +1059,7 @@ function cascading_hours_update_rule($rule_id, $location_id, $priority, $start_d
 		return;
 	}
 
-	$entry = [];
+	$entry = array();
 	$entry['location_id'] = $location_id;
 	$entry['priority'] = $priority;
 	$entry['start_date'] = date('Y-m-d H:i:s', $start_date);

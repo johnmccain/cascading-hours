@@ -103,7 +103,7 @@ function cascading_hours_admin_export_form_submit($form, &$form_state)
 
 	watchdog('cascading_hours', json_encode($schedule));
 
-	$arr = [];
+	$arr = array();
 	$date_iterator = new DateTime();
 	for($date_iterator->setTimestamp($start_date); $date_iterator->getTimestamp() < $end_date; $date_iterator->modify('+1 day')) {
 		$arr[$date_iterator->format('m/d/Y')] = false;
@@ -111,18 +111,18 @@ function cascading_hours_admin_export_form_submit($form, &$form_state)
 	foreach($schedule as $blocks) {
 		if(isset($blocks[0])) {
 			$index = Date('m/d/Y', strtotime($blocks[0]['start']));
-			$arr[$index] = [];
+			$arr[$index] = array();
 			foreach($blocks as $block) {
-				$tmp = [];
+				$tmp = array();
 				$tmp['start'] = Date('h:i a', strtotime($block['start']));
 				$tmp['end'] = Date('h:i a', strtotime($block['end']));
 				$arr[$index][] = $tmp;
 			}
 		}
 	}
-	$data = [];
+	$data = array();
 	foreach($arr as $key => $row) {
-		$line = [];
+		$line = array();
 		$line[] = $key;
 		if($row) {
 			foreach($row as $block) {

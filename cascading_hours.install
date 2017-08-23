@@ -17,8 +17,8 @@ function cascading_hours_install()
 	variable_set('cascading_hours_old_rules_age', 14);
 	variable_set('cascading_hours_delete_old_files', false);
 	variable_set('cascading_hours_old_files_age', 90);
-	cascading_hours_create_block('nav_view', json_encode([]));
-	cascading_hours_create_block('week_view', json_encode([]));
+	cascading_hours_create_block('nav_view', json_encode(array()));
+	cascading_hours_create_block('week_view', json_encode(array()));
 }
 
 /**

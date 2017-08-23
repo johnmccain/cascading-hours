@@ -108,7 +108,7 @@ function cascading_hours_admin_import_form_validate($form, &$form_state)
 	} else if(!isset($_SESSION['cascading_hours_import_data'])) {
 		//missing session data
 		drupal_set_message("Error: missing session data.", 'error');
-		watchdog('cascading_hours', 'Error: missing session data on schedule import.', [], WATCHDOG_ERROR);
+		watchdog('cascading_hours', 'Error: missing session data on schedule import.', array(), WATCHDOG_ERROR);
 	}
 }
 
@@ -169,9 +169,9 @@ function cascading_hours_admin_import_form_submit($form, &$form_state)
 function cascading_hours_import_parse($contents)
 {
 	//parse file contents from string to multidimensional array
-	$errors = [];
+	$errors = array();
 	$contents = explode("\n", $contents);
-	$schedule = [];
+	$schedule = array();
 	$prev_day = false;
 	foreach($contents as $key => &$row) {
 		$row = explode(",", $row);
@@ -191,13 +191,13 @@ function cascading_hours_import_parse($contents)
 				$errors[] = t("On row $key: day skipped. All days in import list should be sequential.");
 			}
 			$prev_day = strtotime($row[0]);
-			$blocks = [];
+			$blocks = array();
 			$tmp = array_slice($row, 1);
 			for($i = 0; $i + 1 < count($tmp); $i += 2) {
 				if($tmp[$i] == "") {
 					continue;
 				}
-				$block = [];
+				$block = array();
 				if(strtotime($tmp[$i]) == false || strtotime($tmp[$i + 1] == false)) {
 					$errors[] = t("On row $key: unable to parse time(s).");
 					continue;
@@ -210,7 +210,7 @@ function cascading_hours_import_parse($contents)
 		}
 	}
 
-	if($errors != []) {
+	if($errors != array()) {
 		$schedule = array('errors' => $errors);
 	}
 	return $schedule;
@@ -236,28 +236,28 @@ function cascading_hours_import_diff($schedule, $location_id) {
 
 	$numeric_iterator = 0;
 
-	$diff = [];
+	$diff = array();
 	foreach ($schedule as $key => $sched) {
 
-		$curr = [];
+		$curr = array();
 		if(isset($curr_schedule[$numeric_iterator])) {
 			foreach($curr_schedule[$numeric_iterator] as $val) {
-				$block = [];
+				$block = array();
 				$block['start_time'] = Date('h:i a', strtotime($val['start']));
 				$block['end_time'] = Date('h:i a', strtotime($val['end']));
 				$curr[] = $block;
 			}
 		}
 		if(json_encode($sched) != json_encode($curr)) {
-			$a = [];
-			$b = [];
-			if($curr == []) {
+			$a = array();
+			$b = array();
+			if($curr == array()) {
 				$a[] = 'closed';
 			}
 			foreach($curr as $val) {
 				$a[] = $val['start_time'] . '-' . $val['end_time'];
 			}
-			if($sched == []) {
+			if($sched == array()) {
 				$b[] = 'closed';
 			}
 			foreach($sched as $val) {
@@ -357,7 +357,7 @@ function cascading_hours_import_schedule($schedule, $location_id) {
 
 	//find contiguous rule blocks
 	//$rule_ranges holds an array of delimeter blocks with start & end timestamp pairs (end exclusive)
-	$rule_ranges = [];
+	$rule_ranges = array();
 	//$delim holds the last beginning of a rule range
 	$delim = new DateTime();
 	$delim->setTimestamp($import_start);
@@ -383,7 +383,7 @@ function cascading_hours_import_schedule($schedule, $location_id) {
 	$num = 1;
 	foreach($rule_ranges as &$rule) {
 		$rule['id'] = cascading_hours_create_rule($location_id, 5, $rule['start'], $rule['end'], date('Y-m-d') . ': import #' . $num++);
-		$created = []; //keep track of weekdays schedules have already been created for to avoid duplicates
+		$created = array(); //keep track of weekdays schedules have already been created for to avoid duplicates
 		for($date_iterator->setTimestamp($rule['start']); $date_iterator->getTimestamp() < $rule['end']; $date_iterator->modify('+1 day')) {
 			if(isset($created[(int)$date_iterator->format('w')])) {
 				break; //weekday schedules already made

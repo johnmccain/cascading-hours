@@ -53,7 +53,7 @@ class CascadingHoursFunctionalCRUDTestCase extends DrupalWebTestCase
 	public function test_create_locations()
 	{
 		$location_names = array('Location 1', 'Location 2', 'Location 3', 'Location 4', 'Location 5');
-		$location_ids = [];
+		$location_ids = array();
 		foreach($location_names as $name) {
 			$location_ids[] = cascading_hours_create_location($name);
 		}
@@ -94,7 +94,7 @@ class CascadingHoursFunctionalCRUDTestCase extends DrupalWebTestCase
 		//create locations for testing
 		$location_names = array('Location 1', 'Location 2', 'Location 3', 'Location 4', 'Location 5');
 		$location_alt_names = array('Alt 1', 'Alt 2', 'Alt 3', 'Alt 4', 'Alt 5');
-		$location_ids = [];
+		$location_ids = array();
 		foreach($location_names as $name) {
 			$location_ids[] = cascading_hours_create_location($name);
 		}
@@ -127,13 +127,13 @@ class CascadingHoursFunctionalCRUDTestCase extends DrupalWebTestCase
 	{
 		//create locations for testing
 		$location_names = array('Location 1', 'Location 2', 'Location 3', 'Location 4', 'Location 5');
-		$location_ids = [];
+		$location_ids = array();
 		foreach($location_names as $name) {
 			$location_ids[] = cascading_hours_create_location($name);
 		}
 
 		//for testing child rule deletion
-		$rule_ids = [];
+		$rule_ids = array();
 
 		//delete locations by id & verify (cascading_hours_delete_location_with_id)
 		foreach($location_ids as $id) {
@@ -144,7 +144,7 @@ class CascadingHoursFunctionalCRUDTestCase extends DrupalWebTestCase
 			$this->assertTrue($result, $message);
 		}
 
-		$location_ids = [];
+		$location_ids = array();
 		foreach($location_names as $name) {
 			$location_ids[] = cascading_hours_create_location($name);
 		}
@@ -159,7 +159,7 @@ class CascadingHoursFunctionalCRUDTestCase extends DrupalWebTestCase
 		}
 
 		//create new locations for testing with rules for child deletion
-		$location_ids = [];
+		$location_ids = array();
 		foreach($location_names as $name) {
 			$location_ids[] = cascading_hours_create_location($name);
 		}
@@ -191,12 +191,12 @@ class CascadingHoursFunctionalCRUDTestCase extends DrupalWebTestCase
 	{
 		//create locations for testing
 		$location_names = array('Location 1', 'Location 2', 'Location 3', 'Location 4', 'Location 5');
-		$location_ids = [];
+		$location_ids = array();
 		foreach($location_names as $name) {
 			$location_ids[] = cascading_hours_create_location($name);
 		}
 
-		$rule_ids = [];
+		$rule_ids = array();
 
 		//create rules for testing
 		foreach($location_ids as $key => $location_id) {
@@ -233,7 +233,7 @@ class CascadingHoursFunctionalCRUDTestCase extends DrupalWebTestCase
 		$location_id = cascading_hours_create_location('My Location');
 
 		//create test rules
-		$rule_ids = [];
+		$rule_ids = array();
 		for($i = 0; $i < 5; ++$i) {
 			$priority = $i;
 			$start_date = strtotime($i + ' days ago midnight');
@@ -266,10 +266,10 @@ class CascadingHoursFunctionalCRUDTestCase extends DrupalWebTestCase
 		$location_id = cascading_hours_create_location('My Location');
 
 		//for testing child deletion
-		$schedule_ids = [];
+		$schedule_ids = array();
 
 		//create test rules
-		$rule_ids = [];
+		$rule_ids = array();
 		for($i = 0; $i < 5; ++$i) {
 			$priority = $i;
 			$start_date = strtotime($i + ' days ago midnight');
@@ -286,7 +286,7 @@ class CascadingHoursFunctionalCRUDTestCase extends DrupalWebTestCase
 		}
 
 		//create new test rules
-		$rule_ids = [];
+		$rule_ids = array();
 		for($i = 0; $i < 5; ++$i) {
 			$priority = $i;
 			$start_date = strtotime($i + ' days ago midnight');
@@ -320,7 +320,7 @@ class CascadingHoursFunctionalCRUDTestCase extends DrupalWebTestCase
 		$rule_id = cascading_hours_create_rule($location_id, 0, strtotime('2 weeks ago'), strtotime('2 weeks'));
 
 		//test creating schedules (cascading_hours_create_schedule)
-		$schedule_ids = [];
+		$schedule_ids = array();
 		for($i = 0; $i < 7; ++$i) {
 			$schdule_ids[] = cascading_hours_create_schedule($rule_id, $i, strtotime('9:00 am'), strtotime('5:00 pm'));
 		}
